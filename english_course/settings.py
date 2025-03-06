@@ -38,9 +38,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-u(f!8$dpb!a#s&ie7+5*oy)duo%t(l)p15w$5a7yk2oz&m4at3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+ALLOWED_HOSTS = ["abdiraiymzhandos.pythonanywhere.com"]
 
-ALLOWED_HOSTS = []
+# Қате беттерін көрсету үшін
+CSRF_TRUSTED_ORIGINS = ["https://abdiraiymzhandos.pythonanywhere.com"]
+
 
 
 # Application definition
