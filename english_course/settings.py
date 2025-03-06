@@ -39,11 +39,14 @@ SECRET_KEY = 'django-insecure-u(f!8$dpb!a#s&ie7+5*oy)duo%t(l)p15w$5a7yk2oz&m4at3
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = ["abdiraiymzhandos.pythonanywhere.com"]
+ALLOWED_HOSTS = ["abdiraiymzhandos.pythonanywhere.com", "127.0.0.1", "localhost"]
 
-# Қате беттерін көрсету үшін
-CSRF_TRUSTED_ORIGINS = ["https://abdiraiymzhandos.pythonanywhere.com"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://abdiraiymzhandos.pythonanywhere.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 
 # Application definition
@@ -134,17 +137,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
-
-# STATICFILES_DIRS - бұл дамудағы статикалық файлдар
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
-# STATIC_ROOT - бұл продакшн кезінде барлық статикалық файлдар жиналатын орын
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Медиа файлдар
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
