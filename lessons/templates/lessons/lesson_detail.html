@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ lesson.title }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <style>
+    /* -- FLOATING CHAT BUTTON -- */
+    #chat-open-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 2000;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+  
+    /* -- CHAT WINDOW -- */
+    #chat-window {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      background-color: #fff;
+      border: 2px solid #0d6efd;
+      border-radius: 0.5rem;
+      display: none; /* Hidden by default */
+      z-index: 3000;
+      /* Resizable from corners/sides on desktop browsers */
+      resize: both;
+      overflow: auto; /* Must have overflow for resizing to work */
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      min-width: 200px;   /* Ensure the window can’t be resized too small */
+      min-height: 200px;
+    }
+    #chat-header {
+      background-color: #0d6efd;
+      color: #fff;
+      padding: 10px;
+      user-select: none;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #chat-header h5 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    #chat-close-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    #chat-messages {
+      padding: 10px;
+      height: 250px;
+      overflow-y: auto;
+    }
+    #chat-input-area {
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    #chat-input {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 0.3rem;
+      padding: 5px;
+    }
+    #chat-send-btn {
+      margin-top: 5px;
+    }
+  </style>
+  
+</head>
+
+<body class="container py-4">
+  <!-- YOUR ORIGINAL LESSON CONTENT (Accordion sections) -->
+  <h1 class="text-primary text-center">{{ lesson.title }}</h1>
+  
+  <div class="accordion mt-4" id="lessonAccordion">
+    <!-- Сабақ мазмұны Section -->
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#content">
+          📘 Сабақ мазмұны
+        </button>
+      </h2>
+      <div id="content" class="accordion-collapse collapse show">
+        <div class="accordion-body" id="lesson-content">
+          {{ lesson.content|linebreaksbr }}
+          <!-- Explanation button for content -->
+          <button class="btn btn-primary btn-sm explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
+            🔍 Түсіндіру (ChatGPT)
+          </button>
+          <!-- Container for explanation output -->
+          <div class="explanation-container mt-2">
+            {% if explanations.content %}
+              <div class="alert alert-info">🧠 {{ explanations.content.text|safe }}</div>
+              {% if explanations.content.audio_url %}
+                <audio controls class="mt-2 w-100">
+                  <source src="{{ explanations.content.audio_url }}" type="audio/mp3">
+                  Браузеріңіз аудионы қолдамайды.
+                </audio>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Сөздік Section -->
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vocabulary">
+          📖 Сөздік
+        </button>
+      </h2>
+      <div id="vocabulary" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          {% for word in lesson.vocabulary.splitlines %}
+            <p><strong>{{ word }}</strong></p>
+          {% endfor %}
+          <!-- Explanation button for vocabulary -->
+          <button class="btn btn-primary btn-sm explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
+            🔍 Түсіндіру (ChatGPT)
+          </button>
+          <div class="explanation-container mt-2">
+            {% if explanations.vocabulary %}
+              <div class="alert alert-info">🧠 {{ explanations.vocabulary.text|safe }}</div>
+              {% if explanations.vocabulary.audio_url %}
+                <audio controls class="mt-2 w-100">
+                  <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mp3">
+                  Браузеріңіз аудионы қолдамайды.
+                </audio>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Грамматика Section -->
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#grammar">
+          📚 Грамматика
+        </button>
+      </h2>
+      <div id="grammar" class="accordion-collapse collapse">
+        <div class="accordion-body" id="lesson-grammar">
+          {{ lesson.grammar|linebreaksbr }}
+          <!-- Explanation button for grammar -->
+          <button class="btn btn-primary btn-sm explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
+            🔍 Түсіндіру (ChatGPT)
+          </button>
+          <div class="explanation-container mt-2">
+            {% if explanations.grammar %}
+              <div class="alert alert-info">🧠 {{ explanations.grammar.text|safe }}</div>
+              {% if explanations.grammar.audio_url %}
+                <audio controls class="mt-2 w-100">
+                  <source src="{{ explanations.grammar.audio_url }}" type="audio/mp3">
+                  Браузеріңіз аудионы қолдамайды.
+                </audio>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Диалог Section -->
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dialogue">
+          💬 Диалог
+        </button>
+      </h2>
+      <div id="dialogue" class="accordion-collapse collapse">
+        <div class="accordion-body" id="lesson-dialogue">
+          {{ lesson.dialogue|linebreaksbr }}
+          <!-- Explanation button for dialogue -->
+          <button class="btn btn-primary btn-sm explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
+            🔍 Түсіндіру (ChatGPT)
+          </button>
+          <div class="explanation-container mt-2">
+            {% if explanations.dialogue %}
+              <div class="alert alert-info">🧠 {{ explanations.dialogue.text|safe }}</div>
+              {% if explanations.dialogue.audio_url %}
+                <audio controls class="mt-2 w-100">
+                  <source src="{{ explanations.dialogue.audio_url }}" type="audio/mp3">
+                  Браузеріңіз аудионы қолдамайды.
+                </audio>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="{% url 'lesson_list' %}" class="btn btn-secondary mt-4">← Барлық сабақтар</a>
+
+  <!-- FLOATING CHAT BUTTON -->
+  <button id="chat-open-btn" class="btn btn-primary">💬</button>
+
+  <!-- CHAT WINDOW -->
+  <div id="chat-window">
+    <div id="chat-header">
+      <h5>Chat with GPT</h5>
+      <button id="chat-close-btn">&times;</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-area">
+      <textarea id="chat-input" rows="2" placeholder="Сұрағыңызды жазыңыз..."></textarea>
+      <button id="chat-send-btn" class="btn btn-sm btn-primary w-100">Жіберу</button>
+    </div>
+  </div>
+
+  <script>
+    // ========== 1. ENGLISH WORD HIGHLIGHTING ==========
+    function highlightEnglishText(element) {
+      if (!element) return;
+      const regex = /(\b[a-zA-Z']+\b)(?![^<>]*>)/g;
+      element.innerHTML = element.innerHTML.replace(regex, '<strong>$1</strong>');
+    }
+  
+    // ========== 2. ON PAGE LOAD ==========
+    document.addEventListener("DOMContentLoaded", function () {
+      // --- Bold English words in static lesson sections ---
+      highlightEnglishText(document.getElementById("lesson-content"));
+      highlightEnglishText(document.getElementById("lesson-grammar"));
+      highlightEnglishText(document.getElementById("lesson-dialogue"));
+  
+      // Also process any pre-loaded explanation containers
+      document.querySelectorAll('.explanation-container').forEach(container => {
+        highlightEnglishText(container);
+      });
+  
+      // ========== 3. PER-SECTION EXPLANATION BUTTONS ==========
+      const explainButtons = document.querySelectorAll('.explain-btn');
+      explainButtons.forEach(button => {
+        button.addEventListener("click", function () {
+          const section = button.dataset.section;
+          const lessonId = button.dataset.lessonId;
+          const explanationContainer = button.nextElementSibling;
+          explanationContainer.innerHTML = "Жүктелуде...";
+  
+          const csrfToken = getCookie('csrftoken');
+  
+          fetch(`/lesson/${lessonId}/explain-section/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "X-CSRFToken": csrfToken
+            },
+            body: new URLSearchParams({ section: section })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.error) {
+              explanationContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            } else {
+              let html = `<div class="alert alert-info">🧠 ${data.text}</div>`;
+              if (data.audio_url) {
+                html += `<audio controls class="mt-2 w-100">
+                           <source src="${data.audio_url}" type="audio/mp3">
+                           Браузеріңіз аудионы қолдамайды.
+                         </audio>`;
+              }
+              explanationContainer.innerHTML = html;
+              highlightEnglishText(explanationContainer);
+            }
+          })
+          .catch(error => {
+            console.error("Қате орын алды:", error);
+            explanationContainer.innerHTML = `<div class="alert alert-danger">Қате орын алды</div>`;
+          });
+        });
+      });
+  
+      // ========== 4. FLOATING CHAT WINDOW ==========
+      const chatOpenBtn = document.getElementById("chat-open-btn");
+      const chatWindow = document.getElementById("chat-window");
+      const chatCloseBtn = document.getElementById("chat-close-btn");
+      const chatMessages = document.getElementById("chat-messages");
+      const chatInput = document.getElementById("chat-input");
+      const chatSendBtn = document.getElementById("chat-send-btn");
+  
+      // Open chat
+      chatOpenBtn.addEventListener("click", () => {
+        chatWindow.style.display = "block";
+      });
+      // Close chat
+      chatCloseBtn.addEventListener("click", () => {
+        chatWindow.style.display = "none";
+      });
+  
+      // Send question to GPT
+      chatSendBtn.addEventListener("click", sendChatMessage);
+      // Also send on "Enter" (without shift)
+      chatInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          sendChatMessage();
+        }
+      });
+  
+      // ========== 5. CHAT MESSAGE HANDLERS ==========
+      function sendChatMessage() {
+        const question = chatInput.value.trim();
+        if (!question) return;
+  
+        appendMessage("Сіз", question);
+        chatInput.value = "";
+  
+        // Show a "loading" message
+        const loadingDiv = document.createElement("div");
+        loadingDiv.classList.add("mb-2");
+        loadingDiv.id = "loading-msg";
+        loadingDiv.innerHTML = "<strong>GPT:</strong> Жүктелуде...";
+        chatMessages.appendChild(loadingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+  
+        const csrfToken = getCookie('csrftoken');
+        fetch("/chat-with-gpt/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": csrfToken
+          },
+          body: new URLSearchParams({ question: question })
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Remove the loading message
+          loadingDiv.remove();
+          console.log("GPT response:", data);
+  
+          if (data.error) {
+            appendMessage("Error", data.error);
+          } else {
+            appendMessage("GPT", data.answer);
+          }
+        })
+        .catch(error => {
+          loadingDiv.remove();
+          console.error("Chat request error:", error);
+          appendMessage("Error", "Қате орын алды: " + error);
+        });
+      }
+  
+      // Append a message to the chat window, then highlight English words
+      function appendMessage(sender, text) {
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("mb-2");
+        msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        chatMessages.appendChild(msgDiv);
+  
+        // Bold English words in this newly added message
+        highlightEnglishText(msgDiv);
+  
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+  
+      // Utility: get CSRF token
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + "=")) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+    });
+  </script>  
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
