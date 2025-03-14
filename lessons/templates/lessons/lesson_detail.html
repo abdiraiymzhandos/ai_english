@@ -393,8 +393,116 @@
         return cookieValue;
       }
     });
-  </script>  
-  
+  </script>
+
+  <div id="quiz-container" class="mt-4 text-center">
+    <button id="start-quiz-btn" class="btn btn-success btn-lg">🎯 Тестті бастау</button>
+    <div id="quiz-content" class="p-4" style="display:none; background: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <h3 id="question-text" class="mb-3"></h3>
+        <div id="progress-bar" class="progress mb-3">
+            <div id="progress" class="progress-bar bg-success" style="width: 0%;"></div>
+        </div>
+        <div id="answer-buttons" class="d-grid gap-2"></div>
+        <p id="timer" class="text-danger mt-3 font-weight-bold">⏳ 4 секунд</p>
+        <p id="score" class="mt-2">🏆 Ұпай: 0</p>
+        <p id="attempts">❌ Қателер: 0/3</p>
+    </div>
+</div>
+
+<script>
+    let questions = [], currentQuestionIndex = 0, score = 0, attempts = 0, timer;
+    
+    document.getElementById("start-quiz-btn").addEventListener("click", function() {
+        fetch("/start-quiz/{{ lesson.id }}/")
+            .then(response => response.json())
+            .then(data => {
+                questions = data.questions;
+                currentQuestionIndex = 0;
+                score = 0;
+                attempts = 0;
+                document.getElementById("quiz-content").style.display = "block";
+                document.getElementById("start-quiz-btn").style.display = "none";
+                nextQuestion();
+            });
+    });
+
+    function nextQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            document.getElementById("quiz-content").innerHTML = `<h3>✅ Тест аяқталды! Ұпай: ${score}</h3>
+                <button class='btn btn-primary' onclick='location.reload()'>🔄 Қайта тапсыру</button>`;
+            return;
+        }
+        
+        let question = questions[currentQuestionIndex];
+        document.getElementById("question-text").innerText = question.english_word;
+        document.getElementById("progress").style.width = ((currentQuestionIndex + 1) / questions.length * 100) + "%";
+        let answerButtons = document.getElementById("answer-buttons");
+        answerButtons.innerHTML = "";
+        
+        question.choices.forEach(choice => {
+            let btn = document.createElement("button");
+            btn.classList.add("btn", "btn-outline-primary", "btn-lg");
+            btn.innerText = choice;
+            btn.onclick = function() { checkAnswer(question.id, choice, btn); };
+            answerButtons.appendChild(btn);
+        });
+        
+        resetTimer();
+    }
+    
+    function checkAnswer(questionId, selectedAnswer, btn) {
+        clearInterval(timer);
+    
+        fetch("/submit-answer/{{ lesson.id }}/", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ question_id: questionId, answer: selectedAnswer })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.correct) {
+                score++;
+                btn.classList.add("btn-success");
+                document.getElementById("score").innerText = `🏆 Ұпай: ${score}`;
+            } else {
+                attempts++;
+                btn.classList.add("btn-danger");
+                document.getElementById("attempts").innerText = `❌ Қателер: ${attempts}/3`;
+                if (attempts >= 3) {
+                    alert("3 рет қателестіңіз! Тест қайта басталады.");
+                    location.reload();
+                    return;
+                }
+            }
+            setTimeout(() => {
+                currentQuestionIndex++;
+                nextQuestion();
+            }, 1000);
+        });
+    }
+    
+    function resetTimer() {
+        let timeLeft = 4;
+        document.getElementById("timer").innerText = `⏳ ${timeLeft} секунд`;
+        clearInterval(timer);
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").innerText = `⏳ ${timeLeft} секунд`;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                attempts++;
+                document.getElementById("attempts").innerText = `❌ Қателер: ${attempts}/3`;
+                if (attempts >= 3) {
+                    alert("3 рет қателестіңіз! Тест қайта басталады.");
+                    location.reload();
+                } else {
+                    currentQuestionIndex++;
+                    nextQuestion();
+                }
+            }
+        }, 1000);
+    }
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

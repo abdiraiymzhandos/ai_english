@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+from pathlib import Path
 
 # .env файлын жүктеу
 load_dotenv()
@@ -39,7 +39,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-u(f!8$dpb!a#s&ie7+5*oy)duo%t(l)p15w$5a7yk2oz&m4at3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "mydjangoapp.up.railway.app"]
 
 
@@ -98,8 +98,9 @@ WSGI_APPLICATION = 'english_course.wsgi.application'
 
 
 DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
+    "default": dj_database_url.config(default="sqlite:///db.sqlite3")
 }
+
 
 
 # Password validation
@@ -132,6 +133,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_REDIRECT_URL = '/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

@@ -1,0 +1,14 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">English Course</a>
+
+        <div class="ml-auto">
+            {% if user.is_authenticated %}
+                <span class="navbar-text me-3">Сәлем, {{ user.username }}!</span>
+                <a href="{% url 'logout' %}" class="btn btn-danger">Шығу</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Кіру</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

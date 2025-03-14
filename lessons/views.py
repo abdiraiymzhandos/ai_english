@@ -1,9 +1,11 @@
 import openai
 from openai import OpenAI
-from django.shortcuts import render, get_object_or_404
-from .models import Lesson
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Lesson, QuizQuestion, QuizAttempt
 from django.http import JsonResponse
 from django.conf import settings
+import random
 import os
 import glob
 import uuid
@@ -11,130 +13,50 @@ import re
 
 
 def lesson_list(request):
-    lessons = Lesson.objects.all()
-    return render(request, 'lessons/lesson_list.html', {'lessons': lessons})
+    if request.user.is_authenticated:
+        user_id = str(request.user.id)
+        passed_lessons = list(
+            QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
+            .values_list("lesson_id", flat=True)
+        )
+        if not passed_lessons:
+            passed_lessons = [0]
+    else:
+        passed_lessons = request.session.get('passed_lessons', [0])
 
-def lesson_detail(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    # Retrieve explanations specific to this lesson, using its ID as key.
-    all_explanations = request.session.get('explanations', {})
-    explanations = all_explanations.get(str(lesson.id), {})
-    return render(request, 'lessons/lesson_detail.html', {
-        'lesson': lesson,
-        'explanations': explanations
+
+    if not passed_lessons:
+        passed_lessons = [0]
+
+    # unlocked_lessons есептеу (мысалы, максималды өткен сабақ + 1)
+    max_passed = max(passed_lessons)
+    unlocked_lessons = list(range(1, max_passed + 2))
+    request.session['passed_lessons'] = unlocked_lessons
+    request.session.save()
+
+    lessons = Lesson.objects.all()
+    return render(request, "lessons/lesson_list.html", {
+        "lessons": lessons,
+        "passed_lessons": unlocked_lessons,
+        "is_guest": not request.user.is_authenticated
     })
 
 
-# def explain_section(request, lesson_id):
-    """
-    AJAX endpoint: Uses multi-step prompting to generate a detailed explanation 
-    (both text and audio) for a given section. The explanation is saved in the session
-    (keyed by lesson ID) and returned as JSON.
-    """
-    if request.method == "POST":
-        section = request.POST.get("section")
-        lesson = get_object_or_404(Lesson, id=lesson_id)
+def lesson_detail(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
 
-        # Build the base text (lesson data) and instructions based on the section.
-        if section == "content":
-            lesson_data = lesson.content
-            section_title = "Сабақтың мазмұны"
-            instruction_outline = "Осы сабақ мазмұнын түсіндіру үшін егжей-тегжейлі жоспар жасаңыз. Жоспарда жалпы қысқаша мазмұны, негізгі идеялар және маңызды бөлшектер көрсетілсін."
-            instruction_expand = "Осы жоспардың әр тармағын кеңінен, нақты мысалдармен және аудармалармен түсіндіріңіз. Қазақ тілінде түсіндіріңіз."
-        elif section == "vocabulary":
-            lesson_data = lesson.vocabulary
-            section_title = "Сабақтың сөздігі"
-            instruction_outline = "Осы сабақ сөздігін түсіндіру үшін егжей-тегжейлі жоспар жасаңыз. Әрбір сөздің мағынасы, қолданылуы және мысалдарын қамтыңыз."
-            instruction_expand = "Осы жоспарды пайдаланып, әрбір сөздің мағынасын, қолданылуын және мысалдарын кеңінен түсіндіріңіз. Қазақ тілінде түсіндіріңіз."
-        elif section == "grammar":
-            lesson_data = lesson.grammar
-            section_title = "Сабақтың грамматикасы"
-            instruction_outline = "Осы сабақтың грамматикасын түсіндіру үшін егжей-тегжейлі жоспар жасаңыз. Негізгі ережелер мен қолдану мысалдарын қамтыңыз."
-            instruction_expand = "Осы жоспарды пайдаланып, грамматикалық ережелерді және мысалдарды кеңінен түсіндіріңіз. Қазақ тілінде түсіндіріңіз."
-        elif section == "dialogue":
-            lesson_data = lesson.dialogue
-            section_title = "Сабақтың диалогы"
-            instruction_outline = "Осы диалогты түсіндіру үшін егжей-тегжейлі жоспар жасаңыз. Әр сөйлемді бөлек қарастырып, аудармасын беріңіз."
-            instruction_expand = "Осы жоспарды пайдаланып, әр сөйлемді аударып, мағынасын және қолданылуын кеңінен түсіндіріңіз. Қазақ тілінде түсіндіріңіз."
-        else:
-            return JsonResponse({"error": "Бұрыс бөлім көрсетілді."}, status=400)
+    # ✅ Егер 3-шы сабақтан жоғары болса және қолданушы кірмеген болса, логинге жібереді
+    if lesson.id > 3 and not request.user.is_authenticated:
+        return redirect('/login/')
 
-        # STEP 1: Generate an outline.
-        outline_prompt = (
-            f"{section_title}:\n{lesson_data}\n\n"
-            f"{instruction_outline}\n\n"
-            "Жоспарды нөмірленген тізім түрінде беріңіз."
-        )
-        try:
-            client = OpenAI(api_key=settings.OPENAI_API_KEY)
-            outline_response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[{"role": "user", "content": outline_prompt}],
-                temperature=0.7,
-            )
-            outline_text = outline_response.choices[0].message.content
-        except Exception as e:
-            return JsonResponse({"error": f"OpenAI қатесі (outline): {str(e)}"}, status=500)
+    # 🔥 Сабақтың түсіндірмелерін сессиядан алу
+    all_explanations = request.session.get('explanations', {})
+    explanations = all_explanations.get(str(lesson.id), {})
 
-        # STEP 2: Expand the outline.
-        expand_prompt = (
-            f"Міне, жоспар:\n{outline_text}\n\n"
-            f"{instruction_expand}\n\n"
-            f"Сабақтың толық деректері:\n"
-            f"Title: {lesson.title}\n"
-            f"{section_title}: {lesson_data}\n\n"
-            "Жауапты қазақ тілінде беріңіз."
-        )
-        try:
-            expand_response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[{"role": "user", "content": expand_prompt}],
-                temperature=0.7,
-            )
-            detailed_explanation = expand_response.choices[0].message.content
-        except Exception as e:
-            return JsonResponse({"error": f"OpenAI қатесі (expand): {str(e)}"}, status=500)
-
-        # Use detailed_explanation as final explanation_text.
-        explanation_text = detailed_explanation
-
-        # Generate audio explanation as before.
-        audio_url = None
-        if explanation_text:
-            media_dir = settings.MEDIA_ROOT
-            audio_filename = f"audio_lesson_{lesson.id}_{section}.mp3"
-            pattern = os.path.join(media_dir, f"audio_lesson_{lesson.id}_{section}_*.mp3")
-            for old_audio in glob.glob(pattern):
-                os.remove(old_audio)
-            audio_path = os.path.join(media_dir, audio_filename)
-            try:
-                speech_response = openai.audio.speech.create(
-                    model="tts-1",
-                    voice="alloy",
-                    input=explanation_text,
-                )
-                with open(audio_path, "wb") as audio_file:
-                    for chunk in speech_response.iter_bytes():
-                        audio_file.write(chunk)
-                audio_url = f"{settings.MEDIA_URL}{audio_filename}"
-            except openai.OpenAIError as e:
-                return JsonResponse({"error": f"Аудио генерация қатесі: {str(e)}"}, status=500)
-
-        # Save the explanation in session.
-        all_explanations = request.session.get('explanations', {})
-        lesson_explanations = all_explanations.get(str(lesson.id), {})
-        lesson_explanations[section] = {
-            'text': explanation_text,
-            'audio_url': audio_url
-        }
-        all_explanations[str(lesson.id)] = lesson_explanations
-        request.session['explanations'] = all_explanations
-
-        return JsonResponse({
-            "text": explanation_text,
-            "audio_url": audio_url
-        })
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+    return render(request, 'lessons/lesson_detail.html', {
+        'lesson': lesson,
+        'explanations': explanations,
+    })
 
 
 def explain_section(request, lesson_id):
@@ -150,22 +72,70 @@ def explain_section(request, lesson_id):
         if section == "content":
             prompt = (
                 f"Сабақтың мазмұны:\n{lesson.content}\n\n"
-                "Әр сөйлемді оқып, түсіндіріп, аударып бер. Сөздерді қою қара ету үшін ** қолданба."
+                """Мәтіндегі әр сөйлемді оқып, алдымен түпнұсқа күйінде айт.
+                Содан кейін қазақ тіліне аударып бер.
+
+                Сөз тіркестерін бөлек талдап түсіндір:
+                - Қиын немесе мағынасы кең сөз тіркестерін теріп ал.
+                - Әрбір сөз тіркесінің нақты мағынасын айт.
+
+                Сөздерді қою қара ету үшін ** қолданба.
+
+                Барынша анық, қысқа әрі нақты жауап бер.
+                """
             )
+
         elif section == "vocabulary":
             prompt = (
                 f"Сабақтың сөздігі:\n{lesson.vocabulary}\n\n"
-                "Әрбір сөздің мағынасын және қолданылуын түсіндір. Мысал келтіру керек емес. Сөздерді қою қара ету үшін ** қолданба."
+                """Әрбір сөзді түсінікті етіп талда:
+
+                Құрылым:
+                1. Бірінші ағылшынша сөзді айтып сосын қазақшасын айт.
+                Сөдің қазақшасын жазған соң нүкте қой.
+                3. Қысқа әрі нақты түсіндірме жаз.
+                4. Әр сөзге ағылшынша қысқа мысал келтіріп оны қазақша аударып бер.
+                5. Егер сөздің бірнеше мағынасы болса, әрқайсысын бөлек түсіндір.
+
+                Маңызды:
+                - Сөздерді қою қара ету үшін ** қолданба.
+                - Жауап қысқа, анық және оқу оңай болсын.
+                Адам сияқты жауап бер. 
+                """
             )
+
         elif section == "grammar":
             prompt = (
                 f"Сабақтың грамматикасы:\n{lesson.grammar}\n\n"
-                "Грамматикалық ережелерді нақты мысалдармен түсіндір. Сөздерді қою қара ету үшін ** қолданба."
+                """Грамматикалық ережелерді түсінікті әрі қысқа түрде нақты мысалдармен түсіндір.
+
+                Құрылым:
+                1. Ережені қарапайым тілмен түсіндір – Оқушыға түсінікті болуы үшін, күрделі терминдерді қажетсіз қолданба.
+                2. Әр ереже үшін кемінде 2 нақты мысал келтір.
+                3. Оқушылар жиі қателесетін тұстарды атап өт.
+                4. Қосымша түсініктеме бер (егер қажет болса) – Егер ереже ерекше жағдайларға ие болса, оны да түсіндір.
+
+                Маңызды:
+                - Сөздерді қою қара ету үшін ** қолданба.
+                - Түсінікті, анық, әрі оқу оңай болатындай етіп жауап бер.
+                """
             )
         elif section == "dialogue":
             prompt = (
                 f"Сабақтың диалогы:\n{lesson.dialogue}\n\n"
-                "Диалогтағы сөйлемдерді ағылшыншасын оқып, түсіндіріп аударып бер. Сөздерді қою қара ету үшін ** қолданба."
+                """Диалогтағы әр сөйлемді бөлек оқып, анық және түсінікті етіп аудар.
+
+                Құрылым:
+                1. Сөйлемді ағылшын тілінде айт.
+                2. Қазақшаға аудар.
+                3. Мағыналық түсіндірме бер:
+                - Егер сөйлем ерекше құрылымға ие болса, оны түсіндір.
+                - Кездесетін маңызды сөздер мен сөз тіркестерінің мағынасын аш.
+
+                Маңызды:
+                - Сөздерді қою қара ету үшін ** қолданба.
+                - Жауап қысқа, нақты және түсінікті болсын.
+                """
             )
         else:
             return JsonResponse({"error": "Бұрыс бөлім көрсетілді."}, status=400)
@@ -292,3 +262,142 @@ def motivational_message(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method."}, status=400)
+
+
+def generate_quiz_questions(lesson_id):
+    """
+    Сабақтың сөздігінен сөздерді бөліп, `QuizQuestion` моделіне енгізетін функция.
+    Егер сұрақтар бұрыннан бар болса, жаңаларын қоспайды.
+    """
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    # Барлық бұрынғы сұрақтарды өшіру (ескі деректерді тазарту)
+    QuizQuestion.objects.filter(lesson=lesson).delete()
+
+    vocabulary_text = lesson.vocabulary.strip()
+    lines = vocabulary_text.split("\n")
+
+    word_list = []
+
+    # 1. Сөздерді бөліп, тізім жасау
+    for line in lines:
+        parts = line.split(" – ")  # Сөздер " – " арқылы бөлінген
+        if len(parts) == 2:
+            english_word = parts[0].strip()
+            kazakh_translation = parts[1].strip()
+            word_list.append((english_word, kazakh_translation))
+
+    # 2. Сөздерді `QuizQuestion` моделіне енгізу
+    questions = [
+        QuizQuestion(lesson=lesson, english_word=english_word, kazakh_translation=kazakh_translation)
+        for english_word, kazakh_translation in word_list
+    ]
+
+    QuizQuestion.objects.bulk_create(questions)  # ✅ Барлық сөздерді бірден енгізу
+
+    print(f"✅ {len(questions)} сұрақ базаға енгізілді!")
+
+
+def start_quiz(request, lesson_id):
+    """
+    Тестті бастағанда, егер база бос болса, сұрақтарды автоматты түрде толтырады.
+    Сосын тест сұрақтарын қайтарады.
+    """
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    # Тест сұрақтарын генерациялау (егер әлі енгізілмесе)
+    generate_quiz_questions(lesson_id)
+
+    # Барлық тест сұрақтарын алу
+    questions = list(QuizQuestion.objects.filter(lesson=lesson))
+
+    if len(questions) < 4:
+        return JsonResponse({"error": "Бұл сабақта жеткілікті сөздер жоқ!"}, status=400)
+
+    random.shuffle(questions)
+
+    question_data = []
+
+    for q in questions:
+        correct_answer = q.kazakh_translation
+
+        # ❌ Бұрынғы кодта қате бар: Дұрыс жауап кейде жоғалып кетуі мүмкін
+        incorrect_answers = [w.kazakh_translation for w in questions if w.kazakh_translation != correct_answer]
+
+        # ✅ Қате жауаптар тізімін дұрыстау
+        if len(incorrect_answers) < 3:
+            incorrect_answers += ["Қате жауап"] * (3 - len(incorrect_answers))
+
+        incorrect_answers = random.sample(incorrect_answers, 3)  # Тек 3 қате жауап таңдау
+        choices = incorrect_answers + [correct_answer]  # Дұрыс жауапты қосу
+        random.shuffle(choices)  # Барлығын араластыру
+
+        question_data.append({
+            "id": q.id,
+            "english_word": q.english_word,
+            "choices": choices
+        })
+
+    return JsonResponse({"questions": question_data})
+
+
+@csrf_exempt
+def submit_answer(request, lesson_id):
+    if request.method == "POST":
+        # Сессияның бар-жоғын тексеріп, қажет болса құру
+        if not request.session.session_key:
+            request.session.create()
+        user_id = str(request.user.id) if request.user.is_authenticated else request.session.session_key or "guest"
+
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        attempt, created = QuizAttempt.objects.get_or_create(user_id=user_id, lesson=lesson)
+        question_id = request.POST.get("question_id")
+        selected_answer = request.POST.get("answer")
+        question = get_object_or_404(QuizQuestion, id=question_id)
+
+        # Сабаққа қатысты тесттегі жалпы сұрақтар саны
+        total_questions = lesson.quiz_questions.count()
+
+        # Дұрыс жауап болса score-ды арттырып, қате болса attempts-ты арттырамыз
+        if question.kazakh_translation == selected_answer:
+            attempt.add_score()
+        else:
+            attempt.increase_attempts()
+
+        # Егер барлық сұрақтарға жауап берілді деп есептесек,
+        # (яғни, дұрыс жауаптар мен қатенің қосындысы >= жалпы сұрақ саны),
+        # тест аяқталғанын тексереміз
+        if (attempt.score + attempt.attempts) >= total_questions:
+            attempt.check_pass()
+
+        # Егер тест өтілсе, келесі сабақты ашу үшін session-ды жаңартамыз
+        if attempt.is_passed:
+            passed_lessons = list(
+                QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
+                .values_list("lesson_id", flat=True)
+            )
+            # Ең үлкен өткен сабақ нөміріне 1 қосамыз
+            next_lesson = max(passed_lessons) + 1 if passed_lessons else 1
+            # Келесі сабақ шынымен бар-жоғын тексереміз
+            if Lesson.objects.filter(id=next_lesson).exists():
+                passed_lessons.append(next_lesson)
+            request.session['passed_lessons'] = passed_lessons
+            request.session.save()
+
+            return JsonResponse({
+                "correct": question.kazakh_translation == selected_answer,
+                "score": attempt.score,
+                "attempts": attempt.attempts,
+                "passed": attempt.is_passed,
+                "next_lesson": next_lesson
+            })
+
+        # Тест әлі аяқталмаған жағдайда (барлық сұраққа жауап берілмеген жағдайда)
+        return JsonResponse({
+            "correct": question.kazakh_translation == selected_answer,
+            "score": attempt.score,
+            "attempts": attempt.attempts,
+            "passed": attempt.is_passed
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
