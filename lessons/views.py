@@ -47,7 +47,7 @@ def lesson_detail(request, lesson_id):
 
     # ✅ Егер 3-шы сабақтан жоғары болса және қолданушы кірмеген болса, логинге жібереді
     if lesson.id > 3 and not request.user.is_authenticated:
-        return redirect('/login/')
+        return redirect('/advertisement/')
 
     # 🔥 Сабақтың түсіндірмелерін сессиядан алу
     explanations_qs = Explanation.objects.filter(lesson=lesson)
@@ -56,6 +56,21 @@ def lesson_detail(request, lesson_id):
     return render(request, 'lessons/lesson_detail.html', {
         'lesson': lesson,
         'explanations': explanations,
+    })
+
+
+def advertisement(request):
+    """
+    Бұл бетте оқушыға маңызды ақпарат пен жарнама көрсетіледі:
+      - Оқу ақысы: 5000 теңге, 1 жылға
+      - Өте пайдалы сабақтар, ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы
+      - WhatsApp сілтемесі: 87781029394
+    """
+    return render(request, 'lessons/advertisement.html', {
+        'price': '5000 теңге',
+        'duration': '1 жылға',
+        'whatsapp': '87781029394',
+        'message': 'Өте пайдалы! Ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы үйретеміз.'
     })
 
 
