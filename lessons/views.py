@@ -2,7 +2,7 @@ import openai
 from openai import OpenAI
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Lesson, QuizQuestion, QuizAttempt
+from .models import Lesson, QuizQuestion, QuizAttempt, Explanation
 from django.http import JsonResponse
 from django.conf import settings
 import random
@@ -50,8 +50,8 @@ def lesson_detail(request, lesson_id):
         return redirect('/login/')
 
     # 🔥 Сабақтың түсіндірмелерін сессиядан алу
-    all_explanations = request.session.get('explanations', {})
-    explanations = all_explanations.get(str(lesson.id), {})
+    explanations_qs = Explanation.objects.filter(lesson=lesson)
+    explanations = {exp.section: {"text": exp.text, "audio_url": exp.audio_url} for exp in explanations_qs}
 
     return render(request, 'lessons/lesson_detail.html', {
         'lesson': lesson,
@@ -177,15 +177,15 @@ def explain_section(request, lesson_id):
             except openai.OpenAIError as e:
                 return JsonResponse({"error": f"Аудио генерация қатесі: {str(e)}"}, status=500)
 
-        # Load all explanations from session and update only this lesson.
-        all_explanations = request.session.get('explanations', {})
-        lesson_explanations = all_explanations.get(str(lesson.id), {})
-        lesson_explanations[section] = {
-            'text': explanation_text,
-            'audio_url': audio_url
-        }
-        all_explanations[str(lesson.id)] = lesson_explanations
-        request.session['explanations'] = all_explanations
+        # Дерекқорға түсіндірмені сақтау (Update немесе Create)
+        explanation_obj, created = Explanation.objects.update_or_create(
+            lesson=lesson,
+            section=section,
+            defaults={
+                "text": explanation_text,
+                "audio_url": audio_url,
+            }
+        )
 
         return JsonResponse({
             "text": explanation_text,
@@ -194,38 +194,35 @@ def explain_section(request, lesson_id):
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 
-def chat_with_gpt(request):
+def chat_with_gpt(request, lesson_id):
     """
     AJAX endpoint for a general chat interface.
-    Gathers all lessons data, sets a system prompt,
+    Gathers the current lesson's data, sets a system prompt,
     and returns GPT's response as JSON.
     """
     if request.method == "POST":
         user_question = request.POST.get("question", "")
 
-        # Gather data from all lessons
-        all_lessons = Lesson.objects.all()
-        lessons_data = ""
-        for lesson in all_lessons:
-            lessons_data += (
-                f"Lesson {lesson.id}: {lesson.title}\n"
-                f"Content: {lesson.content}\n"
-                f"Vocabulary: {lesson.vocabulary}\n"
-                f"Grammar: {lesson.grammar}\n"
-                f"Dialogue: {lesson.dialogue}\n\n"
-            )
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        lessons_data = (
+            f"Lesson {lesson.id}: {lesson.title}\n"
+            f"Content: {lesson.content}\n"
+            f"Vocabulary: {lesson.vocabulary}\n"
+            f"Grammar: {lesson.grammar}\n"
+            f"Dialogue: {lesson.dialogue}\n"
+        )
 
-        # System prompt: user is an English teacher, with full access to lessons data
         system_prompt = (
-            "You are an English teacher. You have the following lessons data:\n"
+            "You are an English teacher. You have the following lesson data:\n"
             f"{lessons_data}\n"
+            "Жауап береде ** мүлдем қолданба."
             "Answer the user's question in detail IN KAZAKH."
         )
 
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-4o",  # Or whichever model you prefer
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question},
@@ -236,7 +233,7 @@ def chat_with_gpt(request):
             return JsonResponse({"answer": gpt_answer})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-
+    
     return JsonResponse({"error": "Invalid request method."}, status=400)
 
 
@@ -246,14 +243,14 @@ def motivational_message(request):
     """
     if request.method == "POST":
         prompt = (
-            "You are an inspiring English teacher. "
-            "Generate a motivational message in Kazakh that encourages someone to learn English. "
-            "Include uplifting language, practical advice, and enthusiasm."
+            "Сен ағылшын тілін жасанды интеллект арқылы үйреніп жүрген оқушыларға арналған шабыттандыратын хабарлама жаса. "
+            "Жауапты қазақ тілінде, қысқа әрі нұсқа етіп бер."
         )
+
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-4o",  # Use your preferred model.
+                model="gpt-4o-mini",  # Use your preferred model.
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
             )

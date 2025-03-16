@@ -55,3 +55,23 @@ class QuizAttempt(models.Model):
             else:
                 self.is_passed = False
             self.save()
+
+
+class Explanation(models.Model):
+    SECTION_CHOICES = [
+        ('content', 'Сабақ мазмұны'),
+        ('vocabulary', 'Сөздік'),
+        ('grammar', 'Грамматика'),
+        ('dialogue', 'Диалог'),
+    ]
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='explanations')
+    section = models.CharField(max_length=20, choices=SECTION_CHOICES)
+    text = models.TextField(verbose_name="Түсіндірме мәтіні")
+    audio_url = models.CharField(max_length=255, blank=True, null=True, verbose_name="Аудио сілтемесі")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Құру уақыты")
+
+    class Meta:
+        unique_together = ('lesson', 'section')
+
+    def __str__(self):
+        return f"{self.lesson.title} - {self.section}"

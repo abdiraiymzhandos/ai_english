@@ -12,7 +12,7 @@ urlpatterns = [
     path('lesson/<int:lesson_id>/', lesson_detail, name='lesson_detail'),
     path('lesson/<int:lesson_id>/explain-section/',
          explain_section, name='explain_section'),
-    path('chat-with-gpt/', chat_with_gpt, name='chat_with_gpt'),
+    path('chat-with-gpt/<int:lesson_id>/', chat_with_gpt, name='chat_with_gpt'),
     path('motivational-message/', motivational_message, name='motivational_message'),
     path('start-quiz/<int:lesson_id>/', start_quiz, name='start_quiz'),
     path('submit-answer/<int:lesson_id>/', submit_answer, name='submit_answer'),
