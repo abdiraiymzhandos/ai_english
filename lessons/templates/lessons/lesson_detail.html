@@ -158,9 +158,9 @@
       <div id="content" class="accordion-collapse collapse show">
         <div class="accordion-body" id="lesson-content">
           {{ lesson.content|linebreaksbr }}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
+          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button>
+          </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.content %}
               <div class="alert alert-info">🧠 {{ explanations.content.text|safe }}</div>
@@ -188,9 +188,9 @@
           {% for word in lesson.vocabulary.splitlines %}
             <p><strong>{{ word }}</strong></p>
           {% endfor %}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
+          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button>
+          </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.vocabulary %}
               <div class="alert alert-info">🧠 {{ explanations.vocabulary.text|safe }}</div>
@@ -216,9 +216,9 @@
       <div id="grammar" class="accordion-collapse collapse">
         <div class="accordion-body" id="lesson-grammar">
           {{ lesson.grammar|linebreaksbr }}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
+          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button>
+          </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.grammar %}
               <div class="alert alert-info">🧠 {{ explanations.grammar.text|safe }}</div>
@@ -244,9 +244,9 @@
       <div id="dialogue" class="accordion-collapse collapse">
         <div class="accordion-body" id="lesson-dialogue">
           {{ lesson.dialogue|linebreaksbr }}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
+          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button>
+          </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.dialogue %}
               <div class="alert alert-info">🧠 {{ explanations.dialogue.text|safe }}</div>
