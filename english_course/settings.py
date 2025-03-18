@@ -16,7 +16,10 @@ import dj_database_url
 from pathlib import Path
 
 # .env файлын жүктеу
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# .env файлын нақты жолымен жүктеу
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # OpenAI API кілтін алу
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -40,7 +43,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
@@ -103,8 +106,12 @@ WSGI_APPLICATION = 'english_course.wsgi.application'
 
 
 DATABASES = {
-    "default": dj_database_url.config(default="sqlite:///db.sqlite3")
+    "default": {
+         "ENGINE": "django.db.backends.sqlite3",
+         "NAME": str(BASE_DIR / "db.sqlite3"),
+    }
 }
+
 
 
 
@@ -153,15 +160,15 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Статикалық файлдар
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_ROOT = "/home/abdiraiymzhandos/ai_english/static/"
 
 # Whitenoise конфигурациясы
 STATICFILES_STORAGE = "whitenoise.storage.ManifestStaticFilesStorage"
 
 # Медиа файлдар
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = "/home/abdiraiymzhandos/media/"
+
 
 
 # Default primary key field type
