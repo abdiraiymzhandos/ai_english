@@ -69,7 +69,7 @@ def advertisement(request):
     return render(request, 'lessons/advertisement.html', {
         'price': '5000 теңге',
         'duration': '1 жылға',
-        'whatsapp': '87781029394',
+        'whatsapp': '77781029394',
         'message': 'Өте пайдалы! Ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы үйретеміз.'
     })
 
@@ -247,7 +247,7 @@ def chat_with_gpt(request, lesson_id):
             return JsonResponse({"answer": gpt_answer})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-    
+
     return JsonResponse({"error": "Invalid request method."}, status=400)
 
 

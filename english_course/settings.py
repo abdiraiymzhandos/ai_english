@@ -106,13 +106,15 @@ WSGI_APPLICATION = 'english_course.wsgi.application'
 
 
 DATABASES = {
-    "default": {
-         "ENGINE": "django.db.backends.sqlite3",
-         "NAME": str(BASE_DIR / "db.sqlite3"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'blog_database',         # Жоғарыда жасаған дерекқор атауы
+        'USER': 'zhandos',          # Жасалған қолданушы атауы 
+        'PASSWORD': 'Aaa12345',          # Қолданушының паролі 
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
-
 
 
 # Password validation
@@ -166,9 +168,8 @@ STATIC_ROOT = "/home/abdiraiymzhandos/ai_english/static/"
 STATICFILES_STORAGE = "whitenoise.storage.ManifestStaticFilesStorage"
 
 # Медиа файлдар
-MEDIA_URL = "/media/"
-MEDIA_ROOT = "/home/abdiraiymzhandos/media/"
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type
