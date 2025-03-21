@@ -43,7 +43,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
@@ -161,8 +161,19 @@ X_FRAME_OPTIONS = 'DENY'
 
 
 # Статикалық файлдар
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 STATIC_URL = "/static/"
-STATIC_ROOT = "/home/abdiraiymzhandos/ai_english/static/"
+
+# collectstatic пәрмені арқылы жиналған файлдар сақталатын орын
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# Дамыту кезеңінде (development) қолданылатын static файлдар папкасы
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
 
 # Whitenoise конфигурациясы
 STATICFILES_STORAGE = "whitenoise.storage.ManifestStaticFilesStorage"

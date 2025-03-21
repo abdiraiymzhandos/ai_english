@@ -34,7 +34,7 @@ def lesson_list(request):
     request.session['passed_lessons'] = unlocked_lessons
     request.session.save()
 
-    lessons = Lesson.objects.all()
+    lessons = Lesson.objects.all().order_by('id')
     return render(request, "lessons/lesson_list.html", {
         "lessons": lessons,
         "passed_lessons": unlocked_lessons,
@@ -93,6 +93,8 @@ def explain_section(request, lesson_id):
                 Сөз тіркестерін бөлек талдап түсіндір:
                 - Қиын немесе мағынасы кең сөз тіркестерін теріп ал.
                 - Әрбір сөз тіркесінің нақты мағынасын айт.
+
+                Маңызды:
                 - Сөздерді қою қара ету үшін ** қолданба.
 
                 Барынша анық, қысқа әрі нақты жауап бер.
@@ -131,6 +133,7 @@ def explain_section(request, lesson_id):
 
                 Маңызды:
                 - Сөздерді қою қара ету үшін ** қолданба.
+                - Мысалдағы сөйлемдерді бөліп талдап түсіндір
                 - Түсінікті, анық, әрі оқу оңай болатындай етіп жауап бер.
                 """
             )
