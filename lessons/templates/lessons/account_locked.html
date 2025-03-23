@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Аккаунт құлтаулы</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .lock-container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        .lock-container h1 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+        .lock-container p {
+            font-size: 1.1rem;
+        }
+        .btn-custom {
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-container text-center">
+        <h1>Аккаунтыңыз 5күнге құлтаулы</h1>
+        {% if lock_until %}
+            {% if remaining_days and remaining_days > 0 %}
+                <p>Сіздің аккаунтыңыз қауіпсіздік мақсатында құлтауға алынған.</p>
+                <p><strong>Қайта ашылуына {{ remaining_days }} күн қалған.</strong></p>
+                <p>Дәл ашылатын уақыты: 
+                    <strong>{{ lock_until|date:"d.m.Y H:i" }}</strong>
+                </p>
+            {% else %}
+                <p>Қайта ашылатын уақыты жетті, бірақ әлі ашылмаған сияқты. Әкімшіге хабарласыңыз немесе қайта кіріп көріңіз.</p>
+            {% endif %}
+        {% else %}
+            {% comment %} <p>Аккаунт құлтаулы емес немесе мәлімет жоқ.</p> {% endcomment %}
+            <p></p>
+        {% endif %}
+        <p>Қосымша сұрақтарыңыз болса, әкімшіге хабарласыңыз: 
+            <a href="tel:+77781029394">+77781029394</a>
+        </p>
+        <div class="btn-custom">
+            <a href="{% url 'login' %}" class="btn btn-primary">Кіру</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (қажет болса) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

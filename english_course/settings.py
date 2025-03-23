@@ -43,7 +43,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
@@ -78,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'lessons.middleware.DeviceLockMiddleware',
 ]
 
 ROOT_URLCONF = 'english_course.urls'
@@ -105,25 +106,16 @@ WSGI_APPLICATION = 'english_course.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'blog_database',         # Жоғарыда жасаған дерекқор атауы
-#         'USER': 'zhandos',          # Жасалған қолданушы атауы 
-#         'PASSWORD': 'Aaa12345',          # Қолданушының паролі 
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'blog_database',         # Жоғарыда жасаған дерекқор атауы
+        'USER': 'zhandos',          # Жасалған қолданушы атауы
+        'PASSWORD': 'Aaa12345',          # Қолданушының паролі
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
 
 
 # Password validation

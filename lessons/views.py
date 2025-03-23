@@ -2,6 +2,7 @@ import openai
 from openai import OpenAI
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 from .models import Lesson, QuizQuestion, QuizAttempt, Explanation
 from django.http import JsonResponse
 from django.conf import settings
@@ -46,7 +47,7 @@ def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
     # ✅ Егер 3-шы сабақтан жоғары болса және қолданушы кірмеген болса, логинге жібереді
-    if lesson.id > 3 and not request.user.is_authenticated:
+    if lesson.id > 55 and not request.user.is_authenticated:
         return redirect('/advertisement/')
 
     # 🔥 Сабақтың түсіндірмелерін сессиядан алу
@@ -127,9 +128,9 @@ def explain_section(request, lesson_id):
 
                 Құрылым:
                 1. Ережені қарапайым тілмен түсіндір – Оқушыға түсінікті болуы үшін, күрделі терминдерді қажетсіз қолданба.
-                2. Әр ереже үшін кемінде 2 нақты мысал келтір.
-                3. Оқушылар жиі қателесетін тұстарды атап өт.
-                4. Қосымша түсініктеме бер (егер қажет болса) – Егер ереже ерекше жағдайларға ие болса, оны да түсіндір.
+                2. Әр ереже үшін кемінде 2 нақты мысал келтір. Және сол мысалдарды ды, грамматикадағы мысалдарды да қазақшаға аударып бер
+                4. Оқушылар жиі қателесетін тұстарды атап өт.
+                5. Қосымша түсініктеме бер (егер қажет болса) – Егер ереже ерекше жағдайларға ие болса, оны да түсіндір.
 
                 Маңызды:
                 - Сөздерді қою қара ету үшін ** қолданба.
@@ -415,3 +416,22 @@ def submit_answer(request, lesson_id):
         })
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+def account_locked(request):
+    """
+    Аккаунт құлтаулы болған жағдайда қолданушыға хабар беретін бет.
+    Егер профильде lock_until мәні болса, қалған құлтау уақытын есептеп көрсетеді.
+    """
+    lock_until = None
+    remaining_time = None
+    if request.user.is_authenticated:
+        profile = getattr(request.user, 'profile', None)
+        if profile and profile.lock_until:
+            lock_until = profile.lock_until
+            remaining_time = (lock_until - timezone.now()).days
+    context = {
+        'lock_until': lock_until,
+        'remaining_days': remaining_time,
+    }
+    return render(request, 'lessons/account_locked.html', context)

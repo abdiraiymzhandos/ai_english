@@ -1,4 +1,8 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
+import uuid
 
 
 class Lesson(models.Model):
@@ -75,3 +79,37 @@ class Explanation(models.Model):
 
     def __str__(self):
         return f"{self.lesson.title} - {self.section}"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    lock_until = models.DateTimeField(null=True, blank=True, verbose_name="Құлтаған уақыт")
+
+    def is_locked(self):
+        return self.lock_until and timezone.now() < self.lock_until
+
+    def unlock(self):
+        self.lock_until = None
+        self.save()
+        # Барлық құрылғыларды өшіреміз:
+        from .models import UserDevice
+        UserDevice.objects.filter(user=self.user).delete()
+
+    def lock(self, days=5):
+        self.lock_until = timezone.now() + timedelta(days=days)
+        self.save()
+
+    def __str__(self):
+        return f"{self.user.username} профилі"
+
+
+class UserDevice(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='devices')
+    device_id = models.CharField(max_length=255, verbose_name="Құрылғы идентификаторы")
+    last_seen = models.DateTimeField(auto_now=True, verbose_name="Соңғы көріну уақыты")
+
+    class Meta:
+        unique_together = ('user', 'device_id')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.device_id}"
