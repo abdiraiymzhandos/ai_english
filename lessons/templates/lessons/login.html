@@ -1,30 +1,159 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Кіру</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Кіру (Кемпірқосақ стилі)</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  
+  <style>
+    /* 
+      ========== 1. BODY (Кемпірқосақ градиент) ========== 
+    */
+    html, body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      /* Кемпірқосақ түстер: қызыл -> қызғылт -> сары -> жасыл -> көк -> индиго -> күлгін */
+      background: linear-gradient(
+        135deg, 
+        #FF0000,  /* Қызыл */
+        #FF7F00,  /* Қызғылт сары */
+        #FFFF00,  /* Сары */
+        #00FF00,  /* Жасыл */
+        #0000FF,  /* Көк */
+        #4B0082,  /* Индиго */
+        #8F00FF   /* Күлгін */
+      );
+      background-size: 140% 140%;
+      /* Анимациялық эффект беріп, градиентті баяу жылжыта аламыз (қаласаңыз) */
+      animation: rainbowBG 10s ease infinite alternate;
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      color: #fff;
+    }
+    
+    /* Кемпірқосақ фонды анимациялау (қаласаңыз) */
+    @keyframes rainbowBG {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    /* 
+      ========== 2. Логин формасының контейнері (Glassmorphism) ========== 
+    */
+    .rainbow-card {
+      /* Жартылай мөлдір ақ */
+      background: rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      margin: 1rem;
+    }
+    .rainbow-card .card-body {
+      padding: 2rem;
+    }
+
+    /* 
+      ========== 3. Тақырып ========== 
+    */
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* 
+      ========== 4. Label + Input ========== 
+    */
+    .form-label {
+      color: #eee;
+      font-weight: 500;
+    }
+    .form-control {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.25);
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+    }
+
+    /* 
+      ========== 5. Кіру батырмасы ========== 
+      (Кемпірқосақ градиент батырма)
+    */
+    .btn-rainbow {
+      background: linear-gradient(
+        90deg, 
+        #FF0000, 
+        #FF7F00, 
+        #FFFF00, 
+        #00FF00, 
+        #0000FF, 
+        #4B0082, 
+        #8F00FF
+      );
+      background-size: 200% 200%;
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      transition: background 1s;
+    }
+    .btn-rainbow:hover {
+      background-position: 100% 0%;
+      transform: scale(1.02);
+    }
+    .btn-rainbow:focus {
+      box-shadow: 0 0 8px rgba(255,255,255,0.5);
+    }
+
+    /* 
+      ========== 6. Ұялы экран ========== 
+    */
+    @media (max-width: 576px) {
+      .rainbow-card {
+        margin: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="text-center">Кіру</h2>
-        <div class="card p-4 mx-auto" style="max-width: 400px;">
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.GET.next }}">
-                
-                <div class="mb-3">
-                    <label for="username" class="form-label">Қолданушы аты</label>
-                    <input type="text" name="username" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Құпиясөз</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Кіру</button>
-            </form>
+
+  <div class="card rainbow-card">
+    <div class="card-body">
+      <h2>Кіру</h2>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        
+        <div class="mb-3">
+          <label for="username" class="form-label">Қолданушы аты</label>
+          <input type="text" name="username" class="form-control" required>
         </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Құпиясөз</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+        
+        <button type="submit" class="btn btn-rainbow w-100 mt-2">Кіру</button>
+      </form>
     </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

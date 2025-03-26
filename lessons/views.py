@@ -47,7 +47,7 @@ def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
     # ✅ Егер 3-шы сабақтан жоғары болса және қолданушы кірмеген болса, логинге жібереді
-    if lesson.id > 55 and not request.user.is_authenticated:
+    if lesson.id > 3 and not request.user.is_authenticated:
         return redirect('/advertisement/')
 
     # 🔥 Сабақтың түсіндірмелерін сессиядан алу

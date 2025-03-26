@@ -1,76 +1,246 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Сабаққа шақыру</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  />
   <style>
-    body {
-      background: linear-gradient(135deg, #f0f4ff, #e0efff);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* 
+      ========== 1. BODY (Қаралау градиент фон) ========== 
+      Түстер: қою реңдер, бірақ арасында салқын, контрасты градиент 
+    */
+    html, body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff; /* Мәтін түсі ақ */
+      background: linear-gradient(
+        135deg,
+        #0f2027,  /* қою жасылдау */
+        #203a43,  /* сұр-қою көк */
+        #2c5364,  /* көкшіл */
+        #2f2841,  /* қою күлгін */
+        #403c59,  /* сәл ашық күлгін */
+        #1b2735   /* көкшіл қара */
+      );
+      background-size: 180% 180%;
+      animation: darkBG 14s ease infinite alternate;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0;
-      padding: 20px;
+      text-align: center;
     }
-    .card {
-      border: none;
+
+    /* 
+      Градиенттің баяу ауысып тұратын анимациясы 
+    */
+    @keyframes darkBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    /* 
+      ========== 2. GLASSMORPHISM КАРТОЧКАСЫ (promo-card) ========== 
+      Тек фонды аздап қоюлау етіп жасадық 
+    */
+    .promo-card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 1rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 600px;
+      margin: 2rem;
+      padding: 2rem 2.5rem;
+      position: relative;
     }
-    .card-title {
-      font-size: 2rem;
+
+    /* 
+      ========== 3. Тақырып (promo-title) ========== 
+      Қаралау фонда ақ түс анық көрінуі үшін 
+    */
+    .promo-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      text-transform: uppercase;
+    }
+    .promo-subtitle {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      color: #e3e3e3;
+    }
+    .highlight {
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    /* 
+      ========== 4. Оқу ақысы (price-text) ========== 
+      Қысқа жарқын акцент (алтын түске жақын) 
+    */
+    .price-text {
+      font-size: 1.3rem;
       font-weight: 600;
+      color: #ffd700; /* алтын түске жақын */
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
     }
+
+    /* 
+      ========== 5. WhatsApp батырмасы (btn-whatsapp) ========== 
+      Қара фонда жасыл түсті батырма жақсы көріну үшін 
+    */
     .btn-whatsapp {
-      background-color: #25D366;
+      background-color: #25d366;
       color: #fff;
       font-size: 1.1rem;
       padding: 0.75rem 1.5rem;
       border-radius: 0.5rem;
-      transition: background-color 0.3s;
+      border: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
     .btn-whatsapp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       background-color: #1ebe5d;
       color: #fff;
     }
-    .btn-home {
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      margin-top: 20px;
+
+    /* 
+      ========== 6. ҰСЫНЫС ШЕКТЕУЛІ (неон стилі) ========== 
+      Қара фонда ашық жасыл-сары неон 
+    */
+    .limited-offer {
+      font-size: 1.2rem;
+      color: #a0ff6c;
+      font-weight: 600;
+      text-shadow: 0 0 6px rgba(160, 255, 108, 1),
+                   0 0 12px rgba(160, 255, 108, 0.8),
+                   0 0 18px rgba(160, 255, 108, 0.6);
+      margin-top: 1rem;
     }
+
+    /* 
+      ========== 7. Басты бет батырмасы (btn-home) ========== 
+      Қара фонда ақ шекара, ховерде толық ақ фон және қара мәтін
+    */
+    .btn-home {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      border: 2px solid #fff;
+      background-color: transparent;
+      color: #fff;
+      transition: background-color 0.3s, border-color 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-home:hover {
+      background-color: #fff;
+      color: #444;
+      border-color: #fff;
+    }
+
+    /*
+      ========== 8. Мобилді бейімделу ==========
+    */
     @media (max-width: 576px) {
-      .card-title {
-        font-size: 1.5rem;
+      .promo-card {
+        margin: 1rem;
+        padding: 1.5rem;
       }
-      .btn-whatsapp {
+      .promo-title {
+        font-size: 1.8rem;
+      }
+      .promo-subtitle {
         font-size: 1rem;
-        padding: 0.65rem 1.2rem;
+      }
+      .price-text {
+        font-size: 1.2rem;
+      }
+      .limited-offer {
+        font-size: 1rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="card p-4 text-center">
-    <div class="card-body">
-      <h1 class="card-title text-primary mb-3">Сабаққа қызығушылық танытқаныңызға рахмет!</h1>
-      <p class="lead">Біздің сабақтар өте пайдалы. Оқу ақысы тек <strong>{{ price }}</strong> (<strong>{{ duration }}</strong>).</p>
-      <p>Ағылшын мұғалімдері мен заманауи, ақылды жасанды интеллект арқылы үйретеміз!</p>
-      <p class="mt-4">
-        Қосымша ақпарат алу үшін, WhatsApp арқылы хабарласыңыз:
-      </p>
-      <a href="https://wa.me/{{ whatsapp }}" target="_blank" class="btn btn-whatsapp my-3">
+
+  <div class="promo-card">
+    <!-- Тақырып -->
+    <h1 class="promo-title">Сабаққа қызығушылығыңызға рахмет!</h1>
+    <!-- Қосымша мәтін -->
+    <p class="promo-subtitle">
+      Бізде <span class="highlight">ең үздік ағылшын мұғалімдері</span> мен
+      <span class="highlight">заманауи жасанды интеллект</span> бірге жұмыс істейді!
+    </p>
+    
+    <!-- Оқу ақысы -->
+    <p class="mb-3 lead">
+      Біздің сабақтар өте тиімді әрі қолжетімді:
+      <span class="price-text">{{ price }}</span>
+      <br>
+      (<span class="highlight">{{ duration }}</span> | 250 сабақ).
+    </p>
+    <p class="mb-4">
+      Жаңа әдістеме, ең қызықты материалдар және нәтижеге бағытталған жүйе. <br>
+      Сізді жоғарғы деңгейде дайындаймыз!
+    </p>
+
+    <!-- WhatsApp батырмасы -->
+    <div class="mb-3">
+      <a href="https://wa.me/{{ whatsapp }}" target="_blank" class="btn-whatsapp">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+             fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+          <path d="M13.601 2.326A7.934 7.934 0 0 0 7.977 0C3.577 0 
+                   .037 3.539 0 7.937c-.018 1.401.328 2.77.997 
+                   3.99L0 16l4.143-1.085a7.88 7.88 0 0 0 
+                   3.816.974h.003c4.398 0 7.947-3.539 
+                   7.976-7.935.028-2.138-.833-4.152-2.337-5.628zm-5.625 
+                   11.105h-.003a6.644 6.644 0 0 1-3.39-.918l-.242-.144-2.446.641.654-2.383-.158-.247a6.555 
+                   6.555 0 0 1-1.02-3.557c.002-3.605 
+                   2.94-6.538 6.55-6.538a6.623 6.623 0 0 1 4.69 
+                   1.944 6.562 6.562 0 0 1 1.947 
+                   4.685c-.017 3.609-2.95 
+                   6.53-6.556 6.53z"></path>
+          <path d="M10.478 8.549c-.137-.069-.815-.4-.94-.446-.125-.047-.216-.07-.306.07-.09.14-.35.446-.43.537-.08.09-.158.1-.295.035-.137-.07-.58-.213-1.105-.68-.408-.36-.684-.8-.762-.936-.08-.14-.009-.215.06-.283.06-.06.135-.158.2-.237.07-.08.09-.14.14-.237.047-.09.024-.17-.012-.237-.035-.07-.306-.735-.42-1.01-.11-.283-.225-.24-.306-.24-.08 
+                   0-.17-.005-.26-.005-.09 0-.236.035-.36.163-.124.14-.47.459-.47 
+                   1.117 0 .658.48 1.294.55 1.383.07.09.94 1.438 2.28 
+                   2.018.318.138.566.22.76.28.32.1.61.085.84.05.27-.04.82-.33.94-.647.12-.317.12-.588.08-.647-.035-.06-.125-.09-.26-.16z"></path>
+        </svg>
         WhatsApp: {{ whatsapp }}
       </a>
-      <p class="mt-3 text-secondary">Ұсыныс шектеулі, асығыңыз!</p>
-      <!-- Басты бетке сілтеме -->
-      <a href="{% url 'lesson_list' %}" class="btn btn-outline-primary btn-home">Басты бет</a>
     </div>
+
+    <!-- Шектеулі ұсыныс (неон) -->
+    <p class="limited-offer">Ұсыныс шектеулі, асығыңыз!</p>
+
+    <!-- Басты бет батырмасы -->
+    <a href="{% url 'lesson_list' %}" class="btn-home">Басты бет</a>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+  ></script>
 </body>
 </html>

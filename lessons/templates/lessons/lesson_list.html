@@ -1,102 +1,147 @@
+<!-- lesson_list.html -->
 <!DOCTYPE html>
 {% load static %}
 <html lang="kk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Сабақтар</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  
   <style>
-    /* Артқы фон */
+    /* ------------------------------
+       Жалпы фон мен бет параметрлері
+    ---------------------------------*/
     html, body {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('{% static "images/andromeda-galaxy-milky-way.webp" %}') no-repeat center center/cover;
-      min-height: 100vh;
-      /* Бет өлшемін толық алу үшін */
+      background: #0D1117; /* Dark фон */
+      color: #ffffff;
+      min-height: 100vh; /* Экранның биіктігін толтыру */
     }
 
-    /* Сабақтар тізімін орталау және мөлдір фонда көрсету */
+    /* Артқы фонның үстінен кішкене әйнекше (glass) эффект беру үшін */
     .lessons-wrapper {
-      width: 80%;
-      margin: 0 auto;
-      padding-top: 2rem;
-      padding-bottom: 2rem;
-      /* Ең үстіне шегініс беріп, төменгі жағынан да бос орын қалдырамыз */
+      width: 90%;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.06); /* Мөлдір қабат */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
 
-    /* Сабақтар тізімін бет ортасына орналастыру */
+    /* Тақырыптың өзін әдемілеу */
+    h1 {
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    /* Кіру/Шығу батырмаларының контейнері */
+    .auth-buttons {
+      margin-bottom: 1.5rem;
+    }
+
+    /* list-group элементтерін ыңғайлы ету */
     .list-group {
-      max-width: 600px;   /* Қалауыңызша өзгертіңіз (500px, 700px, т.б.) */
-      margin: 0 auto;     /* Орталыққа түсіреді */
+      margin-top: 1.5rem;
+      border: none;
     }
 
-    /* Сабақтар тізімі (Bootstrap .list-group) */
+    /* Сабақ элементтерінің контейнері */
     .list-group-item {
       border: none;
-      border-radius: 50px;                /* Бұрыштарын қаттырақ дөңгелектеу */
-      margin-bottom: 20px;
-      padding: 10px 20px;                 /* Жіңішке көрініс үшін аздап ғана бос орын */
-      background-color: rgba(52, 58, 64, 0.8); /* Қаралау күңгірт түс (Bootstrap-тың #343a40 түсі) */
-      color: #fff;                        /* Мәтін түсін ақ ету */
-      transition: transform 0.3s, 
-                  box-shadow 0.3s, 
-                  background 0.5s;        /* Hover кезінде фонның өзгеруін жұмсақ ету */
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
     }
 
-    /* Hover кезінде кемпірқосақ түске ауысады, жоғары көтеріліп, көлеңке пайда болады */
+    /* Ашық (құлыпсыз) сабақтардың hover-эффектісі */
     .list-group-item:hover {
-      background: linear-gradient(
-        90deg, 
-        #ff0000, 
-        #ffa500, 
-        #ffff00, 
-        #008000, 
-        #0000ff, 
-        #4b0082, 
-        #ee82ee
-      );
-      transform: translateY(-5px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    
+    /* Құлыпталған сабақ стилі */
+    .list-group-item.locked {
+      background: rgba(255, 255, 255, 0.08);
+      color: #b0b0b0;
+      cursor: not-allowed;
+    }
 
-    /* Сабақ нөмірі және атауы */
+    /* Сабақ нөмірінің дөңгелек қаптамасы */
     .lesson-number-box {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 30px;
-      height: 30px;
-      background-color: #0d6efd;
-      color: #fff;
-      border-radius: 50%;
-      font-weight: bold;
+      min-width: 40px;
+      height: 40px;
       margin-right: 15px;
+      border-radius: 50%;
+      font-weight: 600;
+      background: linear-gradient(
+        135deg,
+        rgba(0, 173, 255, 0.9),
+        rgba(0, 99, 255, 0.9)
+      );
+      color: #fff;
       flex-shrink: 0;
     }
+
+    /* Сабақ атауы */
     .lesson-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 500;
       margin: 0;
+      /* Бұларды қосыңыз: */
+      white-space: normal;     /* Бірнеше қатарға үзуді қосу */
+      word-wrap: break-word;   /* Ұзақ сөздерді қажетті жерден бөліп отыру */
+      overflow: hidden;        /* Контейнер шегінен асып кетпеу */
+    }    
+
+    /* Бадж стилі (Көру, Қолжетімсіз) */
+    .badge {
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.4rem 0.7rem;
+      border-radius: 20px;
     }
 
-    /* Мобильді құрылғыларға бейімдеу */
+    /* "Қолжетімсіз" жазуын күңгірттеу */
+    .badge.bg-secondary {
+      opacity: 0.7;
+    }
+
+    /* Мотивациялық хабар алуға арналған контейнер және батырма */
+    #motivational-btn {
+      background: linear-gradient(135deg, #4caf50, #2e7d32);
+      color: #ffffff;
+      border: none;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    #motivational-btn:hover {
+      background: linear-gradient(135deg, #66bb6a, #388e3c);
+    }
+
+    /* Экран кішірейгенде (Mobile Friendly) */
     @media (max-width: 576px) {
-      .lessons-wrapper {
-        width: 90%;
-        padding: 1rem;
-      }
       .lesson-number-box {
-        width: 40px;
-        height: 40px;
-        margin-right: 10px;
+        min-width: 35px;
+        height: 35px;
       }
       .lesson-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
       }
     }
   </style>
@@ -105,57 +150,72 @@
 
   <!-- Сабақтар тізімі -->
   <div class="lessons-wrapper">
-    <h1 class="text-center mb-4 text-white">Сабақтар тізімі</h1>
+    <h1 class="text-center">Сабақтар тізімі</h1>
     
     <!-- Жүйеге кіру / шығу батырмалары -->
-    <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="d-flex justify-content-end align-items-center auth-buttons">
       {% if user.is_authenticated %}
-        <span class="me-3 text-white">Қош келдіңіз, <strong>{{ user.username }}</strong>!</span>
+        <span class="me-3">
+          Қош келдіңіз, <strong>{{ user.username }}</strong>!
+        </span>
         <form action="{% url 'logout' %}" method="post" class="d-inline">
           {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Шығу</button>
+          <button type="submit" class="btn btn-danger rounded-pill">
+            Шығу
+          </button>
         </form>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-primary">Кіру</a>
+        <a href="{% url 'login' %}" class="btn btn-primary rounded-pill">
+          Кіру
+        </a>
       {% endif %}
     </div>
 
-    <div class="list-group">
+    <!-- Сабақтардың тізімі -->
+    <ul class="list-group">
       {% for lesson in lessons %}
         {% if lesson.id == 1 or lesson.id in passed_lessons %}
-          <a href="{% url 'lesson_detail' lesson.id %}" 
-             class="list-group-item d-flex justify-content-between align-items-center">
+          <!-- Ашық сабақ (құлыпсыз) -->
+          <a 
+            href="{% url 'lesson_detail' lesson.id %}" 
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            style="text-decoration: none;"
+          >
             <div class="d-flex align-items-center">
               <div class="lesson-number-box">{{ forloop.counter }}</div>
               <p class="lesson-title mb-0">📖 {{ lesson.title }}</p>
             </div>
-            <span class="badge bg-primary rounded-pill">Көру</span>
+            <span class="badge bg-primary">Көру</span>
           </a>
         {% else %}
-          <div class="list-group-item d-flex justify-content-between align-items-center text-muted" 
-               style="background-color: #e9ecef;">
+          <!-- Құлыпталған сабақ -->
+          <li class="list-group-item locked d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
-              <div class="lesson-number-box" style="background-color: #6c757d;">
+              <div class="lesson-number-box" style="background: #6c757d;">
                 {{ forloop.counter }}
               </div>
-              <p class="lesson-title mb-0">🔒 {{ lesson.title }} (Тесттен өтіңіз)</p>
+              <p class="lesson-title mb-0">
+                🔒 {{ lesson.title }} (Тесттен өтіңіз)
+              </p>
             </div>
-            <span class="badge bg-secondary rounded-pill">🔒 Қолжетімсіз</span>
-          </div>
+            <span class="badge bg-secondary">🔒 Қолжетімсіз</span>
+          </li>
         {% endif %}
       {% endfor %}
-    </div>
+    </ul>
   </div>
 
-  <!-- Мотивациялық хабар -->
+  <!-- Мотивациялық хабарды шығару -->
   <div class="container text-center my-4">
     <button id="motivational-btn" class="btn btn-success rounded-pill">
       Мотивациялық хабарды алу
     </button>
     <div id="motivational-message" class="mt-3"></div>
   </div>
-  
+
+  <!-- JS логикасы -->
   <script>
+    // CSRF Cookie алу
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== "") {
@@ -169,25 +229,42 @@
       return cookieValue;
     }
 
+    // Сабақ тестінен өткеннен кейін келесі сабақты ашу
     function updateLessons(nextLessonId) {
       document.querySelectorAll(".list-group-item").forEach(item => {
-        let lessonTitle = item.querySelector(".lesson-title");
-        let lessonNumber = parseInt(item.querySelector(".lesson-number-box").innerText);
-        if (lessonTitle && lessonTitle.innerText.includes("🔒") && lessonNumber === nextLessonId) {
-          item.classList.remove("text-muted");
-          item.style.backgroundColor = "";
+        const lessonNumberEl = item.querySelector(".lesson-number-box");
+        if (!lessonNumberEl) return;
+
+        const lessonNumber = parseInt(lessonNumberEl.innerText);
+        const lessonTitleEl = item.querySelector(".lesson-title");
+
+        // Егер құлыпталған сабақтың нөмірі nextLessonId болса => ашады
+        if (
+          lessonTitleEl && 
+          lessonTitleEl.innerText.includes("🔒") && 
+          lessonNumber === nextLessonId
+        ) {
+          item.classList.remove("locked");
           item.classList.add("list-group-item-action");
-          item.innerHTML = `<a href="/lesson/${nextLessonId}/" class="d-flex justify-content-between align-items-center">
-                              <div class="d-flex align-items-center">
-                                <div class="lesson-number-box">${lessonNumber}</div>
-                                <p class="lesson-title mb-0">📖 ${lessonTitle.innerText.replace("🔒", "")}</p>
-                              </div>
-                              <span class="badge bg-primary rounded-pill">Көру</span>
-                            </a>`;
+          item.style.cursor = "pointer";
+          
+          // Ішкі HTML-ді толығымен ауыстыру
+          item.innerHTML = `
+            <a href="/lesson/${nextLessonId}/" 
+               class="d-flex justify-content-between align-items-center text-decoration-none"
+               style="color: #fff;">
+              <div class="d-flex align-items-center">
+                <div class="lesson-number-box">${lessonNumber}</div>
+                <p class="lesson-title mb-0">${lessonTitleEl.innerText.replace("🔒", "📖")}</p>
+              </div>
+              <span class="badge bg-primary">Көру</span>
+            </a>
+          `;
         }
       });
     }
 
+    // Жауапты серверге жіберу (Тест жауаптары)
     function submitAnswer(questionId, answer) {
       fetch(`/submit-answer/${questionId}/`, {
         method: "POST",
@@ -211,21 +288,29 @@
       .catch(error => console.error("Жауап жіберу қатесі:", error));
     }
 
+    // Мотивациялық хабарламаны модал арқылы көрсету
     function showMotivationalModal(message) {
       const modalHtml = `
         <div class="modal fade" id="motivationalModal" tabindex="-1" 
              aria-labelledby="motivationalModalLabel" aria-hidden="true">
           <div class="modal-dialog">
-            <div class="modal-content rounded-3">
-              <div class="modal-header">
-                <h5 class="modal-title" id="motivationalModalLabel">Мотивация</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Жабу"></button>
+            <div class="modal-content rounded-3" style="background: #21262D; color: #fff;">
+              <div class="modal-header border-0">
+                <h5 class="modal-title" id="motivationalModalLabel">
+                  Мотивация
+                </h5>
+                <button type="button" class="btn-close btn-close-white" 
+                        data-bs-dismiss="modal" aria-label="Жабу">
+                </button>
               </div>
               <div class="modal-body">
                 ${message}
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Жабу</button>
+              <div class="modal-footer border-0">
+                <button type="button" 
+                        class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
+                  Жабу
+                </button>
               </div>
             </div>
           </div>
@@ -234,11 +319,13 @@
       document.body.insertAdjacentHTML('beforeend', modalHtml);
       const modal = new bootstrap.Modal(document.getElementById('motivationalModal'));
       modal.show();
-      document.getElementById('motivationalModal').addEventListener('hidden.bs.modal', function () {
-        this.remove();
-      });
+      document.getElementById('motivationalModal')
+        .addEventListener('hidden.bs.modal', function () {
+          this.remove();
+        });
     }
 
+    // Мотивациялық хабарды батырма арқылы алу
     document.getElementById("motivational-btn").addEventListener("click", function () {
       const csrfToken = getCookie('csrftoken');
       fetch("/motivational-message/", {
@@ -255,6 +342,7 @@
           document.getElementById("motivational-message").innerHTML = 
             `<div class="alert alert-danger">${data.error}</div>`;
         } else {
+          // Модал арқылы көрсету
           showMotivationalModal(data.message);
         }
       })
@@ -265,6 +353,10 @@
       });
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Bootstrap JS (Modal және т.б. үшін) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+  </script>
 </body>
 </html>
