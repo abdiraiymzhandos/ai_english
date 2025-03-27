@@ -35,6 +35,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+      overflow-x: hidden; /* Телефонда көлденең айналдыру болдырмаймыз */
     }
 
     /* 
@@ -54,13 +55,14 @@
       Тек фонды аздап қоюлау етіп жасадық 
     */
     .promo-card {
+      width: 100%;                /* 100% ені */
+      max-width: 600px;           /* үлкен экранда 600px шектеледі */
       background: rgba(255, 255, 255, 0.07);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 1rem;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      max-width: 600px;
       margin: 2rem;
       padding: 2rem 2.5rem;
       position: relative;
@@ -163,6 +165,7 @@
 
     /*
       ========== 8. Мобилді бейімделу ==========
+      Экран ені 576px-тан аз болғанда: margin, padding азаюы
     */
     @media (max-width: 576px) {
       .promo-card {

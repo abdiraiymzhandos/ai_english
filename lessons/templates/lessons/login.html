@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Кіру (Кемпірқосақ стилі)</title>
+  <title>Кіру (Футуристік стиль)</title>
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   
   <style>
-    /* 
-      ========== 1. BODY (Кемпірқосақ градиент) ========== 
+    /*
+      ========== 1. BODY (Футуристік фон) ==========
     */
     html, body {
       margin: 0;
@@ -17,115 +17,133 @@
       box-sizing: border-box;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
-      /* Кемпірқосақ түстер: қызыл -> қызғылт -> сары -> жасыл -> көк -> индиго -> күлгін */
-      background: linear-gradient(
-        135deg, 
-        #FF0000,  /* Қызыл */
-        #FF7F00,  /* Қызғылт сары */
-        #FFFF00,  /* Сары */
-        #00FF00,  /* Жасыл */
-        #0000FF,  /* Көк */
-        #4B0082,  /* Индиго */
-        #8F00FF   /* Күлгін */
-      );
-      background-size: 140% 140%;
-      /* Анимациялық эффект беріп, градиентті баяу жылжыта аламыз (қаласаңыз) */
-      animation: rainbowBG 10s ease infinite alternate;
+      /* Жарық пен қараңғының футуристік градиенті */
+      background: linear-gradient(135deg, #0c0c0c 0%, #1f1f1f 100%);
+      /* Анимациялық жеңіл қозғалыс (қаласаңыз) */
+      background-size: 200% 200%;
+      animation: futuristicBG 10s ease-in-out infinite alternate;
       display: flex;
       align-items: center; 
       justify-content: center; 
       color: #fff;
     }
-    
-    /* Кемпірқосақ фонды анимациялау (қаласаңыз) */
-    @keyframes rainbowBG {
+
+    @keyframes futuristicBG {
       0% { background-position: 0% 50%; }
       100% { background-position: 100% 50%; }
     }
 
-    /* 
-      ========== 2. Логин формасының контейнері (Glassmorphism) ========== 
+    /*
+      ========== 2. Логин формасының контейнері (Жарқыраған әйнек тектес, «Neon Glassmorphism») ==========
     */
-    .rainbow-card {
-      /* Жартылай мөлдір ақ */
-      background: rgba(255, 255, 255, 0.10);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .futuristic-card {
+      background: rgba(255, 255, 255, 0.07); /* Жартылай мөлдір қабат */
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 15px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
       max-width: 400px;
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       margin: 1rem;
+      position: relative;
+      overflow: hidden; /* Жан-жағында глоу әсері шықпау үшін */
     }
-    .rainbow-card .card-body {
+    .futuristic-card::before {
+      /* Неон шеңбер немесе сызықтар эффектісі үшін псевдоэлемент */
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.15),
+        transparent 60%
+      );
+      opacity: 0.2;
+      animation: neonPulse 6s infinite;
+    }
+    @keyframes neonPulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    .futuristic-card .card-body {
       padding: 2rem;
+      position: relative;
+      z-index: 1; /* Псевдоэлемент астында болу үшін */
     }
 
     /* 
-      ========== 3. Тақырып ========== 
+      ========== 3. Тақырып ==========
     */
     h2 {
       text-align: center;
       margin-bottom: 1.5rem;
       font-weight: 600;
       color: #fff;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      text-shadow: 0 0 6px rgba(0,255,255,0.4); /* Жарық көгілдір реңк */
     }
 
-    /* 
-      ========== 4. Label + Input ========== 
+    /*
+      ========== 4. Label + Input ==========
     */
     .form-label {
-      color: #eee;
+      color: #ccc;
       font-weight: 500;
+      text-shadow: 0 0 3px rgba(0,0,0,0.2);
     }
     .form-control {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
+      transition: background 0.3s, border-color 0.3s;
     }
     .form-control:focus {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.2);
       outline: none;
-      border-color: rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+      border-color: #00ffff; /* Неон көгілдір түс */
+      box-shadow: 0 0 8px rgba(0,255,255,0.4);
     }
 
-    /* 
-      ========== 5. Кіру батырмасы ========== 
-      (Кемпірқосақ градиент батырма)
+    /*
+      ========== 5. Кіру батырмасы ==========
+      (Футуристік неон батырма)
     */
-    .btn-rainbow {
+    .btn-futuristic {
       background: linear-gradient(
         90deg, 
-        #FF0000, 
-        #FF7F00, 
-        #FFFF00, 
-        #00FF00, 
-        #0000FF, 
-        #4B0082, 
-        #8F00FF
+        rgba(0, 255, 255, 0.2),
+        rgba(0, 255, 255, 0.5)
       );
-      background-size: 200% 200%;
-      border: none;
-      color: #fff;
+      border: 1px solid rgba(0,255,255,0.4);
+      color: #00ffff;
       font-weight: 600;
-      transition: background 1s;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-    .btn-rainbow:hover {
-      background-position: 100% 0%;
+    .btn-futuristic:hover {
+      background: linear-gradient(
+        90deg,
+        rgba(0, 255, 255, 0.3),
+        rgba(0, 255, 255, 0.7)
+      );
       transform: scale(1.02);
+      box-shadow: 0 0 10px rgba(0,255,255,0.6);
     }
-    .btn-rainbow:focus {
-      box-shadow: 0 0 8px rgba(255,255,255,0.5);
+    .btn-futuristic:focus {
+      box-shadow: 0 0 10px rgba(0,255,255,0.6);
     }
 
-    /* 
-      ========== 6. Ұялы экран ========== 
+    /*
+      ========== 6. Ұялы экран ==========
     */
     @media (max-width: 576px) {
-      .rainbow-card {
+      .futuristic-card {
         margin: 1rem;
       }
     }
@@ -133,7 +151,7 @@
 </head>
 <body>
 
-  <div class="card rainbow-card">
+  <div class="card futuristic-card">
     <div class="card-body">
       <h2>Кіру</h2>
       <form method="post">
@@ -149,7 +167,7 @@
           <input type="password" name="password" class="form-control" required>
         </div>
         
-        <button type="submit" class="btn btn-rainbow w-100 mt-2">Кіру</button>
+        <button type="submit" class="btn btn-futuristic w-100 mt-2">Кіру</button>
       </form>
     </div>
   </div>
