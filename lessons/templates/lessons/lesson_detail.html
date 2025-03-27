@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
   <style>
     /* Негізгі глобалдық стильдер */
@@ -434,20 +436,64 @@
   <!-- Quiz блоктары -->
   <div id="quiz-container" class="mt-4 text-center">
     <button id="start-quiz-btn" class="btn btn-success btn-lg">🎯 Тестті бастау</button>
-    <div id="quiz-content" class="p-4" style="display:none;">
+    
+    <div id="quiz-content" class="p-4" style="display: none;">
       <h3 id="question-text" class="mb-3"></h3>
+
       <div id="progress-bar" class="progress mb-3">
         <div id="progress" class="progress-bar bg-success" style="width: 0%;"></div>
       </div>
+
       <div id="answer-buttons" class="d-grid gap-2"></div>
+      
       <p id="timer" class="text-danger mt-3">⏳ 4 секунд</p>
       <p id="score" class="mt-2">🏆 Ұпай: 0</p>
       <p id="attempts">❌ Қателер: 0/3</p>
     </div>
   </div>
+
   
   <!-- JavaScript блоктары -->
   <script>
+
+    document.getElementById('start-quiz-btn').addEventListener('click', function () {
+      Swal.fire({
+        title: '📢 Тест ережелері',
+        html: `
+          ⏱ <b>Әр сұраққа жауап беру үшін 5 секунд бар.</b><br>
+          ❌ Егер 3 рет қателесеңіз, тест басынан басталады.<br><br>
+          Тесті бастауға дайынсыз ба?
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Иә, бастаймыз',
+        cancelButtonText: 'Жоқ',
+        confirmButtonColor: '#28a745'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById('quiz-content').style.display = 'block';
+          document.getElementById('start-quiz-btn').style.display = 'none';
+          startQuiz(); // 👈 тек осы жерде басталады
+        }
+      });
+    });
+
+    function startQuiz() {
+      fetch("/start-quiz/{{ lesson.id }}/")
+        .then(response => response.json())
+        .then(data => {
+          questions = data.questions;
+          currentQuestionIndex = 0;
+          score = 0;
+          attempts = 0;
+          nextQuestion();
+        });
+    }
+    
+    
+    
+
+
     // Ағымдағы сабақтың ID-сы
     const currentLessonId = "{{ lesson.id }}";
 
@@ -577,7 +623,10 @@
       });
 
       // ========== 6. QUIZ FUNCTIONALITY ==========
+      // ✅ Глобал айнымалылар
       let questions = [], currentQuestionIndex = 0, score = 0, attempts = 0, timer;
+
+      // ✅ DOM элементтер
       const startQuizBtn = document.getElementById("start-quiz-btn");
       const quizContent = document.getElementById("quiz-content");
       const questionText = document.getElementById("question-text");
@@ -587,40 +636,71 @@
       const scoreText = document.getElementById("score");
       const attemptsText = document.getElementById("attempts");
 
-      startQuizBtn.addEventListener("click", function() {
+      // ✅ Тест ережесі терезесі және басталуы
+      startQuizBtn.addEventListener("click", function () {
+        Swal.fire({
+          title: "\uD83D\uDCE2 Тест ережелері",
+          html: `
+            ⏱ <b>Әр сұраққа жауап беру үшін 5 секунд бар.</b><br>
+            ❌ Егер 3 рет қателессеңіз, тест басынан басталады.<br><br>
+            Тесті бастауға дайынсыз ба?
+          `,
+          icon: "info",
+          showCancelButton: true,
+          confirmButtonText: "Иә, бастаймыз",
+          cancelButtonText: "Жоқ",
+          confirmButtonColor: "#28a745",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            quizContent.style.display = "block";
+            startQuizBtn.style.display = "none";
+            startQuiz();
+          }
+        });
+      });
+
+      // ✅ Тестті бастау логикасы
+      function startQuiz() {
         fetch("/start-quiz/{{ lesson.id }}/")
-          .then(response => response.json())
-          .then(data => {
+          .then((response) => response.json())
+          .then((data) => {
             questions = data.questions;
             currentQuestionIndex = 0;
             score = 0;
             attempts = 0;
-            quizContent.style.display = "block";
-            startQuizBtn.style.display = "none";
+            scoreText.innerText = "\ud83c\udfc6 \u04b0пай: 0";
+            attemptsText.innerText = "\u274c \u049aателер: 0/3";
             nextQuestion();
           });
-      });
+      }
 
+      // ✅ Келесі сұрақты көрсету
       function nextQuestion() {
         if (currentQuestionIndex >= questions.length) {
-          quizContent.innerHTML = `<h3>✅ Тест аяқталды! Ұпай: ${score}</h3>
-              <button class='btn btn-primary' onclick='location.reload()'>🔄 Қайта тапсыру</button>`;
+          quizContent.innerHTML = `<h3 class="text-success">✅ Тест аяқталды! Ұпай: ${score}</h3>
+            <button class='btn btn-primary' onclick='location.reload()'>🔄 Қайта тапсыру</button>`;
           return;
         }
+
         const question = questions[currentQuestionIndex];
         questionText.innerText = question.english_word;
         progressBar.style.width = ((currentQuestionIndex + 1) / questions.length * 100) + "%";
+
         answerButtons.innerHTML = "";
         question.choices.forEach(choice => {
           const btn = document.createElement("button");
           btn.classList.add("btn", "btn-outline-primary", "btn-lg");
           btn.innerText = choice;
-          btn.onclick = function() { checkAnswer(question.id, choice, btn); };
+          btn.onclick = function () {
+            checkAnswer(question.id, choice, btn);
+          };
           answerButtons.appendChild(btn);
         });
+
         resetTimer();
       }
 
+      // ✅ Жауапты тексеру
       function checkAnswer(questionId, selectedAnswer, btn) {
         clearInterval(timer);
         fetch("/submit-answer/{{ lesson.id }}/", {
@@ -628,29 +708,36 @@
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({ question_id: questionId, answer: selectedAnswer })
         })
-        .then(response => response.json())
-        .then(data => {
-          if (data.correct) {
-            score++;
-            btn.classList.add("btn-success");
-            scoreText.innerText = `🏆 Ұпай: ${score}`;
-          } else {
-            attempts++;
-            btn.classList.add("btn-danger");
-            attemptsText.innerText = `❌ Қателер: ${attempts}/3`;
-            if (attempts >= 3) {
-              alert("3 рет қателестіңіз! Тест қайта басталады.");
-              location.reload();
-              return;
+          .then(response => response.json())
+          .then(data => {
+            if (data.correct) {
+              score++;
+              btn.classList.add("btn-success");
+              scoreText.innerText = `\ud83c\udfc6 \u04b0пай: ${score}`;
+            } else {
+              attempts++;
+              btn.classList.add("btn-danger");
+              attemptsText.innerText = `❌ Қателер: ${attempts}/3`;
+              if (attempts >= 3) {
+                Swal.fire({
+                  icon: 'error',
+                  title: '❌ 3 рет қателестіңіз!',
+                  text: 'Тест басынан басталады.',
+                  confirmButtonText: 'Қайта бастау'
+                }).then(() => {
+                  location.reload();
+                });
+                return;
+              }
             }
-          }
-          setTimeout(() => {
-            currentQuestionIndex++;
-            nextQuestion();
-          }, 1000);
-        });
+            setTimeout(() => {
+              currentQuestionIndex++;
+              nextQuestion();
+            }, 1000);
+          });
       }
 
+      // ✅ Таймерді жаңарту
       function resetTimer() {
         let timeLeft = 5;
         timerText.innerText = `⏳ ${timeLeft} секунд`;
@@ -663,8 +750,14 @@
             attempts++;
             attemptsText.innerText = `❌ Қателер: ${attempts}/3`;
             if (attempts >= 3) {
-              alert("3 рет қателестіңіз! Тест қайта басталады.");
-              location.reload();
+              Swal.fire({
+                icon: 'error',
+                title: '⏳ Уақыт бітті',
+                html: 'Сіз 3 рет қателестіңіз.<br>Тест басынан басталады.',
+                confirmButtonText: 'Қайта тапсыру'
+              }).then(() => {
+                location.reload();
+              });
             } else {
               currentQuestionIndex++;
               nextQuestion();
@@ -672,6 +765,7 @@
           }
         }, 1000);
       }
+
     });
 
     // Utility: CSRF token алу
