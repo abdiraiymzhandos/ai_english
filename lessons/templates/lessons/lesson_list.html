@@ -102,11 +102,19 @@
       font-size: 1.15rem;
       font-weight: 500;
       margin: 0;
-      /* Бұларды қосыңыз: */
-      white-space: normal;     /* Бірнеше қатарға үзуді қосу */
-      word-wrap: break-word;   /* Ұзақ сөздерді қажетті жерден бөліп отыру */
-      overflow: hidden;        /* Контейнер шегінен асып кетпеу */
-    }    
+    
+      /* Көпжолдық эллипсис үшін flex/inline-flex емес, block немесе inline-block
+         сипатты контейнер болуы керек. Сондай-ақ display: -webkit-box; қосамыз. */
+      display: -webkit-box;
+      -webkit-box-orient: vertical; /* Вертикалды бағыт */
+      -webkit-line-clamp: 2;       /* Қанша жолдан кейін кесілетінін көрсетеміз */
+      overflow: hidden;            /* Артық мәтін жасырылсын */
+      text-overflow: ellipsis;     /* Әрдайым болмаса да, көп жағдайда "..." қоюға тырысады */
+    
+      word-wrap: break-word;
+      white-space: normal;
+    }
+     
 
     /* Бадж стилі (Көру, Қолжетімсіз) */
     .badge {
