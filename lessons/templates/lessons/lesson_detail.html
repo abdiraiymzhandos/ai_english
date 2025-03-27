@@ -217,14 +217,37 @@
           </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.content %}
-              <div class="alert alert-info">🧠 {{ explanations.content.text|safe }}</div>
-              {% if explanations.content.audio_url %}
-                <audio controls class="mt-2 w-100">
-                  <source src="{{ explanations.content.audio_url }}" type="audio/mp3">
-                  Браузеріңіз аудионы қолдамайды.
-                </audio>
-              {% endif %}
-            {% endif %}
+          <div class="explanation-container mt-2">
+            <!-- Ашық жасыл фондағы тақырып (басыңыз да, ашылсын/жабылсын) -->
+            <div class="d-flex justify-content-between align-items-center p-2 border"
+                data-bs-toggle="collapse"
+                data-bs-target="#contentCollapse"
+                aria-expanded="false"
+                aria-controls="contentCollapse"
+                style="cursor: pointer; background-color: #ccffcc;">
+              <strong>Түсініктеме</strong>
+              <span class="ms-2">&#9662;</span>
+            </div>
+
+            <!-- Ашылып‐жабылатын мәтін -->
+            <div class="collapse" id="contentCollapse">
+              <div class="alert alert-info mt-2 mb-0">
+                🧠 {{ explanations.content.text|safe }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Аудио плеер үнемі көрініп тұрады -->
+          {% if explanations.content.audio_url %}
+            <div class="audio-container mt-2">
+              <audio controls class="w-100">
+                <source src="{{ explanations.content.audio_url }}" type="audio/mp3">
+                Браузеріңіз аудионы қолдамайды.
+              </audio>
+            </div>
+          {% endif %}
+        {% endif %}
+
           </div>
         </div>
       </div>
@@ -247,14 +270,37 @@
           </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.vocabulary %}
-              <div class="alert alert-info">🧠 {{ explanations.vocabulary.text|safe }}</div>
-              {% if explanations.vocabulary.audio_url %}
-                <audio controls class="mt-2 w-100">
-                  <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mp3">
-                  Браузеріңіз аудионы қолдамайды.
-                </audio>
-              {% endif %}
-            {% endif %}
+          <div class="explanation-container mt-2">
+            <!-- Тақырып (ашық жасыл фон) -->
+            <div class="d-flex justify-content-between align-items-center p-2 border"
+                data-bs-toggle="collapse"
+                data-bs-target="#vocabularyCollapse"
+                aria-expanded="false"
+                aria-controls="vocabularyCollapse"
+                style="cursor: pointer; background-color: #ccffcc;">
+              <strong>Түсініктеме</strong>
+              <span class="ms-2">&#9662;</span>
+            </div>
+            
+            <!-- Ашылып‐жабылатын мәтін -->
+            <div class="collapse" id="vocabularyCollapse">
+              <div class="alert alert-info mt-2 mb-0">
+                🧠 {{ explanations.vocabulary.text|safe }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Аудио блок тек сыртында қалады -->
+          {% if explanations.vocabulary.audio_url %}
+            <div class="audio-container mt-2">
+              <audio controls class="w-100">
+                <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mp3">
+                Браузеріңіз аудионы қолдамайды.
+              </audio>
+            </div>
+          {% endif %}
+        {% endif %}
+
           </div>
         </div>
       </div>
@@ -275,14 +321,38 @@
           </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.grammar %}
-              <div class="alert alert-info">🧠 {{ explanations.grammar.text|safe }}</div>
-              {% if explanations.grammar.audio_url %}
-                <audio controls class="mt-2 w-100">
-                  <source src="{{ explanations.grammar.audio_url }}" type="audio/mp3">
-                  Браузеріңіз аудионы қолдамайды.
-                </audio>
-              {% endif %}
-            {% endif %}
+          <div class="explanation-container mt-2">
+            <!-- Ашық жасыл фондағы тақырып (кнопка емес, соны басса ашылады) -->
+            <div class="d-flex justify-content-between align-items-center p-2 border"
+                data-bs-toggle="collapse"
+                data-bs-target="#grammarCollapse"
+                aria-expanded="false"
+                aria-controls="grammarCollapse"
+                style="cursor: pointer; background-color: #ccffcc;">
+              <strong>Түсініктеме</strong>
+              <!-- Төмен бағыттағы үшбұрыш белгісі -->
+              <span class="ms-2">&#9662;</span>
+            </div>
+
+            <!-- Ашылатын/жабылатын мәтін -->
+            <div class="collapse" id="grammarCollapse">
+              <div class="alert alert-info mt-2 mb-0">
+                🧠 {{ explanations.grammar.text|safe }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Аудио плеер блок әрдайым көрініп тұрады -->
+          {% if explanations.grammar.audio_url %}
+            <div class="audio-container mt-2">
+              <audio controls class="w-100">
+                <source src="{{ explanations.grammar.audio_url }}" type="audio/mp3">
+                Браузеріңіз аудионы қолдамайды.
+              </audio>
+            </div>
+          {% endif %}
+        {% endif %}
+
           </div>
         </div>
       </div>
@@ -303,14 +373,37 @@
           </button> {% endcomment %}
           <div class="explanation-container mt-2">
             {% if explanations.dialogue %}
-              <div class="alert alert-info">🧠 {{ explanations.dialogue.text|safe }}</div>
-              {% if explanations.dialogue.audio_url %}
-                <audio controls class="mt-2 w-100">
-                  <source src="{{ explanations.dialogue.audio_url }}" type="audio/mp3">
-                  Браузеріңіз аудионы қолдамайды.
-                </audio>
-              {% endif %}
-            {% endif %}
+          <div class="explanation-container mt-2">
+            <!-- Ашық жасыл фондағы тақырып -->
+            <div class="d-flex justify-content-between align-items-center p-2 border"
+                data-bs-toggle="collapse"
+                data-bs-target="#dialogueCollapse"
+                aria-expanded="false"
+                aria-controls="dialogueCollapse"
+                style="cursor: pointer; background-color: #ccffcc;">
+              <strong>Түсініктеме</strong>
+              <span class="ms-2">&#9662;</span>
+            </div>
+
+            <!-- Ашылып-жабылатын мәтін -->
+            <div class="collapse" id="dialogueCollapse">
+              <div class="alert alert-info mt-2 mb-0">
+                🧠 {{ explanations.dialogue.text|safe }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Аудио плеер үнемі көрініп тұрады -->
+          {% if explanations.dialogue.audio_url %}
+            <div class="audio-container mt-2">
+              <audio controls class="w-100">
+                <source src="{{ explanations.dialogue.audio_url }}" type="audio/mp3">
+                Браузеріңіз аудионы қолдамайды.
+              </audio>
+            </div>
+          {% endif %}
+        {% endif %}
+
           </div>
         </div>
       </div>
@@ -559,7 +652,7 @@
       }
 
       function resetTimer() {
-        let timeLeft = 4;
+        let timeLeft = 5;
         timerText.innerText = `⏳ ${timeLeft} секунд`;
         clearInterval(timer);
         timer = setInterval(() => {
