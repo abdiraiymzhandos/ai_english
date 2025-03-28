@@ -6,6 +6,7 @@ from django.utils import timezone
 from .models import Lesson, QuizQuestion, QuizAttempt, Explanation
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 import random
 import os
 import glob
@@ -435,3 +436,18 @@ def account_locked(request):
         'remaining_days': remaining_time,
     }
     return render(request, 'lessons/account_locked.html', context)
+
+
+@login_required
+def vocabulary_list(request):
+    all_vocab_texts = Lesson.objects.values_list('vocabulary', flat=True)
+
+    all_words_set = set()
+    for vocab in all_vocab_texts:
+        words = [word.strip() for word in vocab.split('\n') if word.strip()]
+        all_words_set.update(words)
+
+    sorted_words = sorted(all_words_set)
+    numbered_words = list(enumerate(sorted_words, start=1))
+
+    return render(request, 'lessons/vocabulary_list.html', {'words': numbered_words})

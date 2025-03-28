@@ -214,9 +214,9 @@
       <div id="content" class="accordion-collapse collapse show">
         <div class="accordion-body" id="lesson-content">
           {{ lesson.content|linebreaksbr }}
-          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button> {% endcomment %}
+          </button>
           <div class="explanation-container mt-2">
             {% if explanations.content %}
           <div class="explanation-container mt-2">
@@ -267,9 +267,9 @@
           {% for word in lesson.vocabulary.splitlines %}
             <p><strong>{{ word }}</strong></p>
           {% endfor %}
-          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button> {% endcomment %}
+          </button>
           <div class="explanation-container mt-2">
             {% if explanations.vocabulary %}
           <div class="explanation-container mt-2">
@@ -318,9 +318,9 @@
       <div id="grammar" class="accordion-collapse collapse">
         <div class="accordion-body" id="lesson-grammar">
           {{ lesson.grammar|linebreaksbr }}
-          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button> {% endcomment %}
+          </button>
           <div class="explanation-container mt-2">
             {% if explanations.grammar %}
           <div class="explanation-container mt-2">
@@ -370,9 +370,9 @@
       <div id="dialogue" class="accordion-collapse collapse">
         <div class="accordion-body" id="lesson-dialogue">
           {{ lesson.dialogue|linebreaksbr }}
-          {% comment %} <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
             🔍 Түсіндіру (ChatGPT)
-          </button> {% endcomment %}
+          </button>
           <div class="explanation-container mt-2">
             {% if explanations.dialogue %}
           <div class="explanation-container mt-2">

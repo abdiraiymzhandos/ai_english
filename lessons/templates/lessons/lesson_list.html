@@ -162,6 +162,9 @@
     
     <!-- Жүйеге кіру / шығу батырмалары -->
     <div class="d-flex justify-content-end align-items-center auth-buttons">
+      <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
+        Сөздік
+      </a>
       {% if user.is_authenticated %}
         <span class="me-3">
           Қош келдіңіз, <strong>{{ user.username }}</strong>!
