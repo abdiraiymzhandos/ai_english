@@ -47,18 +47,26 @@ def lesson_list(request):
 def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
-    # ✅ Егер 3-шы сабақтан жоғары болса және қолданушы кірмеген болса, логинге жібереді
-    if lesson.id > 3 and not request.user.is_authenticated:
+    # Free lessons that are available to everyone
+    free_lesson_ids = {195, 59, 28, 1, 2, 3}
+
+    # Redirect to advertisement if not free and user is unauthenticated
+    if lesson.id not in free_lesson_ids and not request.user.is_authenticated:
         return redirect('/advertisement/')
 
     # 🔥 Сабақтың түсіндірмелерін сессиядан алу
     explanations_qs = Explanation.objects.filter(lesson=lesson)
-    explanations = {exp.section: {"text": exp.text, "audio_url": exp.audio_url} for exp in explanations_qs}
+    explanations = {
+        exp.section: {"text": exp.text, "audio_url": exp.audio_url}
+        for exp in explanations_qs
+    }
 
     return render(request, 'lessons/lesson_detail.html', {
         'lesson': lesson,
         'explanations': explanations,
     })
+
+
 
 
 def advertisement(request):
@@ -71,7 +79,7 @@ def advertisement(request):
     return render(request, 'lessons/advertisement.html', {
         'price': '5000 теңге',
         'duration': '1 жылға',
-        'whatsapp': '77781029394',
+        'whatsapp': '77761703124',
         'message': 'Өте пайдалы! Ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы үйретеміз.'
     })
 
