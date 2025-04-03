@@ -1,373 +1,545 @@
-<!-- lesson_list.html -->
 <!DOCTYPE html>
 {% load static %}
 <html lang="kk">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Сабақтар</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  
-  <style>
-    /* ------------------------------
-       Жалпы фон мен бет параметрлері
-    ---------------------------------*/
-    html, body {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0D1117; /* Dark фон */
-      color: #ffffff;
-      min-height: 100vh; /* Экранның биіктігін толтыру */
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сабақтар</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    /* Артқы фонның үстінен кішкене әйнекше (glass) эффект беру үшін */
-    .lessons-wrapper {
-      width: 90%;
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: rgba(255, 255, 255, 0.06); /* Мөлдір қабат */
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 15px;
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    }
+    <style>
+        body {
+            background: linear-gradient(135deg, #121212, #1a1a1a);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .container {
+            padding: 20px 15px;
+        }
+        .stage-card {
+            background: linear-gradient(145deg, #1f1f1f, #2a2a2a);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .stage-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        .stage-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .stage-card:hover::before {
+            transform: scaleX(1);
+        }
+        .stage-title {
+            font-weight: 600;
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+        .stage-title i {
+            color: #4CAF50;
+            font-size: 28px;
+            transition: transform 0.3s ease;
+        }
+        .stage-card:hover .stage-title i {
+            transform: rotate(15deg);
+        }
+        .lesson-item {
+            background: rgba(41, 41, 41, 0.8);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .lesson-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #4CAF50, #2196F3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .lesson-item.locked {
+            opacity: 0.7;
+            background: rgba(41, 41, 41, 0.4);
+        }
+        .lesson-item:hover:not(.locked) {
+            background: rgba(58, 58, 58, 0.9);
+            transform: translateX(5px);
+        }
+        .lesson-item:hover:not(.locked)::before {
+            opacity: 1;
+        }
+        .lessons-container {
+            display: none;
+            margin-top: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .lessons-container.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .lessons-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .lessons-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        .lessons-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        .lesson-icon {
+            font-size: 1.4em;
+            transition: transform 0.3s ease;
+        }
+        .lesson-item:hover:not(.locked) .lesson-icon {
+            transform: scale(1.2);
+        }
+        .lesson-number {
+            color: #4CAF50;
+            font-weight: 600;
+            min-width: 30px;
+            font-size: 1.1em;
+        }
+        .page-title {
+            font-size: 2.8em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            display: inline-block;
+        }
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            border-radius: 2px;
+        }
+        .progress-indicator {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            border-radius: 3px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.2) 50%,
+                rgba(255,255,255,0) 100%);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .badge {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057) !important;
+        }
+        .auth-buttons {
+            margin-bottom: 2rem;
+        }
+        .auth-buttons .btn {
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .auth-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #motivational-btn {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            padding: 12px 25px;
+            transition: all 0.3s ease;
+        }
+        #motivational-btn:hover {
+            background: linear-gradient(135deg, #66bb6a, #388e3c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .progress-percentage {
+            font-size: 0.8em;
+            color: #4CAF50;
+            font-weight: 500;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7em;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
 
-    /* Тақырыптың өзін әдемілеу */
-    h1 {
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+            }
+        }
 
-    /* Кіру/Шығу батырмаларының контейнері */
-    .auth-buttons {
-      margin-bottom: 1.5rem;
-    }
+        @media (max-width: 992px) {
+            .stage-title {
+                font-size: 22px;
+            }
+            .page-title {
+                font-size: 2.4em;
+            }
+        }
 
-    /* list-group элементтерін ыңғайлы ету */
-    .list-group {
-      margin-top: 1.5rem;
-      border: none;
-    }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 10px;
+            }
+            .stage-card {
+                padding: 20px;
+            }
+            .stage-title {
+                font-size: 20px;
+            }
+            .page-title {
+                font-size: 2em;
+            }
+            .lesson-item {
+                padding: 12px 15px;
+            }
+            .auth-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .auth-buttons .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .auth-buttons .me-3 {
+                margin-right: 0 !important;
+                margin-bottom: 10px;
+            }
+        }
 
-    /* Сабақ элементтерінің контейнері */
-    .list-group-item {
-      border: none;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-      margin-bottom: 1rem;
-      transition: all 0.3s ease;
-    }
+        @media (max-width: 576px) {
+            .container {
+                padding: 10px;
+            }
+            .stage-card {
+                padding: 15px;
+            }
+            .stage-title {
+                font-size: 18px;
+                flex-wrap: wrap;
+            }
+            .page-title {
+                font-size: 1.8em;
+            }
+            .lesson-item {
+                padding: 10px 12px;
+            }
+            .lesson-icon {
+                font-size: 1.2em;
+            }
+            .lesson-number {
+                font-size: 1em;
+            }
+            .progress-percentage {
+                font-size: 0.75em;
+                padding: 3px 8px;
+            }
+            .progress-text {
+                font-size: 0.65em;
+            }
+            #motivational-btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
 
-    /* Ашық (құлыпсыз) сабақтардың hover-эффектісі */
-    .list-group-item:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-3px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
+        /* Landscape mode for mobile */
+        @media (max-height: 576px) and (orientation: landscape) {
+            .container {
+                padding: 10px;
+            }
+            .stage-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            .lesson-item {
+                padding: 8px 12px;
+                margin: 5px 0;
+            }
+        }
 
-    /* Құлыпталған сабақ стилі */
-    .list-group-item.locked {
-      background: rgba(255, 255, 255, 0.08);
-      color: #b0b0b0;
-      cursor: not-allowed;
-    }
-
-    /* Сабақ нөмірінің дөңгелек қаптамасы */
-    .lesson-number-box {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 40px;
-      height: 40px;
-      margin-right: 15px;
-      border-radius: 50%;
-      font-weight: 600;
-      background: linear-gradient(
-        135deg,
-        rgba(0, 173, 255, 0.9),
-        rgba(0, 99, 255, 0.9)
-      );
-      color: #fff;
-      flex-shrink: 0;
-    }
-
-    /* Сабақ атауы */
-    .lesson-title {
-      font-size: 1.15rem;
-      font-weight: 500;
-      margin: 0;
-    
-      /* Көпжолдық эллипсис үшін flex/inline-flex емес, block немесе inline-block
-         сипатты контейнер болуы керек. Сондай-ақ display: -webkit-box; қосамыз. */
-      display: -webkit-box;
-      -webkit-box-orient: vertical; /* Вертикалды бағыт */
-      -webkit-line-clamp: 2;       /* Қанша жолдан кейін кесілетінін көрсетеміз */
-      overflow: hidden;            /* Артық мәтін жасырылсын */
-      text-overflow: ellipsis;     /* Әрдайым болмаса да, көп жағдайда "..." қоюға тырысады */
-    
-      word-wrap: break-word;
-      white-space: normal;
-    }
-     
-
-    /* Бадж стилі (Көру, Тесттен өтіңіз) */
-    .badge {
-      font-size: 0.875rem;
-      font-weight: 500;
-      padding: 0.4rem 0.7rem;
-      border-radius: 20px;
-    }
-
-    /* "Тесттен өтіңіз" жазуын күңгірттеу */
-    .badge.bg-secondary {
-      opacity: 0.7;
-    }
-
-    /* Мотивациялық хабар алуға арналған контейнер және батырма */
-    #motivational-btn {
-      background: linear-gradient(135deg, #4caf50, #2e7d32);
-      color: #ffffff;
-      border: none;
-      font-weight: 600;
-      transition: background 0.3s ease;
-    }
-
-    #motivational-btn:hover {
-      background: linear-gradient(135deg, #66bb6a, #388e3c);
-    }
-
-    /* Экран кішірейгенде (Mobile Friendly) */
-    @media (max-width: 576px) {
-      .lesson-number-box {
-        min-width: 35px;
-        height: 35px;
-      }
-      .lesson-title {
-        font-size: 1rem;
-      }
-    }
-  </style>
+        /* Tablet specific adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .stage-card {
+                padding: 20px;
+            }
+            .stage-title {
+                font-size: 22px;
+            }
+            .lesson-item {
+                padding: 12px 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <!-- Сабақтар тізімі -->
-  <div class="lessons-wrapper">
-    <h1 class="text-center">Сабақтар тізімі</h1>
+<div class="container py-5">
+    <h1 class="text-center page-title">Сабақтар тізімі</h1>
     
     <!-- Жүйеге кіру / шығу батырмалары -->
     <div class="d-flex justify-content-end align-items-center auth-buttons">
-      <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
-        Сөздік
-      </a>
-      {% if user.is_authenticated %}
-        <span class="me-3">
-          Қош келдіңіз, <strong>{{ user.username }}</strong>!
-        </span>
-        <form action="{% url 'logout' %}" method="post" class="d-inline">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger rounded-pill">
-            Шығу
-          </button>
-        </form>
-      {% else %}
-        <a href="{% url 'login' %}" class="btn btn-primary rounded-pill">
-          Кіру
+        <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
+            <i class="fas fa-book me-2"></i>Сөздік
         </a>
-      {% endif %}
+        {% if user.is_authenticated %}
+            <span class="me-3">
+                <i class="fas fa-user me-2"></i>Қош келдіңіз, <strong>{{ user.username }}</strong>!
+            </span>
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger rounded-pill">
+                    <i class="fas fa-sign-out-alt me-2"></i>Шығу
+                </button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary rounded-pill">
+                <i class="fas fa-sign-in-alt me-2"></i>Кіру
+            </a>
+        {% endif %}
     </div>
 
-    <!-- Сабақтардың тізімі -->
-    <ul class="list-group">
-      {% for lesson in lessons %}
-        {% if lesson.id == 1 or lesson.id in passed_lessons %}
-          <!-- Ашық сабақ (құлыпсыз) -->
-          <a 
-            href="{% url 'lesson_detail' lesson.id %}" 
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            style="text-decoration: none;"
-          >
-            <div class="d-flex align-items-center">
-              <div class="lesson-number-box">{{ forloop.counter }}</div>
-              <p class="lesson-title mb-0">📖 {{ lesson.title }}</p>
+    <div class="row">
+        {% for stage in stages %}
+        <div class="col-md-6">
+            <div class="stage-card" onclick="toggleLessons('stage-{{forloop.counter}}')">
+                <div class="stage-title">
+                    <i class="fas fa-book-open"></i>
+                    {{ stage.title }}
+                    <span class="progress-percentage ms-auto">
+                        {{ stage.progress.percentage }}%
+                    </span>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: {{ stage.progress.percentage }}%;">
+                        <span class="progress-text">
+                            {{ stage.progress.passed }}/{{ stage.progress.total }}
+                        </span>
+                    </div>
+                </div>
+                <div class="lessons-container" id="stage-{{forloop.counter}}">
+                    {% for lesson in stage.lessons %}
+                    {% if lesson.id == 1 or lesson.id in passed_lessons %}
+                    <a href="{% url 'lesson_detail' lesson.id %}" style="text-decoration:none; color:white;">
+                        <div class="lesson-item">
+                            <span class="lesson-icon">📖</span>
+                            <span class="lesson-number">{{lesson.id}}</span>
+                            <span class="lesson-title">{{lesson.title}}</span>
+                        </div>
+                    </a>
+                    {% else %}
+                    <div class="lesson-item locked">
+                        <span class="lesson-icon">🔒</span>
+                        <span class="lesson-number">{{lesson.id}}</span>
+                        <span class="lesson-title">{{lesson.title}}</span>
+                        <span class="badge bg-secondary ms-auto">🔒 Тесттен өтіңіз</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
             </div>
-            <span class="badge bg-primary">Көру</span>
-          </a>
-        {% else %}
-          <!-- Құлыпталған сабақ -->
-          <li class="list-group-item locked d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <div class="lesson-number-box" style="background: #6c757d;">
-                {{ forloop.counter }}
-              </div>
-              <p class="lesson-title mb-0">
-                🔒 {{ lesson.title }}
-              </p>
-            </div>
-            <span class="badge bg-secondary">🔒 Тесттен өтіңіз</span>
-          </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  </div>
+        </div>
+        {% endfor %}
+    </div>
 
-  <!-- Мотивациялық хабарды шығару -->
-  <div class="container text-center my-4">
-    <button id="motivational-btn" class="btn btn-success rounded-pill">
-      Мотивациялық хабарды алу
-    </button>
-    <div id="motivational-message" class="mt-3"></div>
-  </div>
+    <!-- Мотивациялық хабарды шығару -->
+    <div class="text-center my-4">
+        <button id="motivational-btn" class="btn btn-success rounded-pill">
+            <i class="fas fa-lightbulb me-2"></i>Мотивациялық хабарды алу
+        </button>
+        <div id="motivational-message" class="mt-3"></div>
+    </div>
+</div>
 
-  <!-- JS логикасы -->
-  <script>
+<script>
+    function toggleLessons(id) {
+        const container = document.getElementById(id);
+        const isVisible = container.classList.contains('show');
+        
+        if (isVisible) {
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                container.classList.remove('show');
+            }, 300);
+        } else {
+            container.classList.add('show');
+            setTimeout(() => {
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 50);
+        }
+    }
+
     // CSRF Cookie алу
     function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        document.cookie.split(";").forEach(cookie => {
-          cookie = cookie.trim();
-          if (cookie.startsWith(name + "=")) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          }
-        });
-      }
-      return cookieValue;
-    }
-
-    // Сабақ тестінен өткеннен кейін келесі сабақты ашу
-    function updateLessons(nextLessonId) {
-      document.querySelectorAll(".list-group-item").forEach(item => {
-        const lessonNumberEl = item.querySelector(".lesson-number-box");
-        if (!lessonNumberEl) return;
-
-        const lessonNumber = parseInt(lessonNumberEl.innerText);
-        const lessonTitleEl = item.querySelector(".lesson-title");
-
-        // Егер құлыпталған сабақтың нөмірі nextLessonId болса => ашады
-        if (
-          lessonTitleEl && 
-          lessonTitleEl.innerText.includes("🔒") && 
-          lessonNumber === nextLessonId
-        ) {
-          item.classList.remove("locked");
-          item.classList.add("list-group-item-action");
-          item.style.cursor = "pointer";
-          
-          // Ішкі HTML-ді толығымен ауыстыру
-          item.innerHTML = `
-            <a href="/lesson/${nextLessonId}/" 
-               class="d-flex justify-content-between align-items-center text-decoration-none"
-               style="color: #fff;">
-              <div class="d-flex align-items-center">
-                <div class="lesson-number-box">${lessonNumber}</div>
-                <p class="lesson-title mb-0">${lessonTitleEl.innerText.replace("🔒", "📖")}</p>
-              </div>
-              <span class="badge bg-primary">Көру</span>
-            </a>
-          `;
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            document.cookie.split(";").forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            });
         }
-      });
-    }
-
-    // Жауапты серверге жіберу (Тест жауаптары)
-    function submitAnswer(questionId, answer) {
-      fetch(`/submit-answer/${questionId}/`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/x-www-form-urlencoded", 
-          "X-CSRFToken": getCookie('csrftoken') 
-        },
-        body: new URLSearchParams({ "question_id": questionId, "answer": answer })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.correct) {
-          alert("Дұрыс жауап!");
-          if (data.passed && data.next_lesson) {
-            updateLessons(data.next_lesson);
-          }
-        } else {
-          alert("Қате жауап! Қайтадан көріңіз.");
-        }
-      })
-      .catch(error => console.error("Жауап жіберу қатесі:", error));
+        return cookieValue;
     }
 
     // Мотивациялық хабарламаны модал арқылы көрсету
     function showMotivationalModal(message) {
-      const modalHtml = `
-        <div class="modal fade" id="motivationalModal" tabindex="-1" 
-             aria-labelledby="motivationalModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content rounded-3" style="background: #21262D; color: #fff;">
-              <div class="modal-header border-0">
-                <h5 class="modal-title" id="motivationalModalLabel">
-                  Мотивация
-                </h5>
-                <button type="button" class="btn-close btn-close-white" 
-                        data-bs-dismiss="modal" aria-label="Жабу">
-                </button>
-              </div>
-              <div class="modal-body">
-                ${message}
-              </div>
-              <div class="modal-footer border-0">
-                <button type="button" 
-                        class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
-                  Жабу
-                </button>
-              </div>
+        const modalHtml = `
+            <div class="modal fade" id="motivationalModal" tabindex="-1" 
+                aria-labelledby="motivationalModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content rounded-3" style="background: #21262D; color: #fff;">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title" id="motivationalModalLabel">
+                                <i class="fas fa-lightbulb me-2"></i>Мотивация
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" 
+                                    data-bs-dismiss="modal" aria-label="Жабу">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ${message}
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" 
+                                    class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
+                                Жабу
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      `;
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      const modal = new bootstrap.Modal(document.getElementById('motivationalModal'));
-      modal.show();
-      document.getElementById('motivationalModal')
-        .addEventListener('hidden.bs.modal', function () {
-          this.remove();
-        });
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modal = new bootstrap.Modal(document.getElementById('motivationalModal'));
+        modal.show();
+        document.getElementById('motivationalModal')
+            .addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
     }
 
     // Мотивациялық хабарды батырма арқылы алу
     document.getElementById("motivational-btn").addEventListener("click", function () {
-      const csrfToken = getCookie('csrftoken');
-      fetch("/motivational-message/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRFToken": csrfToken
-        },
-        body: new URLSearchParams({})
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          document.getElementById("motivational-message").innerHTML = 
-            `<div class="alert alert-danger">${data.error}</div>`;
-        } else {
-          // Модал арқылы көрсету
-          showMotivationalModal(data.message);
-        }
-      })
-      .catch(error => {
-        console.error("Қате:", error);
-        document.getElementById("motivational-message").innerHTML = 
-          `<div class="alert alert-danger">Қате орын алды.</div>`;
-      });
+        const csrfToken = getCookie('csrftoken');
+        fetch("/motivational-message/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken
+            },
+            body: new URLSearchParams({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById("motivational-message").innerHTML = 
+                    `<div class="alert alert-danger">${data.error}</div>`;
+            } else {
+                showMotivationalModal(data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Қате:", error);
+            document.getElementById("motivational-message").innerHTML = 
+                `<div class="alert alert-danger">Қате орын алды.</div>`;
+        });
     });
-  </script>
+</script>
 
-  <!-- Bootstrap JS (Modal және т.б. үшін) -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-  </script>
+<!-- Bootstrap JS (Modal және т.б. үшін) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
