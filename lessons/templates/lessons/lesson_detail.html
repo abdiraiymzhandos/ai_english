@@ -267,6 +267,53 @@
       border-top: 1px solid var(--border-color);
       background: var(--card-bg);
       border-radius: 0 0 20px 20px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      resize: none;
+      background: var(--hover-bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      max-height: 100px;
+      min-height: 45px;
+    }
+
+    #chat-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(74, 107, 255, 0.1);
+    }
+
+    #chat-send-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #chat-send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 107, 255, 0.3);
+    }
+
+    #chat-send-btn i {
+      font-size: 1.2rem;
     }
 
     /* Explanation Button Styles */
@@ -463,6 +510,16 @@
       }
       .explanation-toggle strong {
         font-size: 1.1rem;
+      }
+      #chat-input-area {
+        padding: 10px 15px;
+      }
+      #chat-input {
+        min-height: 40px;
+      }
+      #chat-send-btn {
+        width: 40px;
+        height: 40px;
       }
     }
 
@@ -737,8 +794,10 @@
     </div>
     <div id="chat-messages"></div>
     <div id="chat-input-area">
-      <textarea id="chat-input" rows="2" placeholder="Сұрағыңызды жазыңыз..."></textarea>
-      <button id="chat-send-btn" class="btn btn-sm btn-primary w-100 mt-2">Жіберу</button>
+      <textarea id="chat-input" rows="1" placeholder="Сұрағыңызды жазыңыз..."></textarea>
+      <button id="chat-send-btn">
+          <i class="fas fa-paper-plane"></i>
+      </button>
     </div>
   </div>
   
