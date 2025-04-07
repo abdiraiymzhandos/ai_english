@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout
 from django.utils import timezone
 from .models import UserProfile, UserDevice
+from django.http import HttpResponsePermanentRedirect
 
 class DeviceLockMiddleware(MiddlewareMixin):
     def process_request(self, request):
@@ -43,3 +44,14 @@ class DeviceLockMiddleware(MiddlewareMixin):
         if hasattr(request, 'new_device_id') and request.new_device_id:
             response.set_cookie('device_id', request.new_device_id, max_age=60*60*24*365)  # 1 жылға
         return response
+
+
+class WwwRedirectMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        host = request.get_host()
+        if host == "oqyai.kz":
+            return HttpResponsePermanentRedirect(f"https://www.oqyai.kz{request.get_full_path()}")
+        return self.get_response(request)

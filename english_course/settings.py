@@ -48,12 +48,16 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "abdiraiymzhandos.pythonanywhere.com",
+    "www.oqyai.kz",
+    "oqyai.kz"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://abdiraiymzhandos.pythonanywhere.com",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "https://www.oqyai.kz",
+    "https://oqyai.kz"
 ]
 
 
@@ -70,6 +74,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'lessons.middleware.WwwRedirectMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
