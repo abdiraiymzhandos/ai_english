@@ -65,7 +65,12 @@ def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
     # Free lessons that are available to everyone
-    free_lesson_ids = {1, 2, 3, 15, 14,11}
+    free_lesson_ids = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+                    11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+                    21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
+                    31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 
+                    41, 42, 43, 44, 45, 46, 47, 48, 49, 50}
+
 
     # Redirect to advertisement if not free and user is unauthenticated
     if lesson.id not in free_lesson_ids and not request.user.is_authenticated:
