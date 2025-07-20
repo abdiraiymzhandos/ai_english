@@ -625,9 +625,11 @@
       <div id="content" class="accordion-collapse collapse show">
         <div class="accordion-body" id="lesson-content">
           {{ lesson.content|linebreaksbr }}
-          <!-- <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
-            🔍 Түсіндіру (ChatGPT)
-          </button> -->
+          {% if request.user.is_superuser %}
+            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
+                🔍 Түсіндіру (ChatGPT)
+            </button>
+          {% endif %}
           <div class="explanation-container">
             <div class="explanation-toggle" 
                  data-bs-toggle="collapse" 
@@ -667,9 +669,11 @@
           {% for word in lesson.vocabulary.splitlines %}
             <p><strong>{{ word }}</strong></p>
           {% endfor %}
-          <!-- <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
-            🔍 Түсіндіру (ChatGPT)
-          </button> -->
+          {% if request.user.is_superuser %}
+            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
+                🔍 Түсіндіру (ChatGPT)
+            </button>
+          {% endif %}
           <div class="explanation-container">
             <div class="explanation-toggle" 
                  data-bs-toggle="collapse" 
@@ -707,9 +711,11 @@
       <div id="grammar" class="accordion-collapse collapse">
         <div class="accordion-body" id="lesson-grammar">
           {{ lesson.grammar|linebreaksbr }}
-          <!-- <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
-            🔍 Түсіндіру (ChatGPT)
-          </button> -->
+          {% if request.user.is_superuser %}
+            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
+                🔍 Түсіндіру (ChatGPT)
+            </button>
+          {% endif %}
           <div class="explanation-container">
             <div class="explanation-toggle" 
                  data-bs-toggle="collapse" 
@@ -747,9 +753,11 @@
       <div id="dialogue" class="accordion-collapse collapse">
         <div class="accordion-body" id="lesson-dialogue">
           {{ lesson.dialogue|linebreaksbr }}
-          <!-- <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
-            🔍 Түсіндіру (ChatGPT)
-          </button> -->
+          {% if request.user.is_superuser %}
+            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
+                🔍 Түсіндіру (ChatGPT)
+            </button>
+          {% endif %}
           <div class="explanation-container">
             <div class="explanation-toggle" 
                  data-bs-toggle="collapse" 

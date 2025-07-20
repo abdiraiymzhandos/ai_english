@@ -178,7 +178,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg, 
+            background: linear-gradient(90deg,
                 rgba(255,255,255,0) 0%,
                 rgba(255,255,255,0.2) 50%,
                 rgba(255,255,255,0) 100%);
@@ -412,12 +412,12 @@
             .header {
                 width: 100%;
             }
-            
+
             .header-content {
                 width: 100%;
                 justify-content: space-between;
             }
-            
+
             .page-title {
                 font-size: 2.2em;
             }
@@ -427,7 +427,7 @@
             .page-title {
                 font-size: 1.8em;
             }
-            
+
             .social-link {
                 width: 35px;
                 height: 35px;
@@ -450,71 +450,110 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Жүйеге кіру / шығу батырмалары -->
     <div class="d-flex justify-content-end align-items-center auth-buttons">
-        <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
+        <!-- Сөздікке сілтеме -->
+        <a href="{% url 'vocabulary_list' %}"
+        class="btn btn-success rounded-pill me-3">
             <i class="fas fa-book me-2"></i>Сөздік
         </a>
+
         {% if user.is_authenticated %}
+            <!-- Кіру жасаған қолданушыға сәлемдесу -->
             <span class="me-3">
-                <i class="fas fa-user me-2"></i>Қош келдіңіз, <strong>{{ user.username }}</strong>!
+                <i class="fas fa-user me-2"></i>
+                Қош келдіңіз, <strong>{{ user.username }}</strong>!
             </span>
-            <form action="{% url 'logout' %}" method="post" class="d-inline">
+
+            <!-- Шығу -->
+            <form action="{% url 'logout' %}"
+                method="post" class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger rounded-pill">
+                <button type="submit"
+                        class="btn btn-danger rounded-pill">
                     <i class="fas fa-sign-out-alt me-2"></i>Шығу
                 </button>
             </form>
+
         {% else %}
-            <a href="{% url 'login' %}" class="btn btn-primary rounded-pill">
+            <!-- ⬇︎ ЖАҢА ТІРКЕЛУ БАТЫРМАСЫ -->
+            <button class="btn btn-warning rounded-pill me-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#registerModal">
+                <i class="fas fa-user-plus me-2"></i>Тіркелу
+            </button>
+
+            <!-- Кіру -->
+            <a href="{% url 'login' %}"
+            class="btn btn-primary rounded-pill">
                 <i class="fas fa-sign-in-alt me-2"></i>Кіру
             </a>
         {% endif %}
     </div>
 
+
     <div class="row">
         {% for stage in stages %}
-        <div class="col-md-6">
-            <div class="stage-card" onclick="toggleLessons('stage-{{forloop.counter}}')">
-                <div class="stage-title">
-                    <i class="fas fa-book-open"></i>
-                    {{ stage.title }}
-                    <span class="progress-percentage ms-auto">
-                        {{ stage.progress.percentage }}%
-                    </span>
+            {% if forloop.counter == 6 %}
+                <!-- 🔽 Қазақша бөлімдерден кейін көрінетін Орысша тақырып -->
+                <div class="col-12 mt-5 mb-4">
+                    <!--<h2 class="text-white text-center" style="font-size: 2rem; border-bottom: 2px solid #4CAF50; padding-bottom: 0.5rem;">-->
+                    <!--    Уроки на русском языке-->
+                    <!--</h2>-->
                 </div>
-                <div class="progress-indicator">
-                    <div class="progress-bar" style="width: {{ stage.progress.percentage }}%;">
-                        <span class="progress-text">
-                            {{ stage.progress.passed }}/{{ stage.progress.total }}
+            {% endif %}
+            <div class="col-md-6">
+                <div class="stage-card" onclick="toggleLessons('stage-{{forloop.counter}}')">
+                    <div class="stage-title">
+                        <i class="fas fa-book-open"></i>
+                        {{ stage.title }}
+                        <span class="progress-percentage ms-auto">
+                            {{ stage.progress.percentage }}%
                         </span>
                     </div>
-                </div>
-                <div class="lessons-container" id="stage-{{forloop.counter}}">
-                    {% for lesson in stage.lessons %}
-                    {% if lesson.id == 1 or lesson.id in passed_lessons %}
-                    <a href="{% url 'lesson_detail' lesson.id %}" style="text-decoration:none; color:white;">
-                        <div class="lesson-item">
-                            <span class="lesson-icon">📖</span>
-                            <span class="lesson-number">{{lesson.id}}</span>
-                            <span class="lesson-title">{{lesson.title}}</span>
+                    <div class="progress-indicator">
+                        <div class="progress-bar" style="width: {{ stage.progress.percentage }}%;">
+                            <span class="progress-text">
+                                {{ stage.progress.passed }}/{{ stage.progress.total }}
+                            </span>
                         </div>
-                    </a>
-                    {% else %}
-                    <div class="lesson-item locked">
-                        <span class="lesson-icon">🔒</span>
-                        <span class="lesson-number">{{lesson.id}}</span>
-                        <span class="lesson-title">{{lesson.title}}</span>
-                        <span class="badge bg-secondary ms-auto">🔒 Тесттен өтіңіз</span>
                     </div>
-                    {% endif %}
-                    {% endfor %}
+                    <div class="lessons-container" id="stage-{{forloop.counter}}">
+                        {% for lesson in stage.lessons %}
+                            {% if lesson.id == 1 or lesson.id in passed_lessons %}
+                                <a href="{% url 'lesson_detail' lesson.id %}" style="text-decoration:none; color:white;">
+                                    <div class="lesson-item">
+                                        <span class="lesson-icon">📖</span>
+                                        <!-- ✅ Сабақ нөмірін қазақша мен орысша бөлек көрсету -->
+                                        {% if lesson.id >= 251 %}
+                                            <span class="lesson-number">{{ lesson.id|add:"-250" }}</span>
+                                        {% else %}
+                                            <span class="lesson-number">{{ lesson.id }}</span>
+                                        {% endif %}
+                                        <span class="lesson-title">{{ lesson.title }}</span>
+                                    </div>
+                                </a>
+                            {% else %}
+                                <div class="lesson-item locked">
+                                    <span class="lesson-icon">🔒</span>
+                                    {% if lesson.id >= 251 %}
+                                        <span class="lesson-number">{{ lesson.id|add:"-250" }}</span>
+                                    {% else %}
+                                        <span class="lesson-number">{{ lesson.id }}</span>
+                                    {% endif %}
+                                    <span class="lesson-title">{{ lesson.title }}</span>
+                                    <span class="badge bg-secondary ms-auto">🔒 Тесттен өтіңіз</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
         {% endfor %}
     </div>
+
+
 
     <!-- Мотивациялық хабарды шығару -->
     <div class="text-center my-4">
@@ -525,11 +564,45 @@
     </div>
 </div>
 
+
+<!-- Тіркелу модалы -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="background:#21262D;color:#fff;">
+        <div class="modal-header border-0">
+          <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Тіркелу</h5>
+          <button type="button" class="btn-close btn-close-white"
+                  data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form id="lead-form">
+          <div class="modal-body">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Атыңыз</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Телефон нөмірі</label>
+              <input type="text" name="phone" class="form-control" required>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-success rounded-pill">
+              Жіберу
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
 <script>
     function toggleLessons(id) {
         const container = document.getElementById(id);
         const isVisible = container.classList.contains('show');
-        
+
         if (isVisible) {
             container.style.opacity = '0';
             container.style.transform = 'translateY(-10px)';
@@ -562,7 +635,7 @@
     // Мотивациялық хабарламаны модал арқылы көрсету
     function showMotivationalModal(message) {
         const modalHtml = `
-            <div class="modal fade" id="motivationalModal" tabindex="-1" 
+            <div class="modal fade" id="motivationalModal" tabindex="-1"
                 aria-labelledby="motivationalModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content rounded-3" style="background: #21262D; color: #fff;">
@@ -570,7 +643,7 @@
                             <h5 class="modal-title" id="motivationalModalLabel">
                                 <i class="fas fa-lightbulb me-2"></i>Мотивация
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" 
+                            <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal" aria-label="Жабу">
                             </button>
                         </div>
@@ -578,7 +651,7 @@
                             ${message}
                         </div>
                         <div class="modal-footer border-0">
-                            <button type="button" 
+                            <button type="button"
                                     class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
                                 Жабу
                             </button>
@@ -610,7 +683,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                document.getElementById("motivational-message").innerHTML = 
+                document.getElementById("motivational-message").innerHTML =
                     `<div class="alert alert-danger">${data.error}</div>`;
             } else {
                 showMotivationalModal(data.message);
@@ -618,10 +691,59 @@
         })
         .catch(error => {
             console.error("Қате:", error);
-            document.getElementById("motivational-message").innerHTML = 
+            document.getElementById("motivational-message").innerHTML =
                 `<div class="alert alert-danger">Қате орын алды.</div>`;
         });
     });
+
+
+/* ——— Көмекші: cookie‑ден CSRF алу ——— */
+function getCookie(name){
+    let v=null;
+    if(document.cookie && document.cookie!==""){
+        document.cookie.split(";").forEach(c=>{
+            c=c.trim();
+            if(c.startsWith(name+"=")){
+                v=decodeURIComponent(c.substring(name.length+1));
+            }
+        });
+    }
+    return v;
+}
+
+/* ——— DOM толық дайын болғанда іске қосамыз ——— */
+document.addEventListener("DOMContentLoaded",()=>{
+  const leadForm=document.getElementById("lead-form");
+  if(!leadForm) return;                       // форма жоқ болса – тыныш
+
+  leadForm.addEventListener("submit", async e=>{
+    e.preventDefault();
+    const url = "{% url 'register_lead' %}";  // Django‑дан генерленетін жол
+    const formData = new FormData(leadForm);
+
+    try{
+      const resp = await fetch(url,{
+        method:"POST",
+        headers:{ "X-CSRFToken": getCookie("csrftoken") },
+        body: formData,
+        credentials:"same-origin"            // cookie жіберу
+      });
+
+      if(!resp.ok){
+        const text = await resp.text();
+        throw new Error(`Сервер қатесі: ${resp.status}\n${text.slice(0,120)}`);
+      }
+
+      /* view “redirect_url” қайтарса, соған; әйтпесе 1‑сабақ */
+      const data = await resp.json();
+      window.location.href = data.redirect_url || "https://www.oqyai.kz/lesson/1/";
+    }catch(err){
+      console.error(err);
+      alert("Қате: "+err.message);
+    }
+  });
+});
+
 </script>
 
 <!-- Bootstrap JS (Modal және т.б. үшін) -->

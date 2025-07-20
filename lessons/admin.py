@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lesson, UserProfile, UserDevice
+from .models import Lesson, UserProfile, UserDevice, Lead
 
 
 @admin.register(Lesson)
@@ -24,3 +24,10 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(UserDevice)
 class UserDeviceAdmin(admin.ModelAdmin):
     list_display = ('user', 'device_id', 'last_seen')
+
+
+@admin.register(Lead)
+class LeadAdmin(admin.ModelAdmin):
+    list_display  = ("name", "phone", "created_at")
+    search_fields = ("name", "phone")
+    ordering      = ("-created_at",)

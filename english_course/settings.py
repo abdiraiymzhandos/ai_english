@@ -15,6 +15,9 @@ from dotenv import load_dotenv
 import dj_database_url
 from pathlib import Path
 
+
+
+
 # .env файлын жүктеу
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,7 +46,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
@@ -113,14 +116,15 @@ WSGI_APPLICATION = 'english_course.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blog_database',         # Жоғарыда жасаған дерекқор атауы
-        'USER': 'zhandos',          # Жасалған қолданушы атауы
-        'PASSWORD': 'Aaa12345',          # Қолданушының паролі
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'abdiraiymzhandos$aienglish',  # өз база атыңды жаз
+        'USER': 'abdiraiymzhandos',                 # өз юзер атың
+        'PASSWORD': 'My2612SQL',          # жаңа MySQL паролі
+        'HOST': 'abdiraiymzhandos.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
     }
 }
+
 
 
 # DATABASES = {
@@ -195,7 +199,9 @@ STATICFILES_STORAGE = "whitenoise.storage.ManifestStaticFilesStorage"
 
 # Медиа файлдар
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = "/home/abdiraiymzhandos/media/"
+
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Default primary key field type
