@@ -454,8 +454,7 @@
     <!-- Жүйеге кіру / шығу батырмалары -->
     <div class="d-flex justify-content-end align-items-center auth-buttons">
         <!-- Сөздікке сілтеме -->
-        <a href="{% url 'vocabulary_list' %}"
-        class="btn btn-success rounded-pill me-3">
+        <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
             <i class="fas fa-book me-2"></i>Сөздік
         </a>
 
@@ -467,30 +466,26 @@
             </span>
 
             <!-- Шығу -->
-            <form action="{% url 'logout' %}"
-                method="post" class="d-inline">
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
                 {% csrf_token %}
-                <button type="submit"
-                        class="btn btn-danger rounded-pill">
+                <button type="submit" class="btn btn-danger rounded-pill">
                     <i class="fas fa-sign-out-alt me-2"></i>Шығу
                 </button>
             </form>
 
         {% else %}
-            <!-- ⬇︎ ЖАҢА ТІРКЕЛУ БАТЫРМАСЫ -->
-            <button class="btn btn-warning rounded-pill me-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#registerModal">
+            <!-- ✅ Шынайы тіркелу бетіне сілтеме -->
+            <a href="{% url 'register' %}" class="btn btn-warning rounded-pill me-3">
                 <i class="fas fa-user-plus me-2"></i>Тіркелу
-            </button>
+            </a>
 
             <!-- Кіру -->
-            <a href="{% url 'login' %}"
-            class="btn btn-primary rounded-pill">
+            <a href="{% url 'login' %}" class="btn btn-primary rounded-pill">
                 <i class="fas fa-sign-in-alt me-2"></i>Кіру
             </a>
         {% endif %}
     </div>
+
 
 
     <div class="row">
@@ -566,7 +561,7 @@
 
 
 <!-- Тіркелу модалы -->
-<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+<!-- <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content" style="background:#21262D;color:#fff;">
         <div class="modal-header border-0">
@@ -595,7 +590,7 @@
         </form>
       </div>
     </div>
-  </div>
+  </div> -->
 
 
 <script>

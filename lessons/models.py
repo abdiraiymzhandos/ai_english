@@ -84,6 +84,8 @@ class Explanation(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     lock_until = models.DateTimeField(null=True, blank=True, verbose_name="Құлтаған уақыт")
+    is_paid = models.BooleanField(default=False, verbose_name="Ақылы қолданушы ма?")
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Телефон нөмірі")
 
     def is_locked(self):
         return self.lock_until and timezone.now() < self.lock_until

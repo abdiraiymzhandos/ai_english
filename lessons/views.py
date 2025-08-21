@@ -6,13 +6,36 @@ from django.utils import timezone
 from .models import Lesson, QuizQuestion, QuizAttempt, Explanation, Lead
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+
+from .forms import CustomRegisterForm
+from .models import UserProfile
+from django.contrib.auth import login
+
 import random
 import os
 import glob
 import uuid
 import re
+
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            phone = form.cleaned_data.get('phone')
+            # ✅ Профиль жасау кезінде телефон номерін сақтауға болады (егер UserProfile-те сақтағыңыз келсе)
+            UserProfile.objects.create(user=user, phone=phone)
+            login(request, user)
+            return redirect('lesson_list')
+    else:
+        form = CustomRegisterForm()
+    return render(request, 'lessons/register.html', {'form': form})
+
+
 
 
 def lesson_list(request):
@@ -22,6 +45,9 @@ def lesson_list(request):
             QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
             .values_list("lesson_id", flat=True)
         )
+        # ✅ Ақылы емес қолданушы болса – тек 1–15 сабаққа ғана доступ
+        if not request.user.profile.is_paid:
+            passed_lessons = [i for i in passed_lessons if i <= 15 or i >= 251]
         if not passed_lessons:
             passed_lessons = [0]
     else:
@@ -94,6 +120,9 @@ def lesson_detail(request, lesson_id):
     if lesson.id not in free_lesson_ids and request.user.is_authenticated:
         passed_lessons = request.session.get('passed_lessons', [])
 
+        if not request.user.profile.is_paid and lesson.id > 15 and lesson.id < 251:
+            return redirect('advertisement')
+
         if lesson.id not in passed_lessons:
             return redirect('lesson_list')
 
@@ -113,12 +142,12 @@ def lesson_detail(request, lesson_id):
 def advertisement(request):
     """
     Бұл бетте оқушыға маңызды ақпарат пен жарнама көрсетіледі:
-      - Оқу ақысы: 5000 теңге, 1 жылға
+      - Оқу ақысы: 15000 теңге, 1 жылға
       - Өте пайдалы сабақтар, ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы
       - WhatsApp сілтемесі: 87781029394
     """
     return render(request, 'lessons/advertisement.html', {
-        'price': '5000 теңге',
+        'price': '15000 теңге',
         'duration': '1 жылға',
         'whatsapp': '77781029394',
         'message': 'Өте пайдалы! Ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы үйретеміз.'
@@ -249,9 +278,9 @@ def explain_section(request, lesson_id):
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-5",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
+                temperature=1,
             )
             explanation_text = response.choices[0].message.content
         except Exception as e:
