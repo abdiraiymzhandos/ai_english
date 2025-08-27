@@ -123,53 +123,146 @@
       letter-spacing: -0.5px;
     }
 
-    /* Accordion */
-    .accordion {
-      --bs-accordion-bg: transparent;
-      --bs-accordion-border-color: rgba(255,255,255,0.1);
-      --bs-accordion-btn-color: var(--light);
-      --bs-accordion-btn-bg: rgba(255,255,255,0.05);
-      --bs-accordion-active-color: var(--light);
-      --bs-accordion-active-bg: var(--primary);
-      border-radius: 15px;
-      overflow: hidden;
+    /* Modern Lesson Buttons */
+    .lesson-sections {
+      margin-bottom: 2rem;
     }
 
-    .accordion-item {
-      @extend .glass-effect;
-      margin-bottom: 15px;
-    }
-
-    .accordion-button {
-      font-size: 1.2em;
+    .lesson-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
       padding: 20px;
-      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
       transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 80px;
     }
 
-    .accordion-button:not(.collapsed) {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: var(--light);
-      box-shadow: 0 4px 15px rgba(74, 107, 255, 0.3);
+    .lesson-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
     }
 
-    .accordion-body {
-      background: var(--card-bg);
-      color: var(--text);
-      padding: 2rem;
-      border-radius: 0 0 15px 15px;
+    .lesson-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    .lesson-btn:hover::before {
+      opacity: 1;
+    }
+
+    .lesson-btn.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+    }
+
+    .lesson-btn.active .lesson-btn-title {
+      color: #6366f1;
+    }
+
+    .lesson-btn.active .lesson-btn-arrow {
+      color: #6366f1;
+      transform: translateX(4px);
+    }
+
+    .lesson-btn-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      z-index: 1;
+      position: relative;
+    }
+
+    .lesson-btn-content {
+      flex: 1;
+      text-align: left;
+      z-index: 1;
+      position: relative;
+    }
+
+    .lesson-btn-title {
       font-size: 1.1rem;
-      border: 1px solid var(--border-color);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
     }
 
-    .accordion-body p {
+    .lesson-btn-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      font-weight: 400;
+    }
+
+    .lesson-btn-arrow {
+      font-size: 1.2rem;
+      color: var(--text-light);
+      transition: all 0.3s ease;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* Content Sections */
+    .lesson-content-sections {
+      margin-bottom: 2rem;
+    }
+
+    .lesson-section {
+      display: none;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    .lesson-section.active {
+      display: block;
+    }
+
+    .section-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .section-content p {
       margin-bottom: 1rem;
       color: var(--text);
     }
 
-    .accordion-body strong {
+    .section-content strong {
       color: var(--text);
       font-weight: 600;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Quiz */
@@ -489,7 +582,23 @@
     @media (max-width: 768px) {
       .container { padding: 15px; }
       .lesson-title { font-size: 2.2em; }
-      .accordion-button { font-size: 1.1em; padding: 15px; }
+      .lesson-btn {
+        padding: 16px;
+        min-height: 70px;
+      }
+      .lesson-btn-icon {
+        font-size: 1.8rem;
+      }
+      .lesson-btn-title {
+        font-size: 1rem;
+      }
+      .lesson-btn-subtitle {
+        font-size: 0.8rem;
+      }
+      .section-content {
+        padding: 1.5rem;
+        font-size: 1rem;
+      }
       #chat-window { width: 300px; height: 450px; bottom: 100px; right: 20px; }
       #chat-messages { height: 300px; }
       #chat-open-btn { width: 60px; height: 60px; font-size: 1.5rem; bottom: 20px; right: 20px; }
@@ -499,10 +608,6 @@
       }
       .audio-container audio {
         height: 35px;
-      }
-      .accordion-body {
-        padding: 1.5rem;
-        font-size: 1rem;
       }
       .explanation-content {
         padding: 1.2rem;
@@ -525,35 +630,53 @@
 
     @media (max-width: 576px) {
       .lesson-title { font-size: 1.8em; }
-      .accordion-button { font-size: 1em; padding: 12px 15px; }
+      .lesson-btn {
+        padding: 14px;
+        min-height: 60px;
+      }
+      .lesson-btn-icon {
+        font-size: 1.6rem;
+      }
+      .lesson-btn-title {
+        font-size: 0.95rem;
+      }
+      .lesson-btn-subtitle {
+        font-size: 0.75rem;
+      }
+      .section-content {
+        padding: 1.2rem;
+        font-size: 0.95rem;
+      }
       #question-text { font-size: 1.6rem; }
       #answer-buttons .btn { font-size: 1.1rem; padding: 12px 20px; }
     }
 
-    /* Accordion Styles for Light Theme */
-    [data-theme="light"] .accordion-item {
+    /* Light Theme Styles for Lesson Buttons */
+    [data-theme="light"] .lesson-btn {
         background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        margin-bottom: 15px;
     }
 
-    [data-theme="light"] .accordion-button {
+    [data-theme="light"] .lesson-btn::before {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+    }
+
+    [data-theme="light"] .lesson-btn:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    [data-theme="light"] .lesson-btn.active {
         background: rgba(255, 255, 255, 0.95);
-        color: var(--text);
-        font-weight: 500;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
     }
 
-    [data-theme="light"] .accordion-button:not(.collapsed) {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(74, 107, 255, 0.2);
-    }
-
-    [data-theme="light"] .accordion-body {
+    [data-theme="light"] .section-content {
         background: rgba(255, 255, 255, 0.95);
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
     /* Explanation Styles for Light Theme */
@@ -613,175 +736,200 @@
   <!-- Сабақ тақырыбы -->
   <h1 class="text-primary text-center mb-4">{{ lesson.title }}</h1>
   
-  <!-- Accordion блоктары -->
-  <div class="accordion mb-4" id="lessonAccordion">
-    <!-- Сабақ мазмұны Section -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#content">
-          📘 Сабақ мазмұны
-        </button>
-      </h2>
-      <div id="content" class="accordion-collapse collapse show">
-        <div class="accordion-body" id="lesson-content">
-          {{ lesson.content|linebreaksbr }}
-          {% if request.user.is_superuser %}
-            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
-                🔍 Түсіндіру (ChatGPT)
-            </button>
-          {% endif %}
-          <div class="explanation-container">
-            <div class="explanation-toggle" 
-                 data-bs-toggle="collapse" 
-                 data-bs-target="#contentCollapse" 
-                 aria-expanded="false" 
-                 aria-controls="contentCollapse">
-                <strong>Түсініктеме</strong>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="collapse explanation-content" id="contentCollapse">
-                {{ explanations.content.text|safe }}
-            </div>
+  <!-- Modern Button Grid -->
+  <div class="lesson-sections mb-4">
+    <div class="row g-3">
+      <!-- Сабақ мазмұны Button -->
+      <div class="col-md-6">
+        <button class="lesson-btn active" data-section="content">
+          <div class="lesson-btn-icon">📘</div>
+          <div class="lesson-btn-content">
+            <div class="lesson-btn-title">Сабақ мазмұны</div>
+            <div class="lesson-btn-subtitle">Негізгі материал</div>
           </div>
+          <div class="lesson-btn-arrow">→</div>
+        </button>
+      </div>
+      
+      <!-- Сөздік Button -->
+      <div class="col-md-6">
+        <button class="lesson-btn" data-section="vocabulary">
+          <div class="lesson-btn-icon">📖</div>
+          <div class="lesson-btn-content">
+            <div class="lesson-btn-title">Сөздік</div>
+            <div class="lesson-btn-subtitle">Жаңа сөздер</div>
+          </div>
+          <div class="lesson-btn-arrow">→</div>
+        </button>
+      </div>
+      
+      <!-- Грамматика Button -->
+      <div class="col-md-6">
+        <button class="lesson-btn" data-section="grammar">
+          <div class="lesson-btn-icon">📚</div>
+          <div class="lesson-btn-content">
+            <div class="lesson-btn-title">Грамматика</div>
+            <div class="lesson-btn-subtitle">Ережелер мен құрылым</div>
+          </div>
+          <div class="lesson-btn-arrow">→</div>
+        </button>
+      </div>
+      
+      <!-- Диалог Button -->
+      <div class="col-md-6">
+        <button class="lesson-btn" data-section="dialogue">
+          <div class="lesson-btn-icon">💬</div>
+          <div class="lesson-btn-content">
+            <div class="lesson-btn-title">Диалог</div>
+            <div class="lesson-btn-subtitle">Сөйлесу дағдысы</div>
+          </div>
+          <div class="lesson-btn-arrow">→</div>
+        </button>
+      </div>
+    </div>
+  </div>
 
-          <!-- Аудио плеер үнемі көрініп тұрады -->
-          {% if explanations.content.audio_url %}
-            <div class="audio-container mt-2">
-              <audio controls class="w-100">
-                <source src="{{ explanations.content.audio_url }}" type="audio/mp3">
-                Браузеріңіз аудионы қолдамайды.
-              </audio>
-            </div>
-          {% endif %}
+  <!-- Content Sections -->
+  <div class="lesson-content-sections">
+    <!-- Сабақ мазмұны Section -->
+    <div class="lesson-section active" id="content-section">
+      <div class="section-content" id="lesson-content">
+        {{ lesson.content|linebreaksbr }}
+        {% if request.user.is_superuser %}
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
+              🔍 Түсіндіру (ChatGPT)
+          </button>
+        {% endif %}
+        <div class="explanation-container">
+          <div class="explanation-toggle" 
+               data-bs-toggle="collapse" 
+               data-bs-target="#contentCollapse" 
+               aria-expanded="false" 
+               aria-controls="contentCollapse">
+              <strong>Түсініктеме</strong>
+              <span class="toggle-icon">▼</span>
+          </div>
+          <div class="collapse explanation-content" id="contentCollapse">
+              {{ explanations.content.text|safe }}
+          </div>
         </div>
+
+        <!-- Аудио плеер үнемі көрініп тұрады -->
+        {% if explanations.content.audio_url %}
+          <div class="audio-container mt-2">
+            <audio controls class="w-100">
+              <source src="{{ explanations.content.audio_url }}" type="audio/mp3">
+              Браузеріңіз аудионы қолдамайды.
+            </audio>
+          </div>
+        {% endif %}
       </div>
     </div>
     
     <!-- Сөздік Section -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vocabulary">
-          📖 Сөздік
-        </button>
-      </h2>
-      <div id="vocabulary" class="accordion-collapse collapse">
-        <div class="accordion-body">
-          {% for word in lesson.vocabulary.splitlines %}
-            <p><strong>{{ word }}</strong></p>
-          {% endfor %}
-          {% if request.user.is_superuser %}
-            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
-                🔍 Түсіндіру (ChatGPT)
-            </button>
-          {% endif %}
-          <div class="explanation-container">
-            <div class="explanation-toggle" 
-                 data-bs-toggle="collapse" 
-                 data-bs-target="#vocabularyCollapse" 
-                 aria-expanded="false" 
-                 aria-controls="vocabularyCollapse">
-                <strong>Түсініктеме</strong>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="collapse explanation-content" id="vocabularyCollapse">
-                {{ explanations.vocabulary.text|safe }}
-            </div>
+    <div class="lesson-section" id="vocabulary-section">
+      <div class="section-content">
+        {% for word in lesson.vocabulary.splitlines %}
+          <p><strong>{{ word }}</strong></p>
+        {% endfor %}
+        {% if request.user.is_superuser %}
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
+              🔍 Түсіндіру (ChatGPT)
+          </button>
+        {% endif %}
+        <div class="explanation-container">
+          <div class="explanation-toggle" 
+               data-bs-toggle="collapse" 
+               data-bs-target="#vocabularyCollapse" 
+               aria-expanded="false" 
+               aria-controls="vocabularyCollapse">
+              <strong>Түсініктеме</strong>
+              <span class="toggle-icon">▼</span>
           </div>
-
-          <!-- Аудио блок тек сыртында қалады -->
-          {% if explanations.vocabulary.audio_url %}
-            <div class="audio-container mt-2">
-              <audio controls class="w-100">
-                <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mp3">
-                Браузеріңіз аудионы қолдамайды.
-              </audio>
-            </div>
-          {% endif %}
+          <div class="collapse explanation-content" id="vocabularyCollapse">
+              {{ explanations.vocabulary.text|safe }}
+          </div>
         </div>
+
+        <!-- Аудио блок тек сыртында қалады -->
+        {% if explanations.vocabulary.audio_url %}
+          <div class="audio-container mt-2">
+            <audio controls class="w-100">
+              <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mp3">
+              Браузеріңіз аудионы қолдамайды.
+            </audio>
+          </div>
+        {% endif %}
       </div>
     </div>
     
     <!-- Грамматика Section -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#grammar">
-          📚 Грамматика
-        </button>
-      </h2>
-      <div id="grammar" class="accordion-collapse collapse">
-        <div class="accordion-body" id="lesson-grammar">
-          {{ lesson.grammar|linebreaksbr }}
-          {% if request.user.is_superuser %}
-            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
-                🔍 Түсіндіру (ChatGPT)
-            </button>
-          {% endif %}
-          <div class="explanation-container">
-            <div class="explanation-toggle" 
-                 data-bs-toggle="collapse" 
-                 data-bs-target="#grammarCollapse" 
-                 aria-expanded="false" 
-                 aria-controls="grammarCollapse">
-                <strong>Түсініктеме</strong>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="collapse explanation-content" id="grammarCollapse">
-                {{ explanations.grammar.text|safe }}
-            </div>
+    <div class="lesson-section" id="grammar-section">
+      <div class="section-content" id="lesson-grammar">
+        {{ lesson.grammar|linebreaksbr }}
+        {% if request.user.is_superuser %}
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
+              🔍 Түсіндіру (ChatGPT)
+          </button>
+        {% endif %}
+        <div class="explanation-container">
+          <div class="explanation-toggle" 
+               data-bs-toggle="collapse" 
+               data-bs-target="#grammarCollapse" 
+               aria-expanded="false" 
+               aria-controls="grammarCollapse">
+              <strong>Түсініктеме</strong>
+              <span class="toggle-icon">▼</span>
           </div>
-
-          <!-- Аудио плеер блок әрдайым көрініп тұрады -->
-          {% if explanations.grammar.audio_url %}
-            <div class="audio-container mt-2">
-              <audio controls class="w-100">
-                <source src="{{ explanations.grammar.audio_url }}" type="audio/mp3">
-                Браузеріңіз аудионы қолдамайды.
-              </audio>
-            </div>
-          {% endif %}
+          <div class="collapse explanation-content" id="grammarCollapse">
+              {{ explanations.grammar.text|safe }}
+          </div>
         </div>
+
+        <!-- Аудио плеер блок әрдайым көрініп тұрады -->
+        {% if explanations.grammar.audio_url %}
+          <div class="audio-container mt-2">
+            <audio controls class="w-100">
+              <source src="{{ explanations.grammar.audio_url }}" type="audio/mp3">
+              Браузеріңіз аудионы қолдамайды.
+            </audio>
+          </div>
+        {% endif %}
       </div>
     </div>
     
     <!-- Диалог Section -->
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dialogue">
-          💬 Диалог
-        </button>
-      </h2>
-      <div id="dialogue" class="accordion-collapse collapse">
-        <div class="accordion-body" id="lesson-dialogue">
-          {{ lesson.dialogue|linebreaksbr }}
-          {% if request.user.is_superuser %}
-            <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
-                🔍 Түсіндіру (ChatGPT)
-            </button>
-          {% endif %}
-          <div class="explanation-container">
-            <div class="explanation-toggle" 
-                 data-bs-toggle="collapse" 
-                 data-bs-target="#dialogueCollapse" 
-                 aria-expanded="false" 
-                 aria-controls="dialogueCollapse">
-                <strong>Түсініктеме</strong>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div class="collapse explanation-content" id="dialogueCollapse">
-                {{ explanations.dialogue.text|safe }}
-            </div>
+    <div class="lesson-section" id="dialogue-section">
+      <div class="section-content" id="lesson-dialogue">
+        {{ lesson.dialogue|linebreaksbr }}
+        {% if request.user.is_superuser %}
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
+              🔍 Түсіндіру (ChatGPT)
+          </button>
+        {% endif %}
+        <div class="explanation-container">
+          <div class="explanation-toggle" 
+               data-bs-toggle="collapse" 
+               data-bs-target="#dialogueCollapse" 
+               aria-expanded="false" 
+               aria-controls="dialogueCollapse">
+              <strong>Түсініктеме</strong>
+              <span class="toggle-icon">▼</span>
           </div>
-
-          <!-- Аудио плеер үнемі көрініп тұрады -->
-          {% if explanations.dialogue.audio_url %}
-            <div class="audio-container mt-2">
-              <audio controls class="w-100">
-                <source src="{{ explanations.dialogue.audio_url }}" type="audio/mp3">
-                Браузеріңіз аудионы қолдамайды.
-              </audio>
-            </div>
-          {% endif %}
+          <div class="collapse explanation-content" id="dialogueCollapse">
+              {{ explanations.dialogue.text|safe }}
+          </div>
         </div>
+
+        <!-- Аудио плеер үнемі көрініп тұрады -->
+        {% if explanations.dialogue.audio_url %}
+          <div class="audio-container mt-2">
+            <audio controls class="w-100">
+              <source src="{{ explanations.dialogue.audio_url }}" type="audio/mp3">
+              Браузеріңіз аудионы қолдамайды.
+            </audio>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -797,7 +945,7 @@
   <!-- Chat Window -->
   <div id="chat-window">
     <div id="chat-header">
-      <h5>Chat with GPT</h5>
+      <h5>Chat with Oqyai</h5>
       <button id="chat-close-btn">&times;</button>
     </div>
     <div id="chat-messages"></div>
@@ -917,6 +1065,29 @@
         highlightEnglishText(container);
       });
 
+      // ========== LESSON SECTION SWITCHING ==========
+      const lessonButtons = document.querySelectorAll('.lesson-btn');
+      const lessonSections = document.querySelectorAll('.lesson-section');
+
+      lessonButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const targetSection = this.dataset.section;
+          
+          // Remove active class from all buttons and sections
+          lessonButtons.forEach(btn => btn.classList.remove('active'));
+          lessonSections.forEach(section => section.classList.remove('active'));
+          
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Show target section
+          const targetSectionElement = document.getElementById(targetSection + '-section');
+          if (targetSectionElement) {
+            targetSectionElement.classList.add('active');
+          }
+        });
+      });
+
       // ========== 3. PER-SECTION EXPLANATION BUTTONS ==========
       const explainButtons = document.querySelectorAll('.explain-btn');
       explainButtons.forEach(button => {
@@ -980,7 +1151,7 @@
         chatInput.value = "";
         const loadingDiv = document.createElement("div");
         loadingDiv.classList.add("mb-2");
-        loadingDiv.innerHTML = "<strong>GPT:</strong> Жүктелуде...";
+        loadingDiv.innerHTML = "<strong>Oqyai:</strong> Жүктелуде...";
         chatMessages.appendChild(loadingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         const csrfToken = getCookie('csrftoken');
@@ -998,7 +1169,7 @@
           if (data.error) {
             appendMessage("Error", data.error);
           } else {
-            appendMessage("GPT", data.answer);
+            appendMessage("Oqyai", data.answer);
           }
         })
         .catch(error => {

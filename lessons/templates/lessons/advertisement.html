@@ -2,248 +2,210 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Сабаққа шақыру</title>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>OQYAI English</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    /* 
-      ========== 1. BODY (Қаралау градиент фон) ========== 
-      Түстер: қою реңдер, бірақ арасында салқын, контрасты градиент 
-    */
-    html, body {
+    * { 
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      min-height: 100vh;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff; /* Мәтін түсі ақ */
-      background: linear-gradient(
-        135deg,
-        #0f2027,  /* қою жасылдау */
-        #203a43,  /* сұр-қою көк */
-        #2c5364,  /* көкшіл */
-        #2f2841,  /* қою күлгін */
-        #403c59,  /* сәл ашық күлгін */
-        #1b2735   /* көкшіл қара */
-      );
-      background-size: 180% 180%;
-      animation: darkBG 14s ease infinite alternate;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #0a0a0a;
+      color: #e5e5e7;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      overflow-x: hidden; /* Телефонда көлденең айналдыру болдырмаймыз */
-    }
-
-    /* 
-      Градиенттің баяу ауысып тұратын анимациясы 
-    */
-    @keyframes darkBG {
-      0% {
-        background-position: 0% 50%;
-      }
-      100% {
-        background-position: 100% 50%;
-      }
-    }
-
-    /* 
-      ========== 2. GLASSMORPHISM КАРТОЧКАСЫ (promo-card) ========== 
-      Тек фонды аздап қоюлау етіп жасадық 
-    */
-    .promo-card {
-      width: 100%;                /* 100% ені */
-      max-width: 600px;           /* үлкен экранда 600px шектеледі */
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 1rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      margin: 2rem;
-      padding: 2rem 2.5rem;
+      padding: 20px;
       position: relative;
     }
-
-    /* 
-      ========== 3. Тақырып (promo-title) ========== 
-      Қаралау фонда ақ түс анық көрінуі үшін 
-    */
-    .promo-title {
-      font-size: 2.2rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1), transparent 50%);
+      pointer-events: none;
+    }
+    
+    .card {
+      width: 100%;
+      max-width: 360px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
+      color: #8b8b8d;
+      margin-bottom: 20px;
     }
-    .promo-subtitle {
-      font-size: 1.1rem;
-      font-weight: 500;
-      margin-bottom: 2rem;
-      color: #e3e3e3;
+    
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #e5e5e7, #a5a5a7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .highlight {
-      color: #fff;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    
+    .subtitle {
+      font-size: 14px;
+      color: #8b8b8d;
+      line-height: 1.5;
+      margin-bottom: 24px;
     }
-
-    /* 
-      ========== 4. Оқу ақысы (price-text) ========== 
-      Қысқа жарқын акцент (алтын түске жақын) 
-    */
-    .price-text {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: #ffd700; /* алтын түске жақын */
-      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+    
+    .price {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
-
-    /* 
-      ========== 5. WhatsApp батырмасы (btn-whatsapp) ========== 
-      Қара фонда жасыл түсті батырма жақсы көріну үшін 
-    */
-    .btn-whatsapp {
-      background-color: #25d366;
-      color: #fff;
-      font-size: 1.1rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
+    
+    .duration {
+      font-size: 13px;
+      color: #6b6b6d;
+      margin-bottom: 28px;
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 20px;
       border: none;
-      transition: transform 0.3s, box-shadow 0.3s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .btn-whatsapp:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      background-color: #1ebe5d;
-      color: #fff;
-    }
-
-    /* 
-      ========== 6. ҰСЫНЫС ШЕКТЕУЛІ (неон стилі) ========== 
-      Қара фонда ашық жасыл-сары неон 
-    */
-    .limited-offer {
-      font-size: 1.2rem;
-      color: #a0ff6c;
+      border-radius: 12px;
+      font-size: 15px;
       font-weight: 600;
-      text-shadow: 0 0 6px rgba(160, 255, 108, 1),
-                   0 0 12px rgba(160, 255, 108, 0.8),
-                   0 0 18px rgba(160, 255, 108, 0.6);
-      margin-top: 1rem;
-    }
-
-    /* 
-      ========== 7. Басты бет батырмасы (btn-home) ========== 
-      Қара фонда ақ шекара, ховерде толық ақ фон және қара мәтін
-    */
-    .btn-home {
-      margin-top: 1.5rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
-      border: 2px solid #fff;
-      background-color: transparent;
-      color: #fff;
-      transition: background-color 0.3s, border-color 0.3s;
       text-decoration: none;
-      display: inline-block;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
     }
-    .btn-home:hover {
-      background-color: #fff;
-      color: #444;
-      border-color: #fff;
+    
+    .btn-primary {
+      background: #25d366;
+      color: #0a0a0a;
+      margin-bottom: 12px;
     }
-
-    /*
-      ========== 8. Мобилді бейімделу ==========
-      Экран ені 576px-тан аз болғанда: margin, padding азаюы
-    */
-    @media (max-width: 576px) {
-      .promo-card {
-        margin: 1rem;
-        padding: 1.5rem;
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #e5e5e7;
+    }
+    
+    .btn-secondary:active {
+      transform: scale(0.98);
+    }
+    
+    .offer {
+      font-size: 11px;
+      color: #6b6b6d;
+      margin-top: 16px;
+      letter-spacing: 0.02em;
+    }
+    
+    @media (max-height: 667px) {
+      .card {
+        padding: 24px 20px;
       }
-      .promo-title {
-        font-size: 1.8rem;
+      h1 {
+        font-size: 22px;
+        margin-bottom: 10px;
       }
-      .promo-subtitle {
-        font-size: 1rem;
+      .subtitle {
+        margin-bottom: 20px;
       }
-      .price-text {
-        font-size: 1.2rem;
+      .price {
+        font-size: 26px;
       }
-      .limited-offer {
-        font-size: 1rem;
+      .duration {
+        margin-bottom: 24px;
+      }
+      .btn {
+        padding: 12px 18px;
+        font-size: 14px;
+      }
+    }
+    
+    @media (max-height: 568px) {
+      .card {
+        padding: 20px 18px;
+      }
+      .logo {
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      .subtitle {
+        font-size: 13px;
+        margin-bottom: 18px;
+      }
+      .price {
+        font-size: 24px;
+      }
+      .duration {
+        margin-bottom: 20px;
+      }
+      .offer {
+        margin-top: 12px;
       }
     }
   </style>
 </head>
 <body>
-
-  <div class="promo-card">
-    <!-- Тақырып -->
-    <h1 class="promo-title">Сабаққа қызығушылығыңызға рахмет!</h1>
-    <!-- Қосымша мәтін -->
-    <p class="promo-subtitle">
-      Бізде <span class="highlight">ең үздік ағылшын мұғалімдері</span> мен
-      <span class="highlight">заманауи жасанды интеллект</span> бірге жұмыс істейді!
+  <div class="card">
+    <div class="logo">OQYAI • English</div>
+    
+    <h1>Ағылшын тілін үйреніңіз, жетістікке жетіңіз</h1>
+    
+    <p class="subtitle">
+      AI технологиясымен біріккен заманауи оқу платформасы
     </p>
     
-    <!-- Оқу ақысы -->
-    <p class="mb-3 lead">
-      Біздің сабақтар өте тиімді әрі қолжетімді:
-      <span class="price-text">{{ price }}</span>
-      <br>
-      (<span class="highlight">{{ duration }}</span> | 250 сабақ).
-    </p>
-    <p class="mb-4">
-      Жаңа әдістеме, ең қызықты материалдар және нәтижеге бағытталған жүйе. <br>
-      Сізді жоғарғы деңгейде дайындаймыз!
-    </p>
-
-    <!-- WhatsApp батырмасы -->
-    <div class="mb-3">
-      <a href="https://wa.me/{{ whatsapp }}" target="_blank" class="btn-whatsapp">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-             fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
-          <path d="M13.601 2.326A7.934 7.934 0 0 0 7.977 0C3.577 0 
-                   .037 3.539 0 7.937c-.018 1.401.328 2.77.997 
-                   3.99L0 16l4.143-1.085a7.88 7.88 0 0 0 
-                   3.816.974h.003c4.398 0 7.947-3.539 
-                   7.976-7.935.028-2.138-.833-4.152-2.337-5.628zm-5.625 
-                   11.105h-.003a6.644 6.644 0 0 1-3.39-.918l-.242-.144-2.446.641.654-2.383-.158-.247a6.555 
-                   6.555 0 0 1-1.02-3.557c.002-3.605 
-                   2.94-6.538 6.55-6.538a6.623 6.623 0 0 1 4.69 
-                   1.944 6.562 6.562 0 0 1 1.947 
-                   4.685c-.017 3.609-2.95 
-                   6.53-6.556 6.53z"></path>
-          <path d="M10.478 8.549c-.137-.069-.815-.4-.94-.446-.125-.047-.216-.07-.306.07-.09.14-.35.446-.43.537-.08.09-.158.1-.295.035-.137-.07-.58-.213-1.105-.68-.408-.36-.684-.8-.762-.936-.08-.14-.009-.215.06-.283.06-.06.135-.158.2-.237.07-.08.09-.14.14-.237.047-.09.024-.17-.012-.237-.035-.07-.306-.735-.42-1.01-.11-.283-.225-.24-.306-.24-.08 
-                   0-.17-.005-.26-.005-.09 0-.236.035-.36.163-.124.14-.47.459-.47 
-                   1.117 0 .658.48 1.294.55 1.383.07.09.94 1.438 2.28 
-                   2.018.318.138.566.22.76.28.32.1.61.085.84.05.27-.04.82-.33.94-.647.12-.317.12-.588.08-.647-.035-.06-.125-.09-.26-.16z"></path>
-        </svg>
-        WhatsApp: {{ whatsapp }}
-      </a>
-    </div>
-
-    <!-- Шектеулі ұсыныс (неон) -->
-    <p class="limited-offer">Ұсыныс шектеулі, асығыңыз!</p>
-
-    <!-- Басты бет батырмасы -->
-    <a href="{% url 'lesson_list' %}" class="btn-home">Басты бет</a>
+    <div class="price">{{ price }}</div>
+    <div class="duration">{{ duration }} • 250 сабақ</div>
+    
+    <a class="btn btn-primary" href="https://wa.me/{{ whatsapp }}" target="_blank" rel="noopener">
+      WhatsApp арқылы жазу
+    </a>
+    
+    <a class="btn btn-secondary" href="{% url 'lesson_list' %}">
+      Басты бет
+    </a>
+    
+    <div class="offer">Шектеулі ұсыныс</div>
   </div>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-  ></script>
 </body>
 </html>

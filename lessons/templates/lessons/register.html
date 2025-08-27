@@ -1,143 +1,76 @@
 {% extends "lessons/auth_base.html" %}
 
-{% block title %}Тіркелу{% endblock %}
-
-{% block extra_head %}
-<style>
-  body {
-    background: linear-gradient(135deg, #1a1a1a, #121212);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .auth-card {
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 1rem;
-    padding: 2rem;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  }
-  .auth-card .form-label {
-    color: #ccc;
-  }
-  .auth-card .form-control {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: none;
-    border-radius: 0.375rem;
-    transition: background 0.2s;
-  }
-  .auth-card .form-control::placeholder {
-    color: rgba(255,255,255,0.6);
-  }
-  .auth-card .form-control:focus {
-    background: rgba(255,255,255,0.15);
-    color: #fff;
-    outline: none;
-    box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.2);
-  }
-  /* ---- Барлық пароль input үшін dark стиль ---- */
-  .auth-card input[type="password"] {
-    background: rgba(255,255,255,0.1) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 0.375rem !important;
-    transition: background 0.2s;
-  }
-  .auth-card input[type="password"]:focus {
-    background: rgba(255,255,255,0.15) !important;
-    color: #fff !important;
-    outline: none !important;
-    box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.2);
-  }
-  .auth-card .btn-success {
-    background: #4caf50;
-    border: none;
-    font-weight: 600;
-    transition: background 0.3s;
-  }
-  .auth-card .btn-success:hover {
-    background: #388e3c;
-  }
-  .auth-card a {
-    color: #4caf50;
-  }
-</style>
-
-{% endblock %}
+{% block title %}Тіркелу - OQYAI{% endblock %}
 
 {% block content %}
-<div class="auth-card">
-  <h3 class="text-center text-white mb-4">Тіркелу</h3>
-  <form method="post" novalidate>
-    {% csrf_token %}
-
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.username.id_for_label }}">Пайдаланушы аты</label>
-      {{ form.username }}
-      {% for err in form.username.errors %}
-        <div class="text-danger small">{{ err }}</div>
-      {% endfor %}
+<div class="register-container">
+  <div class="register-card">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">English</div>
     </div>
+    
+    <h1>Тіркелу</h1>
+    
+    <form method="post" class="register-form" novalidate>
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <div class="error">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.phone.id_for_label }}">Телефон нөмірі</label>
-      {{ form.phone }}
-      {% for err in form.phone.errors %}
-        <div class="text-danger small">{{ err }}</div>
-      {% endfor %}
+      <div class="form-group">
+        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}
+          <div class="error">{{ form.phone.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+          <div class="error">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          <div class="error">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn-primary">Тіркелу</button>
+    </form>
+    
+    <div class="links">
+      <a href="{% url 'login' %}">Аккаунтыңыз бар ма? Кіру</a>
+      <a href="{% url 'lesson_list' %}">Негізгі бетке қайту</a>
     </div>
-
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.password1.id_for_label }}">Құпиясөз</label>
-      {{ form.password1 }}
-      {% for err in form.password1.errors %}
-        <div class="text-danger small">{{ err }}</div>
-      {% endfor %}
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.password2.id_for_label }}">Құпиясөзді растау</label>
-      {{ form.password2 }}
-      {% for err in form.password2.errors %}
-        <div class="text-danger small">{{ err }}</div>
-      {% endfor %}
-    </div>
-
-
-
-
-    <button type="submit" class="btn btn-success w-100">Тіркелу</button>
-  </form>
-
-
-  <p class="text-center mt-3">
-    <small class="text-muted">
-         <a href="{% url 'lesson_list' %}">Негізгі бет</a>
-      </small>
-    <small class="text-muted">
-      | <a href="{% url 'login' %}">Кіру</a>
-    </small>
-  </p>
+  </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-  (function(){
-    const inp = document.getElementById('id_phone');
-    if (!inp) return;
-    // Форма алғаш жүктелгенде тексеру
-    if (!inp.value.startsWith('+7')) inp.value = '+7';
-    // Әр өзгеріс болғанда тексеріп отыру
-    inp.addEventListener('input', function(){
-      let v = this.value.replace(/^(\+*)/, '');  // барлық жақшылған +-ты өшіру
-      if (!v.startsWith('7')) v = '7' + v;
-      this.value = '+' + v;
+document.addEventListener('DOMContentLoaded', function() {
+  const phoneInput = document.getElementById('id_phone');
+  if (phoneInput) {
+    if (!phoneInput.value) phoneInput.value = '+7';
+    
+    phoneInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/[^\d]/g, '');
+      if (!value.startsWith('7')) {
+        value = '7' + value;
+      }
+      e.target.value = '+' + value.slice(0, 11);
     });
-  })();
+  }
+});
 </script>
 {% endblock %}

@@ -2,15 +2,214 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Auth{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{% block title %}OQYAI{% endblock %}</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #0a0a0a;
+      color: #e5e5e7;
+      line-height: 1.5;
+    }
+    
+    .register-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+    
+    .register-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 50%);
+      pointer-events: none;
+    }
+    
+    .register-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 40px 32px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e5e5e7, #a5a5a7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    
+    .tagline {
+      font-size: 14px;
+      color: #8b8b8d;
+      font-weight: 500;
+    }
+    
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #8b8b8d;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .register-form {
+      margin-bottom: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #a5a5a7;
+      margin-bottom: 8px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      color: #e5e5e7;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    
+    .form-input::placeholder {
+      color: #6b6b6d;
+    }
+    
+    .form-input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      background: #5855eb;
+      transform: translateY(-1px);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .error {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 6px;
+      display: block;
+    }
+    
+    .links {
+      text-align: center;
+    }
+    
+    .links a {
+      color: #8b8b8d;
+      text-decoration: underline;
+      font-size: 14px;
+      display: block;
+      margin-bottom: 8px;
+      transition: color 0.2s ease;
+    }
+    
+    .links a:hover {
+      color: #6366f1;
+    }
+    
+    @media (max-height: 667px) {
+      .register-card {
+        padding: 32px 24px;
+      }
+      .brand {
+        margin-bottom: 24px;
+      }
+      .subtitle {
+        margin-bottom: 24px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .register-container {
+        padding: 16px;
+      }
+      .register-card {
+        padding: 24px 20px;
+      }
+      .logo {
+        font-size: 24px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+
   {% block extra_head %}{% endblock %}
 </head>
 <body>
   {% block content %}{% endblock %}
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

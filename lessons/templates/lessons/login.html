@@ -1,190 +1,39 @@
-<!DOCTYPE html>
-<html lang="kk">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Кіру (Футуристік стиль)</title>
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+{% extends "lessons/auth_base.html" %}
 
-  <style>
-    /*
-      ========== 1. BODY (Футуристік фон) ==========
-    */
-    html, body {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      /* Жарық пен қараңғының футуристік градиенті */
-      background: linear-gradient(135deg, #0c0c0c 0%, #1f1f1f 100%);
-      /* Анимациялық жеңіл қозғалыс (қаласаңыз) */
-      background-size: 200% 200%;
-      animation: futuristicBG 10s ease-in-out infinite alternate;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-    }
+{% block title %}Кіру - OQYAI{% endblock %}
 
-    @keyframes futuristicBG {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
+{% block content %}
+<div class="register-container">
+  <div class="register-card">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">English</div>
+    </div>
+    
+    <h1>Кіру</h1>
+    <p class="subtitle">Аккаунтыңызға кіріңіз</p>
+    
+    <form method="post" class="register-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      
+      <div class="form-group">
+        <label for="username">Пайдаланушы аты</label>
+        <input type="text" name="username" id="username" class="form-input" placeholder="Пайдаланушы аты" required>
+      </div>
 
-    /*
-      ========== 2. Логин формасының контейнері (Жарқыраған әйнек тектес, «Neon Glassmorphism») ==========
-    */
-    .futuristic-card {
-      background: rgba(255, 255, 255, 0.07); /* Жартылай мөлдір қабат */
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 15px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-      max-width: 400px;
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      margin: 1rem;
-      position: relative;
-      overflow: hidden; /* Жан-жағында глоу әсері шықпау үшін */
-    }
-    .futuristic-card::before {
-      /* Неон шеңбер немесе сызықтар эффектісі үшін псевдоэлемент */
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(
-        circle at center,
-        rgba(255, 255, 255, 0.15),
-        transparent 60%
-      );
-      opacity: 0.2;
-      animation: neonPulse 6s infinite;
-    }
-    @keyframes neonPulse {
-      0%   { transform: scale(1); }
-      50%  { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
+      <div class="form-group">
+        <label for="password">Құпиясөз</label>
+        <input type="password" name="password" id="password" class="form-input" placeholder="Құпиясөз" required>
+      </div>
 
-    .futuristic-card .card-body {
-      padding: 2rem;
-      position: relative;
-      z-index: 1; /* Псевдоэлемент астында болу үшін */
-    }
-
-    /*
-      ========== 3. Тақырып ==========
-    */
-    h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-      color: #fff;
-      text-shadow: 0 0 6px rgba(0,255,255,0.4); /* Жарық көгілдір реңк */
-    }
-
-    /*
-      ========== 4. Label + Input ==========
-    */
-    .form-label {
-      color: #ccc;
-      font-weight: 500;
-      text-shadow: 0 0 3px rgba(0,0,0,0.2);
-    }
-    .form-control {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      transition: background 0.3s, border-color 0.3s;
-    }
-    .form-control:focus {
-      background: rgba(255, 255, 255, 0.2);
-      outline: none;
-      border-color: #00ffff; /* Неон көгілдір түс */
-      box-shadow: 0 0 8px rgba(0,255,255,0.4);
-    }
-
-    /*
-      ========== 5. Кіру батырмасы ==========
-      (Футуристік неон батырма)
-    */
-    .btn-futuristic {
-      background: linear-gradient(
-        90deg,
-        rgba(0, 255, 255, 0.2),
-        rgba(0, 255, 255, 0.5)
-      );
-      border: 1px solid rgba(0,255,255,0.4);
-      color: #00ffff;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-futuristic:hover {
-      background: linear-gradient(
-        90deg,
-        rgba(0, 255, 255, 0.3),
-        rgba(0, 255, 255, 0.7)
-      );
-      transform: scale(1.02);
-      box-shadow: 0 0 10px rgba(0,255,255,0.6);
-    }
-    .btn-futuristic:focus {
-      box-shadow: 0 0 10px rgba(0,255,255,0.6);
-    }
-
-    /*
-      ========== 6. Ұялы экран ==========
-    */
-    @media (max-width: 576px) {
-      .futuristic-card {
-        margin: 1rem;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="card futuristic-card">
-    <div class="card-body">
-      <h2>Кіру</h2>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.GET.next }}">
-
-        <div class="mb-3">
-          <label for="username" class="form-label">Қолданушы аты</label>
-          <input type="text" name="username" class="form-control" required>
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Құпиясөз</label>
-          <input type="password" name="password" class="form-control" required>
-        </div>
-
-        <button type="submit" class="btn btn-futuristic w-100 mt-2">Кіру</button>
-
-        <p class="text-center mt-3">
-          <small class="text-muted">
-               <a href="{% url 'lesson_list' %}">Негізгі бет</a>
-          </small>
-        </p>
-
-        <p class="text-center mt-3">
-          <small class="text-muted">
-               <a href="{% url 'register' %}">Тіркелу</a>
-          </small>
-        </p>
-
-      </form>
+      <button type="submit" class="btn-primary">Кіру</button>
+    </form>
+    
+    <div class="links">
+      <a href="{% url 'register' %}">Аккаунтыңыз жоқ па? Тіркелу</a>
+      <a href="{% url 'lesson_list' %}">Негізгі бетке қайту</a>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}
