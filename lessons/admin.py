@@ -11,7 +11,7 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone', 'is_paid', 'lock_until', 'date_joined')
+    list_display = ('user', 'phone', 'is_paid', 'current_lesson', 'highest_lesson_reached', 'lock_until', 'date_joined')
     list_filter = ('is_paid',)
     search_fields = ('user__username', 'phone')
     actions = ['unlock_accounts', 'mark_as_paid']
@@ -26,6 +26,10 @@ class UserProfileAdmin(admin.ModelAdmin):
         updated = queryset.update(is_paid=True)
         self.message_user(request, f"{updated} аккаунт ақылы ретінде белгіленді.")
     mark_as_paid.short_description = "Таңдалғандарды ақылы қолданушы ету"
+
+    def highest_lesson_reached(self, obj):
+        return obj.get_highest_lesson_reached()
+    highest_lesson_reached.short_description = "Ең жоғары өткен сабақ"
 
     def date_joined(self, obj):
         return obj.user.date_joined.strftime("%Y-%m-%d %H:%M")

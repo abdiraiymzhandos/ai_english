@@ -86,6 +86,7 @@ class UserProfile(models.Model):
     lock_until = models.DateTimeField(null=True, blank=True, verbose_name="Құлтаған уақыт")
     is_paid = models.BooleanField(default=False, verbose_name="Ақылы қолданушы ма?")
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Телефон нөмірі")
+    current_lesson = models.IntegerField(default=1, verbose_name="Қазіргі сабақ")
 
     def is_locked(self):
         return self.lock_until and timezone.now() < self.lock_until
@@ -100,6 +101,13 @@ class UserProfile(models.Model):
     def lock(self, days=5):
         self.lock_until = timezone.now() + timedelta(days=days)
         self.save()
+
+    def get_highest_lesson_reached(self):
+        """Қолданушының ең жоғары өткен сабағын есептейді"""
+        from .models import QuizAttempt
+        user_id = str(self.user.id)
+        passed_lessons = QuizAttempt.objects.filter(user_id=user_id, is_passed=True).values_list("lesson_id", flat=True)
+        return max(passed_lessons) if passed_lessons else 0
 
     def __str__(self):
         return f"{self.user.username} профилі"
