@@ -14,6 +14,10 @@ from .forms import CustomRegisterForm
 from .models import UserProfile
 from django.contrib.auth import login
 
+import uuid, os, glob
+from asgiref.sync import async_to_sync
+from english_course.utils.realtime_tts import synthesize_audio_realtime_wav
+
 import random
 import os
 import glob
@@ -273,41 +277,77 @@ def explain_section(request, lesson_id):
 
 
         # Generate text explanation using GPT API.
+        # Generate text explanation using GPT-5 (Responses API)
         try:
+            from openai import OpenAI
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
-            response = client.chat.completions.create(
+
+            resp = client.responses.create(
                 model="gpt-5",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=1,
+                input=prompt,                      # сіз құрастырған prompt
+                reasoning={"effort": "low"},       # жылдамырақ жауап үшін
+                text={"verbosity": "low"},         # аудиоға ыңғайлы қысқа стиль
             )
-            explanation_text = response.choices[0].message.content
+            explanation_text = (resp.output_text or "").strip()
+            if not explanation_text:
+                # Сирек жағдайда бос келсе, чатқа фолбэк жасаймыз
+                fallback = client.chat.completions.create(
+                    model="gpt-5",
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                explanation_text = fallback.choices[0].message.content.strip()
+
         except Exception as e:
             return JsonResponse({"error": f"OpenAI қатесі: {str(e)}"}, status=500)
 
+
         # Generate audio explanation.
+        # Generate audio explanation (gpt-realtime -> WAV)
         audio_url = None
         if explanation_text:
             media_dir = settings.MEDIA_ROOT
-            # Create a unique filename by appending a short uuid string
+            os.makedirs(media_dir, exist_ok=True)
+
             unique_id = uuid.uuid4().hex[:8]
-            audio_filename = f"audio_lesson_{lesson.id}_{section}_{unique_id}.mp3"
-            # Remove previous audio files for this lesson & section.
-            pattern = os.path.join(media_dir, f"audio_lesson_{lesson.id}_{section}_*.mp3")
-            for old_audio in glob.glob(pattern):
-                os.remove(old_audio)
+            audio_filename = f"audio_lesson_{lesson.id}_{section}_{unique_id}.wav"  # WAV!
+            # Бұрынғы осы lesson/section WAV-тарды тазалау
+            for old in glob.glob(os.path.join(media_dir, f"audio_lesson_{lesson.id}_{section}_*.wav")):
+                try:
+                    os.remove(old)
+                except OSError:
+                    pass
             audio_path = os.path.join(media_dir, audio_filename)
+
+            # Realtime-ға қазақша нұсқаулар + сандарды сөзбен айту
+            system_instructions = (
+                "Берілген мәтінді ағылшын тілі мұғалімі ретінде тек қана оқып бер. Өзің ешқандай сөз қоспа "
+            )
+
             try:
-                speech_response = openai.audio.speech.create(
-                    model="tts-1-hd",
-                    voice="alloy",
-                    input=explanation_text,
+                # 1) cedar-мен көреміз
+                wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
+                    explanation_text,
+                    api_key=settings.OPENAI_API_KEY,
+                    model="gpt-realtime",
+                    voice="cedar",
+                    system_instructions=system_instructions,
                 )
-                with open(audio_path, "wb") as audio_file:
-                    for chunk in speech_response.iter_bytes():
-                        audio_file.write(chunk)
-                audio_url = f"{settings.MEDIA_URL}{audio_filename}"
-            except openai.OpenAIError as e:
-                return JsonResponse({"error": f"Аудио генерация қатесі: {str(e)}"}, status=500)
+            except Exception as e1:
+                # 2) cedar қолжетімсіз болса — alloy-ға фолбэк
+                wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
+                    explanation_text,
+                    api_key=settings.OPENAI_API_KEY,
+                    model="gpt-realtime",
+                    voice="alloy",
+                    system_instructions=system_instructions,
+                )
+
+            with open(audio_path, "wb") as f:
+                f.write(wav_bytes)
+            audio_url = f"{settings.MEDIA_URL}{audio_filename}"
+
+            # except openai.OpenAIError as e:
+            #     return JsonResponse({"error": f"Аудио генерация қатесі: {str(e)}"}, status=500)
 
         # Дерекқорға түсіндірмені сақтау (Update немесе Create)
         explanation_obj, created = Explanation.objects.update_or_create(

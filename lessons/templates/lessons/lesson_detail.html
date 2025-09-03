@@ -818,7 +818,7 @@
         {% if explanations.content.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.content.audio_url }}" type="audio/mp3">
+              <source src="{{ explanations.content.audio_url }}">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
@@ -855,7 +855,7 @@
         {% if explanations.vocabulary.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mp3">
+              <source src="{{ explanations.vocabulary.audio_url }}">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
@@ -890,7 +890,7 @@
         {% if explanations.grammar.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.grammar.audio_url }}" type="audio/mp3">
+              <source src="{{ explanations.grammar.audio_url }}">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
@@ -925,7 +925,7 @@
         {% if explanations.dialogue.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.dialogue.audio_url }}" type="audio/mp3">
+              <source src="{{ explanations.dialogue.audio_url }}">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
@@ -1113,7 +1113,7 @@
               let html = `<div class="alert alert-info">🧠 ${data.text}</div>`;
               if (data.audio_url) {
                 html += `<audio controls class="mt-2 w-100">
-                           <source src="${data.audio_url}" type="audio/mp3">
+                           <source src="${data.audio_url}">
                            Браузеріңіз аудионы қолдамайды.
                          </audio>`;
               }

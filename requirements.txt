@@ -13,7 +13,6 @@ httpcore==1.0.7
 httpx==0.28.1
 idna==3.10
 jiter==0.8.2
-openai==1.65.1
 packaging==24.2
 pydantic==2.10.6
 pydantic_core==2.27.2
@@ -23,3 +22,6 @@ sqlparse==0.5.3
 tqdm==4.67.1
 typing_extensions==4.12.2
 whitenoise
+
+openai>=1.101.0,<2
+asgiref>=3.8.1
