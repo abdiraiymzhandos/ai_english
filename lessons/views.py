@@ -640,3 +640,4 @@ def register_lead(request):
         return JsonResponse({"redirect_url": lesson_url})
 
     return JsonResponse({"error": "POST керек"}, status=405)
+#weeeeeeeeeeeeeeeeeeeeeeeeeeee
