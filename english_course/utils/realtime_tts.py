@@ -3,7 +3,20 @@ import base64, wave
 from typing import Optional
 from openai import AsyncOpenAI
 
+from pydub import AudioSegment
+from io import BytesIO
+
 SAMPLE_RATE = 24000  # Realtime PCM16 әдетте 24kHz
+
+
+def _pcm16_to_mp3_bytes(pcm: bytes, *, sample_rate: int = SAMPLE_RATE) -> bytes:
+    """Convert raw PCM16 mono → MP3 bytes using pydub."""
+    wav_bytes = _pcm16_to_wav_bytes(pcm, sample_rate=sample_rate)
+    audio = AudioSegment.from_file(BytesIO(wav_bytes), format="wav")
+    bio = BytesIO()
+    audio.export(bio, format="mp3", bitrate="128k")
+    return bio.getvalue()
+
 
 def _pcm16_to_wav_bytes(pcm: bytes, *, sample_rate: int = SAMPLE_RATE) -> bytes:
     """Raw PCM16 mono-ны WAV контейнеріне орап, bytes қайтару."""
@@ -63,4 +76,5 @@ async def synthesize_audio_realtime_wav(
                 err = getattr(event, "error", event)
                 raise RuntimeError(f"Realtime error: {err}")
 
-    return _pcm16_to_wav_bytes(bytes(pcm_buf), sample_rate=sample_rate)
+    mp3_bytes = _pcm16_to_mp3_bytes(bytes(pcm_buf), sample_rate=sample_rate)
+    return mp3_bytes

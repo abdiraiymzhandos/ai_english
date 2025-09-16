@@ -312,9 +312,8 @@ def explain_section(request, lesson_id):
             os.makedirs(media_dir, exist_ok=True)
 
             unique_id = uuid.uuid4().hex[:8]
-            audio_filename = f"audio_lesson_{lesson.id}_{section}_{unique_id}.wav"  # WAV!
-            # Бұрынғы осы lesson/section WAV-тарды тазалау
-            for old in glob.glob(os.path.join(media_dir, f"audio_lesson_{lesson.id}_{section}_*.wav")):
+            audio_filename = f"audio_lesson_{lesson.id}_{section}_{unique_id}.mp3"
+            for old in glob.glob(os.path.join(media_dir, f"audio_lesson_{lesson.id}_{section}_*.mp3")):
                 try:
                     os.remove(old)
                 except OSError:

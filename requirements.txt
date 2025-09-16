@@ -27,3 +27,5 @@ openai>=1.101.0,<2
 asgiref>=3.8.1
 openai[realtime]>=1.101.0,<2
 websockets>=12
+pydub==0.25.1
+ffmpeg-python==0.2.0

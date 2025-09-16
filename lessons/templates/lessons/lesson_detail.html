@@ -735,7 +735,7 @@
 
   <!-- Сабақ тақырыбы -->
   <h1 class="text-primary text-center mb-4">{{ lesson.title }}</h1>
-  
+
   <!-- Modern Button Grid -->
   <div class="lesson-sections mb-4">
     <div class="row g-3">
@@ -750,7 +750,7 @@
           <div class="lesson-btn-arrow">→</div>
         </button>
       </div>
-      
+
       <!-- Сөздік Button -->
       <div class="col-md-6">
         <button class="lesson-btn" data-section="vocabulary">
@@ -762,7 +762,7 @@
           <div class="lesson-btn-arrow">→</div>
         </button>
       </div>
-      
+
       <!-- Грамматика Button -->
       <div class="col-md-6">
         <button class="lesson-btn" data-section="grammar">
@@ -774,7 +774,7 @@
           <div class="lesson-btn-arrow">→</div>
         </button>
       </div>
-      
+
       <!-- Диалог Button -->
       <div class="col-md-6">
         <button class="lesson-btn" data-section="dialogue">
@@ -801,10 +801,10 @@
           </button>
         {% endif %}
         <div class="explanation-container">
-          <div class="explanation-toggle" 
-               data-bs-toggle="collapse" 
-               data-bs-target="#contentCollapse" 
-               aria-expanded="false" 
+          <div class="explanation-toggle"
+               data-bs-toggle="collapse"
+               data-bs-target="#contentCollapse"
+               aria-expanded="false"
                aria-controls="contentCollapse">
               <strong>Түсініктеме</strong>
               <span class="toggle-icon">▼</span>
@@ -818,14 +818,14 @@
         {% if explanations.content.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.content.audio_url }}">
+              <source src="{{ explanations.content.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
         {% endif %}
       </div>
     </div>
-    
+
     <!-- Сөздік Section -->
     <div class="lesson-section" id="vocabulary-section">
       <div class="section-content">
@@ -838,10 +838,10 @@
           </button>
         {% endif %}
         <div class="explanation-container">
-          <div class="explanation-toggle" 
-               data-bs-toggle="collapse" 
-               data-bs-target="#vocabularyCollapse" 
-               aria-expanded="false" 
+          <div class="explanation-toggle"
+               data-bs-toggle="collapse"
+               data-bs-target="#vocabularyCollapse"
+               aria-expanded="false"
                aria-controls="vocabularyCollapse">
               <strong>Түсініктеме</strong>
               <span class="toggle-icon">▼</span>
@@ -855,14 +855,14 @@
         {% if explanations.vocabulary.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.vocabulary.audio_url }}">
+              <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
         {% endif %}
       </div>
     </div>
-    
+
     <!-- Грамматика Section -->
     <div class="lesson-section" id="grammar-section">
       <div class="section-content" id="lesson-grammar">
@@ -873,10 +873,10 @@
           </button>
         {% endif %}
         <div class="explanation-container">
-          <div class="explanation-toggle" 
-               data-bs-toggle="collapse" 
-               data-bs-target="#grammarCollapse" 
-               aria-expanded="false" 
+          <div class="explanation-toggle"
+               data-bs-toggle="collapse"
+               data-bs-target="#grammarCollapse"
+               aria-expanded="false"
                aria-controls="grammarCollapse">
               <strong>Түсініктеме</strong>
               <span class="toggle-icon">▼</span>
@@ -890,14 +890,14 @@
         {% if explanations.grammar.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.grammar.audio_url }}">
+              <source src="{{ explanations.grammar.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
         {% endif %}
       </div>
     </div>
-    
+
     <!-- Диалог Section -->
     <div class="lesson-section" id="dialogue-section">
       <div class="section-content" id="lesson-dialogue">
@@ -908,10 +908,10 @@
           </button>
         {% endif %}
         <div class="explanation-container">
-          <div class="explanation-toggle" 
-               data-bs-toggle="collapse" 
-               data-bs-target="#dialogueCollapse" 
-               aria-expanded="false" 
+          <div class="explanation-toggle"
+               data-bs-toggle="collapse"
+               data-bs-target="#dialogueCollapse"
+               aria-expanded="false"
                aria-controls="dialogueCollapse">
               <strong>Түсініктеме</strong>
               <span class="toggle-icon">▼</span>
@@ -925,7 +925,7 @@
         {% if explanations.dialogue.audio_url %}
           <div class="audio-container mt-2">
             <audio controls class="w-100">
-              <source src="{{ explanations.dialogue.audio_url }}">
+              <source src="{{ explanations.dialogue.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
@@ -933,15 +933,15 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Барлық сабақтарға сілтеме -->
   <div class="text-center mb-4">
     <a href="{% url 'lesson_list' %}" class="btn btn-secondary">← Барлық сабақтар</a>
   </div>
-  
+
   <!-- Floating Chat Button -->
   <button id="chat-open-btn" class="btn">💬</button>
-  
+
   <!-- Chat Window -->
   <div id="chat-window">
     <div id="chat-header">
@@ -956,11 +956,11 @@
       </button>
     </div>
   </div>
-  
+
   <!-- Quiz блоктары -->
   <div id="quiz-container" class="mt-4 text-center">
     <button id="start-quiz-btn" class="btn btn-success btn-lg">🎯 Тестті бастау</button>
-    
+
     <div id="quiz-content" class="p-4" style="display: none;">
       <h3 id="question-text" class="mb-3"></h3>
 
@@ -969,21 +969,21 @@
       </div>
 
       <div id="answer-buttons" class="d-grid gap-2"></div>
-      
+
       <p id="timer" class="text-danger mt-3">⏳ 4 секунд</p>
       <p id="score" class="mt-2">🏆 Ұпай: 0</p>
       <p id="attempts">❌ Қателер: 0/3</p>
     </div>
   </div>
 
-  
+
   <!-- JavaScript блоктары -->
   <script>
     // Theme Toggle Functionality
     document.addEventListener('DOMContentLoaded', function() {
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = themeToggle.querySelector('i');
-        
+
         // Check for saved theme preference
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -992,7 +992,7 @@
         themeToggle.addEventListener('click', function() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
@@ -1040,9 +1040,9 @@
           nextQuestion();
         });
     }
-    
-    
-    
+
+
+
 
 
     // Ағымдағы сабақтың ID-сы
@@ -1072,14 +1072,14 @@
       lessonButtons.forEach(button => {
         button.addEventListener('click', function() {
           const targetSection = this.dataset.section;
-          
+
           // Remove active class from all buttons and sections
           lessonButtons.forEach(btn => btn.classList.remove('active'));
           lessonSections.forEach(section => section.classList.remove('active'));
-          
+
           // Add active class to clicked button
           this.classList.add('active');
-          
+
           // Show target section
           const targetSectionElement = document.getElementById(targetSection + '-section');
           if (targetSectionElement) {
