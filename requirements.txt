@@ -1,7 +1,10 @@
 annotated-types==0.7.0
 anyio==4.8.0
-asgiref==3.8.1
+asgiref==3.9.1
+async-timeout==5.0.1
 certifi==2025.1.31
+channels==4.3.1
+channels-redis==4.3.0
 distro==1.9.0
 dj-database-url==2.3.0
 Django==5.1.6
@@ -13,10 +16,12 @@ httpcore==1.0.7
 httpx==0.28.1
 idna==3.10
 jiter==0.8.2
+msgpack==1.1.1
 packaging==24.2
 pydantic==2.10.6
 pydantic_core==2.27.2
 python-dotenv==1.0.1
+redis==6.4.0
 sniffio==1.3.1
 sqlparse==0.5.3
 tqdm==4.67.1
@@ -24,7 +29,6 @@ typing_extensions==4.12.2
 whitenoise
 
 openai>=1.101.0,<2
-asgiref>=3.8.1
 openai[realtime]>=1.101.0,<2
 websockets>=12
 pydub==0.25.1

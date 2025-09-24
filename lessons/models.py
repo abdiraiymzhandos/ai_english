@@ -85,6 +85,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     lock_until = models.DateTimeField(null=True, blank=True, verbose_name="Құлтаған уақыт")
     is_paid = models.BooleanField(default=False, verbose_name="Ақылы қолданушы ма?")
+    has_voice_access = models.BooleanField(default=False, verbose_name="Дауыс сабағына қол жеткізу")
+    voice_access_until = models.DateTimeField(null=True, blank=True, verbose_name="Дауыс сабағы мерзімі")
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Телефон нөмірі")
     current_lesson = models.IntegerField(default=1, verbose_name="Қазіргі сабақ")
 
@@ -108,6 +110,26 @@ class UserProfile(models.Model):
         user_id = str(self.user.id)
         passed_lessons = QuizAttempt.objects.filter(user_id=user_id, is_passed=True).values_list("lesson_id", flat=True)
         return max(passed_lessons) if passed_lessons else 0
+
+    def has_active_voice_access(self):
+        """Дауыс сабағына қол жеткізу бар ма деп тексереді"""
+        if not self.has_voice_access:
+            return False
+        if self.voice_access_until and timezone.now() > self.voice_access_until:
+            return False
+        return True
+
+    def grant_voice_access(self, days=30):
+        """Дауыс сабағына қол жеткізу береді"""
+        self.has_voice_access = True
+        self.voice_access_until = timezone.now() + timedelta(days=days)
+        self.save()
+
+    def revoke_voice_access(self):
+        """Дауыс сабағынан қол жеткізуді алып тастайды"""
+        self.has_voice_access = False
+        self.voice_access_until = None
+        self.save()
 
     def __str__(self):
         return f"{self.user.username} профилі"

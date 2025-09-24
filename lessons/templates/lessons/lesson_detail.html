@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="{% static 'css/voice-lesson.css' %}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -739,25 +740,25 @@
   <!-- Modern Button Grid -->
   <div class="lesson-sections mb-4">
     <div class="row g-3">
-      <!-- Сабақ мазмұны Button -->
+      <!-- Сөздік Button -->
       <div class="col-md-6">
-        <button class="lesson-btn active" data-section="content">
-          <div class="lesson-btn-icon">📘</div>
+        <button class="lesson-btn active" data-section="vocabulary">
+          <div class="lesson-btn-icon">📖</div>
           <div class="lesson-btn-content">
-            <div class="lesson-btn-title">Сабақ мазмұны</div>
-            <div class="lesson-btn-subtitle">Негізгі материал</div>
+            <div class="lesson-btn-title">Сөздік</div>
+            <div class="lesson-btn-subtitle">Жаңа сөздер</div>
           </div>
           <div class="lesson-btn-arrow">→</div>
         </button>
       </div>
 
-      <!-- Сөздік Button -->
+      <!-- Сабақ мазмұны Button -->
       <div class="col-md-6">
-        <button class="lesson-btn" data-section="vocabulary">
-          <div class="lesson-btn-icon">📖</div>
+        <button class="lesson-btn" data-section="content">
+          <div class="lesson-btn-icon">📘</div>
           <div class="lesson-btn-content">
-            <div class="lesson-btn-title">Сөздік</div>
-            <div class="lesson-btn-subtitle">Жаңа сөздер</div>
+            <div class="lesson-btn-title">Сабақ мазмұны</div>
+            <div class="lesson-btn-subtitle">Негізгі материал</div>
           </div>
           <div class="lesson-btn-arrow">→</div>
         </button>
@@ -791,43 +792,8 @@
 
   <!-- Content Sections -->
   <div class="lesson-content-sections">
-    <!-- Сабақ мазмұны Section -->
-    <div class="lesson-section active" id="content-section">
-      <div class="section-content" id="lesson-content">
-        {{ lesson.content|linebreaksbr }}
-        {% if request.user.is_superuser %}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
-              🔍 Түсіндіру (ChatGPT)
-          </button>
-        {% endif %}
-        <div class="explanation-container">
-          <div class="explanation-toggle"
-               data-bs-toggle="collapse"
-               data-bs-target="#contentCollapse"
-               aria-expanded="false"
-               aria-controls="contentCollapse">
-              <strong>Түсініктеме</strong>
-              <span class="toggle-icon">▼</span>
-          </div>
-          <div class="collapse explanation-content" id="contentCollapse">
-              {{ explanations.content.text|safe }}
-          </div>
-        </div>
-
-        <!-- Аудио плеер үнемі көрініп тұрады -->
-        {% if explanations.content.audio_url %}
-          <div class="audio-container mt-2">
-            <audio controls class="w-100">
-              <source src="{{ explanations.content.audio_url }}" type="audio/mpeg">
-              Браузеріңіз аудионы қолдамайды.
-            </audio>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-
     <!-- Сөздік Section -->
-    <div class="lesson-section" id="vocabulary-section">
+    <div class="lesson-section active" id="vocabulary-section">
       <div class="section-content">
         {% for word in lesson.vocabulary.splitlines %}
           <p><strong>{{ word }}</strong></p>
@@ -856,6 +822,41 @@
           <div class="audio-container mt-2">
             <audio controls class="w-100">
               <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mpeg">
+              Браузеріңіз аудионы қолдамайды.
+            </audio>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Сабақ мазмұны Section -->
+    <div class="lesson-section" id="content-section">
+      <div class="section-content" id="lesson-content">
+        {{ lesson.content|linebreaksbr }}
+        {% if request.user.is_superuser %}
+          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
+              🔍 Түсіндіру (ChatGPT)
+          </button>
+        {% endif %}
+        <div class="explanation-container">
+          <div class="explanation-toggle"
+               data-bs-toggle="collapse"
+               data-bs-target="#contentCollapse"
+               aria-expanded="false"
+               aria-controls="contentCollapse">
+              <strong>Түсініктеме</strong>
+              <span class="toggle-icon">▼</span>
+          </div>
+          <div class="collapse explanation-content" id="contentCollapse">
+              {{ explanations.content.text|safe }}
+          </div>
+        </div>
+
+        <!-- Аудио плеер үнемі көрініп тұрады -->
+        {% if explanations.content.audio_url %}
+          <div class="audio-container mt-2">
+            <audio controls class="w-100">
+              <source src="{{ explanations.content.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
           </div>
@@ -933,6 +934,80 @@
       </div>
     </div>
   </div>
+
+  <!-- Voice Lesson Feature Section -->
+  <div id="voice-lesson-section">
+    {% if user.is_authenticated %}
+      {% if user.profile.has_active_voice_access %}
+        <!-- Active Voice Access - Show Voice Lesson Interface -->
+        <div class="voice-lesson-active">
+          <div class="premium-voice-feature">
+            <h3>🎙️ AI Дауыс Мұғалімі - Белсенді</h3>
+            <p>Сіздің жазылымыңыз белсенді! AI мұғаліммен сөйлесуді бастаңыз.</p>
+
+            {% if user.profile.voice_access_until %}
+              <p class="access-info">
+                <i class="fas fa-calendar"></i>
+                Мерзімі: {{ user.profile.voice_access_until|date:"d.m.Y" }}
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <!-- No Voice Access - Show Subscription Options -->
+        <div class="premium-voice-feature">
+          <h3>🎙️Жандос AI Мұғалім</h3>
+          {% comment %} <p>Жеке сабақ. Тікелей сөйлесіп үйреніңіз!</p> {% endcomment %}
+
+          <ul class="features">
+            <li>Жеке сабақ. Тікелей сөйлесіп үйреніңіз!</li>
+            <li>Айтылымды түзету және бағалау</li>
+            <li>Сіздің деңгейіңізге бейімделген сабақ</li>
+            <li>Өзіңізге ыңғайлы уақытта сабақты оқытатын мұғалім</li>
+          </ul>
+
+          <div class="price">22,500 ₸ / ай</div>
+
+          <a href="https://wa.me/77781029394?text=Сәлеметсіз%20бе!%20AI%20дауыс%20мұғалімі%20қызметіне%20жазылғым%20келеді.%20Толығырақ%20ақпарат%20бере%20аласыз%20ба?"
+             class="premium-whatsapp-btn" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp арқылы жазылу</span>
+          </a>
+        </div>
+      {% endif %}
+    {% else %}
+      <!-- Advertisement for Non-authenticated Users -->
+      <div class="voice-advertisement">
+        <h3>🎙️ Жандос AI Мұғалім</h3>
+        {% comment %} <p>OpenAI технологиясымен жасалған революциялық дауыс оқыту жүйесі!</p> {% endcomment %}
+
+        <ul class="locked-features">
+          <li>Жеке сабақ. Тікелей сөйлесіп үйреніңіз!</li>
+          <li>Айтылымды түзету және бағалау</li>
+          <li>Сіздің деңгейіңізге бейімделген сабақ</li>
+          <li>Өзіңізге ыңғайлы уақытта сабақты оқытатын мұғалім</li>
+        </ul>
+
+        <p><strong>Бұл мүмкіндікті пайдалану үшін тіркеліңіз және премиум жазылым алыңыз!</strong></p>
+
+        <div style="margin-top: 1.5rem;">
+          <a href="{% url 'register' %}" class="btn-voice-primary" style="margin-right: 1rem;">
+            <i class="fas fa-user-plus"></i>
+            <span>Тіркелу</span>
+          </a>
+          <a href="{% url 'login' %}" class="btn-voice-secondary">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Кіру</span>
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Voice Lesson Container (only for users with voice access) -->
+  {% if user.is_authenticated and user.profile.has_active_voice_access %}
+    <div id="voice-lesson-container"></div>
+  {% endif %}
 
   <!-- Барлық сабақтарға сілтеме -->
   <div class="text-center mb-4">
@@ -1356,6 +1431,22 @@
       return cookieValue;
     }
   </script>
+
+  <!-- Voice Lesson JavaScript -->
+  <script src="{% static 'js/voice-lesson.js' %}"></script>
+  {% if user.is_authenticated and user.profile.has_active_voice_access %}
+  <script>
+    // Initialize Voice Lesson Manager when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Only initialize if user has voice access and container exists
+      const voiceLessonContainer = document.getElementById('voice-lesson-container');
+      if (voiceLessonContainer) {
+        window.voiceLessonManager = new VoiceLessonManager({{ lesson.id }});
+      }
+    });
+  </script>
+  {% endif %}
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

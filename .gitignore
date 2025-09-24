@@ -7,3 +7,4 @@ staticfiles/
 .env
 
 media_files.zip
+db.sqlite3
