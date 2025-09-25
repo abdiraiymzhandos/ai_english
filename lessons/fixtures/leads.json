@@ -1,0 +1,804 @@
+✅ OpenAI API кілті сәтті жүктелді!
+[
+{
+  "model": "lessons.lead",
+  "pk": 2,
+  "fields": {
+    "name": "Жандос Байсафарулы",
+    "phone": "+7 (778) 102-93-94",
+    "created_at": "2025-04-19T12:36:22.208Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 4,
+  "fields": {
+    "name": "Тест",
+    "phone": "Тест",
+    "created_at": "2025-04-19T13:07:49.282Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 5,
+  "fields": {
+    "name": "Nurlan Qaraqulov",
+    "phone": "+77078629827",
+    "created_at": "2025-04-19T16:34:38.780Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 6,
+  "fields": {
+    "name": "arai",
+    "phone": "87783272742",
+    "created_at": "2025-04-19T19:26:57.148Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 7,
+  "fields": {
+    "name": "arai",
+    "phone": "87783272742",
+    "created_at": "2025-04-19T19:27:12.343Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 9,
+  "fields": {
+    "name": "Сәкен",
+    "phone": "+971547302025",
+    "created_at": "2025-04-20T07:59:43.102Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 10,
+  "fields": {
+    "name": "Akosh",
+    "phone": "87053841507",
+    "created_at": "2025-04-21T07:27:40.322Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 11,
+  "fields": {
+    "name": "Kanagat Zhumagaliev",
+    "phone": "87071431070",
+    "created_at": "2025-04-23T05:48:55.694Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 12,
+  "fields": {
+    "name": "Сұлтан ",
+    "phone": "+7 (747) 356-10-09",
+    "created_at": "2025-04-23T06:38:00.316Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 13,
+  "fields": {
+    "name": "Сұлтан ",
+    "phone": "+7 (747) 356-10-09",
+    "created_at": "2025-04-23T06:39:56.072Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 14,
+  "fields": {
+    "name": "Сұлтан ",
+    "phone": "+7 (747) 356-10-09",
+    "created_at": "2025-04-23T06:59:33.149Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 15,
+  "fields": {
+    "name": "Yeligay ",
+    "phone": "+7 (705) 558 9892",
+    "created_at": "2025-04-25T11:14:49.973Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 16,
+  "fields": {
+    "name": "Yerbol",
+    "phone": "87766131100",
+    "created_at": "2025-04-26T09:33:32.064Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 17,
+  "fields": {
+    "name": "Yerbol",
+    "phone": "87766131100",
+    "created_at": "2025-04-26T09:38:36.388Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 18,
+  "fields": {
+    "name": "Nurkuisa Sailaubai",
+    "phone": "87753449140",
+    "created_at": "2025-04-26T12:54:43.847Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 19,
+  "fields": {
+    "name": "Nurkuisa Sailaubai",
+    "phone": "87753449140",
+    "created_at": "2025-04-26T12:56:09.974Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 20,
+  "fields": {
+    "name": "Adilzhan",
+    "phone": "87751099707",
+    "created_at": "2025-04-26T13:17:52.776Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 21,
+  "fields": {
+    "name": "Adilzhan",
+    "phone": "87751099707",
+    "created_at": "2025-04-26T13:18:45.265Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 22,
+  "fields": {
+    "name": "Adilzhan ",
+    "phone": "87751099707",
+    "created_at": "2025-04-26T13:19:11.143Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 23,
+  "fields": {
+    "name": "Альбина",
+    "phone": "8 707 430 6187",
+    "created_at": "2025-04-27T15:53:36.267Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 24,
+  "fields": {
+    "name": "Dinara KNT",
+    "phone": "87026785190",
+    "created_at": "2025-04-28T05:37:48.421Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 25,
+  "fields": {
+    "name": "Дана",
+    "phone": "87051291015",
+    "created_at": "2025-04-28T07:18:39.307Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 26,
+  "fields": {
+    "name": "Ұлбосын",
+    "phone": "87074153015",
+    "created_at": "2025-04-28T11:34:51.499Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 27,
+  "fields": {
+    "name": "Ақниет ",
+    "phone": "8 771 248 69 11",
+    "created_at": "2025-04-29T04:35:24.453Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 28,
+  "fields": {
+    "name": "Ақниет ",
+    "phone": "8 771 248 69 11",
+    "created_at": "2025-04-29T04:35:37.449Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 29,
+  "fields": {
+    "name": "Nurlan",
+    "phone": "87078629827",
+    "created_at": "2025-05-04T04:36:14.274Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 30,
+  "fields": {
+    "name": "Arailym",
+    "phone": "87073996365",
+    "created_at": "2025-05-07T12:58:04.045Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 31,
+  "fields": {
+    "name": "Aizada",
+    "phone": "87767061212",
+    "created_at": "2025-05-07T16:03:38.807Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 32,
+  "fields": {
+    "name": "Aizada",
+    "phone": "87767061212",
+    "created_at": "2025-05-07T16:04:10.250Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 33,
+  "fields": {
+    "name": "Арман",
+    "phone": "+97695929400",
+    "created_at": "2025-05-08T06:59:06.300Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 34,
+  "fields": {
+    "name": "Жандос",
+    "phone": "87781029394",
+    "created_at": "2025-05-09T19:16:47.472Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 35,
+  "fields": {
+    "name": "Жулдыз",
+    "phone": "87756485284",
+    "created_at": "2025-05-11T03:05:25.549Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 36,
+  "fields": {
+    "name": "Saltanat",
+    "phone": "87775963311",
+    "created_at": "2025-05-11T13:20:22.604Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 37,
+  "fields": {
+    "name": "Dinmukhamed ",
+    "phone": "87057751637",
+    "created_at": "2025-05-12T05:48:54.372Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 38,
+  "fields": {
+    "name": "Айша",
+    "phone": "87076266775",
+    "created_at": "2025-05-12T16:42:28.616Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 39,
+  "fields": {
+    "name": "Әлішер",
+    "phone": "+77471108209",
+    "created_at": "2025-05-15T15:23:09.706Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 40,
+  "fields": {
+    "name": "Жанару Оралбек",
+    "phone": "87764598885",
+    "created_at": "2025-05-16T01:10:26.100Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 41,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:09:10.260Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 42,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:09:17.309Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 43,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:09:35.277Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 44,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:09:36.528Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 45,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:09:41.348Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 46,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:11:12.722Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 47,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-05-16T18:12:01.485Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 48,
+  "fields": {
+    "name": "Бидана",
+    "phone": "87470356413",
+    "created_at": "2025-05-17T10:12:02.720Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 49,
+  "fields": {
+    "name": "Ақнұр",
+    "phone": "7026142390",
+    "created_at": "2025-05-19T05:23:12.146Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 50,
+  "fields": {
+    "name": "Гулнур",
+    "phone": "+7(705)262-82-77",
+    "created_at": "2025-05-19T19:08:21.958Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 51,
+  "fields": {
+    "name": "Гулнур",
+    "phone": "+7(705)262-82-77",
+    "created_at": "2025-05-19T19:12:33.708Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 52,
+  "fields": {
+    "name": "Гулнур",
+    "phone": "+7(705)262-82-77",
+    "created_at": "2025-05-19T19:13:06.703Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 53,
+  "fields": {
+    "name": "Ayazhan ",
+    "phone": "87070221906",
+    "created_at": "2025-05-19T21:51:11.565Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 54,
+  "fields": {
+    "name": "Жанелдин Алиби",
+    "phone": "87713167921",
+    "created_at": "2025-05-22T05:41:47.507Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 55,
+  "fields": {
+    "name": "Topchubai",
+    "phone": "+447352053156",
+    "created_at": "2025-05-22T20:47:05.938Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 56,
+  "fields": {
+    "name": "Bekzat Konysbayev",
+    "phone": "7073271763",
+    "created_at": "2025-05-24T06:33:05.075Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 57,
+  "fields": {
+    "name": "Айдана",
+    "phone": "+77786577749",
+    "created_at": "2025-05-26T04:58:29.695Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 58,
+  "fields": {
+    "name": "Nurdaulet",
+    "phone": "01080292035",
+    "created_at": "2025-05-26T22:11:14.357Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 59,
+  "fields": {
+    "name": "Zhanerke",
+    "phone": "8775 349 4693",
+    "created_at": "2025-06-01T11:18:02.262Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 60,
+  "fields": {
+    "name": "Akniet",
+    "phone": "87768885705",
+    "created_at": "2025-06-02T17:13:51.605Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 61,
+  "fields": {
+    "name": "Gulhayo",
+    "phone": "7087033416",
+    "created_at": "2025-06-08T20:13:11.344Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 62,
+  "fields": {
+    "name": "Айдана",
+    "phone": "87752054884",
+    "created_at": "2025-06-12T14:54:07.578Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 63,
+  "fields": {
+    "name": "Айдана",
+    "phone": "87752054884",
+    "created_at": "2025-06-12T14:54:18.322Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 64,
+  "fields": {
+    "name": "Мерей",
+    "phone": "87074465410",
+    "created_at": "2025-06-21T13:54:53.811Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 65,
+  "fields": {
+    "name": "Бидана",
+    "phone": "87470356413",
+    "created_at": "2025-06-21T16:14:38.275Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 66,
+  "fields": {
+    "name": "Kudiret",
+    "phone": "+77002208359",
+    "created_at": "2025-06-21T19:04:39.172Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 67,
+  "fields": {
+    "name": "Kudiret",
+    "phone": "+77002208359",
+    "created_at": "2025-06-21T19:14:21.664Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 68,
+  "fields": {
+    "name": "Нұрбақыт",
+    "phone": "87761732010",
+    "created_at": "2025-06-22T12:58:47.520Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 69,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:19:20.469Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 70,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:30.893Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 71,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:31.273Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 72,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:31.670Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 73,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:31.945Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 74,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:32.239Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 75,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:32.455Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 76,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:32.694Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 77,
+  "fields": {
+    "name": "meirzhan_abdiraiym",
+    "phone": "merjan2013",
+    "created_at": "2025-06-23T16:20:33.000Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 78,
+  "fields": {
+    "name": "Ukt,",
+    "phone": "+77777777777",
+    "created_at": "2025-06-29T10:47:03.444Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 79,
+  "fields": {
+    "name": "Гулнур",
+    "phone": "+7(705)262-82-77",
+    "created_at": "2025-07-04T11:07:49.020Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 80,
+  "fields": {
+    "name": "A",
+    "phone": "8775",
+    "created_at": "2025-07-05T17:47:56.545Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 81,
+  "fields": {
+    "name": "A",
+    "phone": "8775",
+    "created_at": "2025-07-05T17:50:11.796Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 82,
+  "fields": {
+    "name": "Ақмарал",
+    "phone": "87001008382",
+    "created_at": "2025-07-07T18:10:50.265Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 83,
+  "fields": {
+    "name": "Ақмарал",
+    "phone": "87001008382",
+    "created_at": "2025-07-07T18:13:17.418Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 84,
+  "fields": {
+    "name": "Elak",
+    "phone": "+1 (725) 252-8641",
+    "created_at": "2025-07-08T05:30:21.257Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 85,
+  "fields": {
+    "name": "Elak",
+    "phone": "+1 (725) 252-8641",
+    "created_at": "2025-07-08T05:31:09.519Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 86,
+  "fields": {
+    "name": "Elak",
+    "phone": "+976 88854903",
+    "created_at": "2025-07-08T05:31:43.809Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 87,
+  "fields": {
+    "name": "Elak",
+    "phone": "+976 88854903",
+    "created_at": "2025-07-08T05:34:29.915Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 88,
+  "fields": {
+    "name": "musaxan_madina",
+    "phone": "+77756648652",
+    "created_at": "2025-07-13T19:37:25.599Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 89,
+  "fields": {
+    "name": "musaxan_madina",
+    "phone": "+77756648652",
+    "created_at": "2025-07-13T19:37:26.084Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 90,
+  "fields": {
+    "name": "Жансая",
+    "phone": "87755798396",
+    "created_at": "2025-07-15T11:01:49.950Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 91,
+  "fields": {
+    "name": "Аян",
+    "phone": "87763362800",
+    "created_at": "2025-07-15T12:04:22.128Z"
+  }
+},
+{
+  "model": "lessons.lead",
+  "pk": 92,
+  "fields": {
+    "name": "Өмірзақ Дінмұхамед",
+    "phone": "+7 705 775 16 37",
+    "created_at": "2025-07-20T15:26:15.424Z"
+  }
+}
+]

@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'lessons',
 ]
 
@@ -108,6 +109,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'english_course.wsgi.application'
+ASGI_APPLICATION = "english_course.asgi.application"
+
+# Channel Layers for WebSockets
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database
@@ -201,10 +210,30 @@ STATICFILES_STORAGE = "whitenoise.storage.ManifestStaticFilesStorage"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = "/home/abdiraiymzhandos/media/"
 
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging configuration for WebSocket debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'lessons.consumers': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

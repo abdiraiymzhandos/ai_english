@@ -1,0 +1,525 @@
+✅ OpenAI API кілті сәтті жүктелді!
+[
+{
+  "model": "lessons.userdevice",
+  "pk": 8,
+  "fields": {
+    "user": 7,
+    "device_id": "0f24c7a0-2e8d-4960-99a3-288c07bdaaa3",
+    "last_seen": "2025-04-15T12:24:21.270Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 10,
+  "fields": {
+    "user": 8,
+    "device_id": "54daa810-db11-4527-9f01-a3142b228870",
+    "last_seen": "2025-04-17T07:14:37.308Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 12,
+  "fields": {
+    "user": 9,
+    "device_id": "432fe365-2750-4617-8115-e234650f4e66",
+    "last_seen": "2025-04-17T10:46:50.143Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 14,
+  "fields": {
+    "user": 10,
+    "device_id": "190cbe9d-0e49-4c39-bfe4-ab1b3ccd9c3e",
+    "last_seen": "2025-04-18T09:50:30.740Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 21,
+  "fields": {
+    "user": 12,
+    "device_id": "02994362-04a5-44aa-b383-098eac5b4a55",
+    "last_seen": "2025-04-25T18:51:37.608Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 23,
+  "fields": {
+    "user": 13,
+    "device_id": "ca3c971e-76c0-417e-89d2-678e357f7586",
+    "last_seen": "2025-04-25T19:02:11.747Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 24,
+  "fields": {
+    "user": 15,
+    "device_id": "d4716585-3975-4d10-aaec-b3a8f1cb6b0e",
+    "last_seen": "2025-04-26T17:48:30.792Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 25,
+  "fields": {
+    "user": 16,
+    "device_id": "1d9ac992-8d5a-4750-827a-99d7a7546433",
+    "last_seen": "2025-04-28T17:51:56.429Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 26,
+  "fields": {
+    "user": 17,
+    "device_id": "004b63c7-4647-44bf-8250-a36ac59bd114",
+    "last_seen": "2025-04-29T16:28:56.069Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 27,
+  "fields": {
+    "user": 17,
+    "device_id": "9668427f-91ba-47b1-8de9-6d1ae1c22c56",
+    "last_seen": "2025-04-29T16:30:24.438Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 40,
+  "fields": {
+    "user": 20,
+    "device_id": "8cf8cd17-8530-41cc-a2cd-1d17a29ab56e",
+    "last_seen": "2025-05-03T07:46:19.714Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 41,
+  "fields": {
+    "user": 21,
+    "device_id": "ab49d203-4a9c-42ac-a8ca-5706351927a3",
+    "last_seen": "2025-05-06T15:20:25.681Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 42,
+  "fields": {
+    "user": 22,
+    "device_id": "3276a702-4dd3-4f1a-81c2-194b5b292e25",
+    "last_seen": "2025-05-07T08:46:30.349Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 43,
+  "fields": {
+    "user": 17,
+    "device_id": "fa345acd-2524-4ced-a303-96c643d3af00",
+    "last_seen": "2025-05-08T10:54:13.573Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 44,
+  "fields": {
+    "user": 11,
+    "device_id": "5ebaaa55-6acf-4cf4-b310-1772d249c35c",
+    "last_seen": "2025-05-09T03:25:24.918Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 45,
+  "fields": {
+    "user": 23,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-05-16T15:09:33.245Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 46,
+  "fields": {
+    "user": 24,
+    "device_id": "7fff7697-46a9-4147-9c7a-0047d1fc444f",
+    "last_seen": "2025-05-16T17:49:03.757Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 48,
+  "fields": {
+    "user": 25,
+    "device_id": "320a9b95-1471-4325-83dc-a0dfb4c1e4ad",
+    "last_seen": "2025-06-17T14:35:39.943Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 49,
+  "fields": {
+    "user": 16,
+    "device_id": "51729100-2c59-4ae7-9fc2-89e1a49abec0",
+    "last_seen": "2025-06-18T07:30:17.296Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 50,
+  "fields": {
+    "user": 26,
+    "device_id": "6d39291f-36e9-4e8e-aaa3-698d5885cd6e",
+    "last_seen": "2025-06-21T13:55:50.777Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 54,
+  "fields": {
+    "user": 27,
+    "device_id": "aa68658d-455b-49da-8998-074bc4e32cb4",
+    "last_seen": "2025-07-20T16:08:09.196Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 57,
+  "fields": {
+    "user": 28,
+    "device_id": "8b7e0cc2-a5b2-4271-b88c-1e81808b9800",
+    "last_seen": "2025-07-26T11:57:51.107Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 58,
+  "fields": {
+    "user": 29,
+    "device_id": "74999c7c-761d-4e2c-896c-455cf90caecb",
+    "last_seen": "2025-07-26T14:34:54.309Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 59,
+  "fields": {
+    "user": 30,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-07-27T06:20:04.566Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 60,
+  "fields": {
+    "user": 31,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-07-27T07:00:34.987Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 61,
+  "fields": {
+    "user": 32,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-07-27T07:08:46.790Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 67,
+  "fields": {
+    "user": 34,
+    "device_id": "37eaad11-512f-4ac6-ae15-4cf47d0eba8c",
+    "last_seen": "2025-07-31T20:10:53.941Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 68,
+  "fields": {
+    "user": 35,
+    "device_id": "a9db2945-0f46-49db-83f6-52152ca2666b",
+    "last_seen": "2025-08-02T11:39:31.874Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 69,
+  "fields": {
+    "user": 35,
+    "device_id": "8b7e0cc2-a5b2-4271-b88c-1e81808b9800",
+    "last_seen": "2025-08-02T11:45:00.681Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 72,
+  "fields": {
+    "user": 19,
+    "device_id": "ae1d9f9a-2610-45ea-a7cb-4102ff6dc46c",
+    "last_seen": "2025-08-02T14:19:52.104Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 75,
+  "fields": {
+    "user": 36,
+    "device_id": "73af4c3d-db4c-4958-845a-7ef466af4d4b",
+    "last_seen": "2025-08-07T15:16:09.948Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 76,
+  "fields": {
+    "user": 37,
+    "device_id": "1a160cc2-b093-4144-8281-e4fa65556727",
+    "last_seen": "2025-08-09T06:37:01.994Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 77,
+  "fields": {
+    "user": 27,
+    "device_id": "8fc15942-a670-4c77-b483-43ca610efd9e",
+    "last_seen": "2025-08-10T08:48:07.750Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 80,
+  "fields": {
+    "user": 41,
+    "device_id": "163f06e6-9ac1-4eeb-89e0-5cd0fb1c52ed",
+    "last_seen": "2025-08-12T18:08:56.304Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 81,
+  "fields": {
+    "user": 42,
+    "device_id": "c140f3a2-1cac-4905-9e65-82ba65d68b12",
+    "last_seen": "2025-08-14T06:22:24.162Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 83,
+  "fields": {
+    "user": 43,
+    "device_id": "ac3f5692-31a8-4e01-bc37-0a46ba1797ed",
+    "last_seen": "2025-08-25T08:23:00.968Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 84,
+  "fields": {
+    "user": 44,
+    "device_id": "3d1863bf-93ef-4c70-8495-e3746a9a0fb9",
+    "last_seen": "2025-08-25T12:00:00.758Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 85,
+  "fields": {
+    "user": 45,
+    "device_id": "f3ffd022-aa46-4a79-8f09-1b3dfdd9d177",
+    "last_seen": "2025-08-25T15:05:00.390Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 86,
+  "fields": {
+    "user": 45,
+    "device_id": "4967c940-e7c2-4bc5-b4a1-1c733492cf39",
+    "last_seen": "2025-08-25T15:11:57.512Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 88,
+  "fields": {
+    "user": 46,
+    "device_id": "fe6f4def-9a99-4d10-8e6a-aa1c320046d0",
+    "last_seen": "2025-08-25T18:33:44.477Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 89,
+  "fields": {
+    "user": 47,
+    "device_id": "fb80783d-9960-4419-9cf0-28a30647ab4d",
+    "last_seen": "2025-08-25T18:41:59.918Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 90,
+  "fields": {
+    "user": 47,
+    "device_id": "bf654f74-4ede-4729-86de-12a71f463408",
+    "last_seen": "2025-08-25T18:42:00.676Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 91,
+  "fields": {
+    "user": 28,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-08-27T11:56:37.747Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 92,
+  "fields": {
+    "user": 50,
+    "device_id": "ba2fd50c-f987-47ef-95e8-eb83a51dfd69",
+    "last_seen": "2025-08-28T18:39:57.865Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 94,
+  "fields": {
+    "user": 38,
+    "device_id": "73af4c3d-db4c-4958-845a-7ef466af4d4b",
+    "last_seen": "2025-08-29T08:46:06.726Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 96,
+  "fields": {
+    "user": 52,
+    "device_id": "5277fd4d-a5ab-4a01-8306-13ec22b82f41",
+    "last_seen": "2025-08-29T08:51:46.033Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 97,
+  "fields": {
+    "user": 27,
+    "device_id": "fae0079e-a733-4f2b-8c6c-707c9fe77cf0",
+    "last_seen": "2025-08-31T08:31:20.871Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 100,
+  "fields": {
+    "user": 53,
+    "device_id": "8845e267-4c7a-4074-8622-20312ee090a4",
+    "last_seen": "2025-09-02T11:22:26.725Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 112,
+  "fields": {
+    "user": 19,
+    "device_id": "ab91ff04-7f9e-43ea-92ca-b8ed227b141a",
+    "last_seen": "2025-09-07T13:17:59.272Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 114,
+  "fields": {
+    "user": 52,
+    "device_id": "33703ec4-283e-4e11-bdab-fe752f8eb6c2",
+    "last_seen": "2025-09-09T15:06:14.970Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 116,
+  "fields": {
+    "user": 54,
+    "device_id": "bd327d17-cbb1-4dd9-9964-5627cb236b2c",
+    "last_seen": "2025-09-10T20:34:45.782Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 117,
+  "fields": {
+    "user": 55,
+    "device_id": "d070a254-55a1-4f05-95a1-6a5f47af1596",
+    "last_seen": "2025-09-14T00:14:15.916Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 133,
+  "fields": {
+    "user": 18,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-09-16T20:05:50.068Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 136,
+  "fields": {
+    "user": 1,
+    "device_id": "4bc633bc-5b31-4d28-9e7d-79b1aa0124e9",
+    "last_seen": "2025-09-19T02:53:47.822Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 137,
+  "fields": {
+    "user": 1,
+    "device_id": "c46f813c-565b-4a85-b8bd-a5e27d8cde0e",
+    "last_seen": "2025-09-19T11:36:29.339Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 138,
+  "fields": {
+    "user": 52,
+    "device_id": "3013f64f-3a59-4bf2-b297-5e96ac5ae0e3",
+    "last_seen": "2025-09-19T13:34:52.163Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 139,
+  "fields": {
+    "user": 56,
+    "device_id": "dac2f094-16c2-4f9b-9088-15a66e2f3acc",
+    "last_seen": "2025-09-24T08:15:15.672Z"
+  }
+},
+{
+  "model": "lessons.userdevice",
+  "pk": 140,
+  "fields": {
+    "user": 1,
+    "device_id": "73af4c3d-db4c-4958-845a-7ef466af4d4b",
+    "last_seen": "2025-09-24T08:17:54.761Z"
+  }
+}
+]

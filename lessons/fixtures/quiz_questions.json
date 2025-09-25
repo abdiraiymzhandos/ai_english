@@ -1,0 +1,9381 @@
+✅ OpenAI API кілті сәтті жүктелді!
+[
+{
+  "model": "lessons.quizquestion",
+  "pk": 12697,
+  "fields": {
+    "lesson": 252,
+    "english_word": "How are you?",
+    "kazakh_translation": "Как дела?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12698,
+  "fields": {
+    "lesson": 252,
+    "english_word": "I'm fine",
+    "kazakh_translation": "Я в порядке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12699,
+  "fields": {
+    "lesson": 252,
+    "english_word": "I'm good",
+    "kazakh_translation": "У меня всё хорошо"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12700,
+  "fields": {
+    "lesson": 252,
+    "english_word": "Thank you",
+    "kazakh_translation": "Спасибо"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12701,
+  "fields": {
+    "lesson": 252,
+    "english_word": "And you?",
+    "kazakh_translation": "А ты?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12702,
+  "fields": {
+    "lesson": 252,
+    "english_word": "I'm OK",
+    "kazakh_translation": "У меня всё нормально"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12703,
+  "fields": {
+    "lesson": 252,
+    "english_word": "Great",
+    "kazakh_translation": "Отлично"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12704,
+  "fields": {
+    "lesson": 252,
+    "english_word": "Not bad",
+    "kazakh_translation": "Неплохо"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12705,
+  "fields": {
+    "lesson": 252,
+    "english_word": "Happy",
+    "kazakh_translation": "Счастливый"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 12706,
+  "fields": {
+    "lesson": 252,
+    "english_word": "Sad",
+    "kazakh_translation": "Грустный"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14516,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Hello",
+    "kazakh_translation": "Здравствуйте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14517,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Hi",
+    "kazakh_translation": "Привет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14518,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Goodbye",
+    "kazakh_translation": "До свидания"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14519,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Bye",
+    "kazakh_translation": "Пока"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14520,
+  "fields": {
+    "lesson": 251,
+    "english_word": "My name is...",
+    "kazakh_translation": "Меня зовут..."
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14521,
+  "fields": {
+    "lesson": 251,
+    "english_word": "What’s your name?",
+    "kazakh_translation": "Как тебя зовут?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14522,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Nice to meet you",
+    "kazakh_translation": "Приятно познакомиться"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14523,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Too",
+    "kazakh_translation": "тоже"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14524,
+  "fields": {
+    "lesson": 251,
+    "english_word": "How are you?",
+    "kazakh_translation": "Как дела?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14525,
+  "fields": {
+    "lesson": 251,
+    "english_word": "I’m fine",
+    "kazakh_translation": "Я в порядке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14526,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Thank you",
+    "kazakh_translation": "Спасибо"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14527,
+  "fields": {
+    "lesson": 251,
+    "english_word": "And you?",
+    "kazakh_translation": "А ты? / А вы?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14528,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Good morning",
+    "kazakh_translation": "Доброе утро"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14529,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Good evening",
+    "kazakh_translation": "Добрый вечер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14530,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Friend",
+    "kazakh_translation": "Друг"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 14531,
+  "fields": {
+    "lesson": 251,
+    "english_word": "Happy",
+    "kazakh_translation": "Счастливый"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16969,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Get up",
+    "kazakh_translation": "тұру, ояну"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16970,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Wash",
+    "kazakh_translation": "жуу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16971,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Face",
+    "kazakh_translation": "бет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16972,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Have breakfast",
+    "kazakh_translation": "таңғы ас ішу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16973,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16974,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Go to bed",
+    "kazakh_translation": "ұйықтауға бару"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16975,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16976,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16977,
+  "fields": {
+    "lesson": 28,
+    "english_word": "Family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 16978,
+  "fields": {
+    "lesson": 28,
+    "english_word": "After",
+    "kazakh_translation": "кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18186,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Morning",
+    "kazakh_translation": "таңертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18187,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Afternoon",
+    "kazakh_translation": "түс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18188,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18189,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Night",
+    "kazakh_translation": "түн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18190,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Breakfast",
+    "kazakh_translation": "таңғы ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18191,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Lunch",
+    "kazakh_translation": "түскі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18192,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18193,
+  "fields": {
+    "lesson": 16,
+    "english_word": "Sleep",
+    "kazakh_translation": "ұйықтау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18194,
+  "fields": {
+    "lesson": 17,
+    "english_word": "I",
+    "kazakh_translation": "мен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18195,
+  "fields": {
+    "lesson": 17,
+    "english_word": "You",
+    "kazakh_translation": "сен, сіз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18196,
+  "fields": {
+    "lesson": 17,
+    "english_word": "He",
+    "kazakh_translation": "ол (ұл)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18197,
+  "fields": {
+    "lesson": 17,
+    "english_word": "She",
+    "kazakh_translation": "ол (қыз)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18198,
+  "fields": {
+    "lesson": 17,
+    "english_word": "It",
+    "kazakh_translation": "ол (зат, жануар)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18199,
+  "fields": {
+    "lesson": 17,
+    "english_word": "We",
+    "kazakh_translation": "біз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18200,
+  "fields": {
+    "lesson": 17,
+    "english_word": "They",
+    "kazakh_translation": "олар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18226,
+  "fields": {
+    "lesson": 18,
+    "english_word": "Noun",
+    "kazakh_translation": "зат есім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18227,
+  "fields": {
+    "lesson": 18,
+    "english_word": "People",
+    "kazakh_translation": "адамдар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18228,
+  "fields": {
+    "lesson": 18,
+    "english_word": "Animal",
+    "kazakh_translation": "жануар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18229,
+  "fields": {
+    "lesson": 18,
+    "english_word": "Place",
+    "kazakh_translation": "орын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18230,
+  "fields": {
+    "lesson": 18,
+    "english_word": "Thing",
+    "kazakh_translation": "зат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18231,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Big",
+    "kazakh_translation": "үлкен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18232,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Small",
+    "kazakh_translation": "кішкентай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18233,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Happy",
+    "kazakh_translation": "бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18234,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Sad",
+    "kazakh_translation": "мұңды, көңілсіз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18235,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Tall",
+    "kazakh_translation": "ұзын (бойы)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18236,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Strong",
+    "kazakh_translation": "күшті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18237,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18238,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Funny",
+    "kazakh_translation": "көңілді, күлкілі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18239,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Old",
+    "kazakh_translation": "қарт, ескі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18240,
+  "fields": {
+    "lesson": 19,
+    "english_word": "Healthy",
+    "kazakh_translation": "дені сау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18251,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Animal",
+    "kazakh_translation": "жануар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18252,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Dog",
+    "kazakh_translation": "ит"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18253,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Cat",
+    "kazakh_translation": "мысық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18254,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Friendly",
+    "kazakh_translation": "мейірімді, достыққа бейім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18255,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Smart",
+    "kazakh_translation": "ақылды"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18256,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Calm",
+    "kazakh_translation": "сабырлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18257,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Playful",
+    "kazakh_translation": "ойнақы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18258,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Dangerous",
+    "kazakh_translation": "қауіпті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18259,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Cute",
+    "kazakh_translation": "сүйкімді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18260,
+  "fields": {
+    "lesson": 20,
+    "english_word": "Amazing",
+    "kazakh_translation": "ғажайып, таңғажайып"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18261,
+  "fields": {
+    "lesson": 21,
+    "english_word": "To be",
+    "kazakh_translation": "болу (am/is/are)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18262,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Name",
+    "kazakh_translation": "ат, есім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18263,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Old",
+    "kazakh_translation": "жас, жаста"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18264,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Brother",
+    "kazakh_translation": "аға, іні"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18265,
+  "fields": {
+    "lesson": 21,
+    "english_word": "From",
+    "kazakh_translation": "-дан, -ден"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18266,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Teacher",
+    "kazakh_translation": "мұғалім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18267,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Doctor",
+    "kazakh_translation": "дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18268,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Kind",
+    "kazakh_translation": "мейірімді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18269,
+  "fields": {
+    "lesson": 21,
+    "english_word": "White",
+    "kazakh_translation": "ақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18270,
+  "fields": {
+    "lesson": 21,
+    "english_word": "Small",
+    "kazakh_translation": "кішкентай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18271,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Not",
+    "kazakh_translation": "емес, жоқ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18272,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Sad",
+    "kazakh_translation": "көңілсіз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18273,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Happy",
+    "kazakh_translation": "бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18274,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Big",
+    "kazakh_translation": "үлкен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18275,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Today",
+    "kazakh_translation": "бүгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18276,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Monday",
+    "kazakh_translation": "дүйсенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18277,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Saturday",
+    "kazakh_translation": "сенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18278,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18279,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Mother",
+    "kazakh_translation": "ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18280,
+  "fields": {
+    "lesson": 22,
+    "english_word": "Ten",
+    "kazakh_translation": "он"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18281,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Question",
+    "kazakh_translation": "сұрақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18282,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Happy",
+    "kazakh_translation": "бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18283,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Mother",
+    "kazakh_translation": "ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18284,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Doctor",
+    "kazakh_translation": "дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18285,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Brother",
+    "kazakh_translation": "аға, іні"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18286,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18287,
+  "fields": {
+    "lesson": 23,
+    "english_word": "At school",
+    "kazakh_translation": "мектепте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18288,
+  "fields": {
+    "lesson": 23,
+    "english_word": "White",
+    "kazakh_translation": "ақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18289,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Today",
+    "kazakh_translation": "бүгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18290,
+  "fields": {
+    "lesson": 23,
+    "english_word": "Year",
+    "kazakh_translation": "жыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18291,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Go",
+    "kazakh_translation": "бару"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18292,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18293,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Cook",
+    "kazakh_translation": "тамақ жасау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18294,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Delicious",
+    "kazakh_translation": "дәмді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18295,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Food",
+    "kazakh_translation": "тамақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18296,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18297,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Book",
+    "kazakh_translation": "кітап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18298,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Every day",
+    "kazakh_translation": "күн сайын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18299,
+  "fields": {
+    "lesson": 24,
+    "english_word": "Watch",
+    "kazakh_translation": "көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18300,
+  "fields": {
+    "lesson": 24,
+    "english_word": "After",
+    "kazakh_translation": "кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18301,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Don't",
+    "kazakh_translation": "істемеймін (do not)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18302,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Doesn't",
+    "kazakh_translation": "істемейді (does not)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18303,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Like",
+    "kazakh_translation": "ұнату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18304,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Tea",
+    "kazakh_translation": "шай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18305,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18306,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Basketball",
+    "kazakh_translation": "баскетбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18307,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Work",
+    "kazakh_translation": "жұмыс істеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18308,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Sunday",
+    "kazakh_translation": "жексенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18309,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Eat",
+    "kazakh_translation": "тамақ жеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18310,
+  "fields": {
+    "lesson": 25,
+    "english_word": "Pizza",
+    "kazakh_translation": "пицца"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18311,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Do",
+    "kazakh_translation": "істейсің бе?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18312,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Does",
+    "kazakh_translation": "істей ме?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18313,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Speak",
+    "kazakh_translation": "сөйлеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18314,
+  "fields": {
+    "lesson": 26,
+    "english_word": "English",
+    "kazakh_translation": "ағылшын тілі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18315,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Brother",
+    "kazakh_translation": "аға, іні"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18316,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Parent",
+    "kazakh_translation": "ата-ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18317,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Work",
+    "kazakh_translation": "жұмыс істеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18318,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Sleep",
+    "kazakh_translation": "ұйықтау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18319,
+  "fields": {
+    "lesson": 26,
+    "english_word": "A lot",
+    "kazakh_translation": "көп"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18320,
+  "fields": {
+    "lesson": 26,
+    "english_word": "Like",
+    "kazakh_translation": "ұнату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18321,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Always",
+    "kazakh_translation": "әрқашан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18322,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Often",
+    "kazakh_translation": "жиі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18323,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Sometimes",
+    "kazakh_translation": "кейде"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18324,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Never",
+    "kazakh_translation": "ешқашан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18325,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Get up",
+    "kazakh_translation": "ояну, тұру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18326,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Early",
+    "kazakh_translation": "ерте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18327,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Fish",
+    "kazakh_translation": "балық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18328,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Together",
+    "kazakh_translation": "бірге"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18329,
+  "fields": {
+    "lesson": 27,
+    "english_word": "Dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 18330,
+  "fields": {
+    "lesson": 27,
+    "english_word": "After",
+    "kazakh_translation": "кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19520,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Fruit",
+    "kazakh_translation": "жеміс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19521,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Apple",
+    "kazakh_translation": "алма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19522,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Banana",
+    "kazakh_translation": "банан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19523,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Strawberry",
+    "kazakh_translation": "құлпынай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19524,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Orange",
+    "kazakh_translation": "апельсин"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19525,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Sweet",
+    "kazakh_translation": "тәтті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19526,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Red",
+    "kazakh_translation": "қызыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19527,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Yellow",
+    "kazakh_translation": "сары"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19528,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Tasty",
+    "kazakh_translation": "дәмді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19529,
+  "fields": {
+    "lesson": 31,
+    "english_word": "Healthy",
+    "kazakh_translation": "пайдалы, денсаулыққа пайдалы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19530,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Vegetable",
+    "kazakh_translation": "көкөніс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19531,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Carrot",
+    "kazakh_translation": "сәбіз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19532,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Potato",
+    "kazakh_translation": "картоп"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19533,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Tomato",
+    "kazakh_translation": "қызанақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19534,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Cucumber",
+    "kazakh_translation": "қияр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19535,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Onion",
+    "kazakh_translation": "пияз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19536,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Soup",
+    "kazakh_translation": "сорпа"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19537,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Cook",
+    "kazakh_translation": "дайындау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19538,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Eat",
+    "kazakh_translation": "жеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19539,
+  "fields": {
+    "lesson": 32,
+    "english_word": "Delicious",
+    "kazakh_translation": "дәмді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19540,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Bread",
+    "kazakh_translation": "нан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19541,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Egg",
+    "kazakh_translation": "жұмыртқа"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19542,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Cheese",
+    "kazakh_translation": "ірімшік"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19543,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Tea",
+    "kazakh_translation": "шай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19544,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Milk",
+    "kazakh_translation": "сүт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19545,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Coffee",
+    "kazakh_translation": "кофе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19546,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Meat",
+    "kazakh_translation": "ет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19547,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Fish",
+    "kazakh_translation": "балық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19548,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Juice",
+    "kazakh_translation": "шырын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19549,
+  "fields": {
+    "lesson": 33,
+    "english_word": "Water",
+    "kazakh_translation": "су"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19570,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Can",
+    "kazakh_translation": "істей ала ма?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19571,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Yes",
+    "kazakh_translation": "иә"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19572,
+  "fields": {
+    "lesson": 30,
+    "english_word": "No",
+    "kazakh_translation": "жоқ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19573,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Cook",
+    "kazakh_translation": "тамақ пісіру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19574,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Delicious",
+    "kazakh_translation": "дәмді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19575,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Food",
+    "kazakh_translation": "тамақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19576,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Swim",
+    "kazakh_translation": "жүзу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19577,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Fly",
+    "kazakh_translation": "ұшу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19578,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Father",
+    "kazakh_translation": "әке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19579,
+  "fields": {
+    "lesson": 30,
+    "english_word": "Speak",
+    "kazakh_translation": "сөйлеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19590,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Can",
+    "kazakh_translation": "істей аламын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19591,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Swim",
+    "kazakh_translation": "жүзу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19592,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19593,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Sing",
+    "kazakh_translation": "ән айту"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19594,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Beautifully",
+    "kazakh_translation": "әдемі, керемет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19595,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Draw",
+    "kazakh_translation": "сурет салу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19596,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Picture",
+    "kazakh_translation": "сурет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19597,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Speak",
+    "kazakh_translation": "сөйлеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19598,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Bird",
+    "kazakh_translation": "құс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19599,
+  "fields": {
+    "lesson": 29,
+    "english_word": "Fly",
+    "kazakh_translation": "ұшу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19610,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Breakfast",
+    "kazakh_translation": "таңғы ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19611,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Lunch",
+    "kazakh_translation": "түскі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19612,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19613,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Sandwich",
+    "kazakh_translation": "бутерброд"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19614,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Usually",
+    "kazakh_translation": "әдетте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19615,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Eat",
+    "kazakh_translation": "жеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19616,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Together",
+    "kazakh_translation": "бірге"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19617,
+  "fields": {
+    "lesson": 34,
+    "english_word": "At school",
+    "kazakh_translation": "мектепте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19618,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Morning",
+    "kazakh_translation": "таңертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19619,
+  "fields": {
+    "lesson": 34,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19640,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Shirt",
+    "kazakh_translation": "жейде"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19641,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Jeans",
+    "kazakh_translation": "джинсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19642,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Dress",
+    "kazakh_translation": "көйлек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19643,
+  "fields": {
+    "lesson": 35,
+    "english_word": "T-shirt",
+    "kazakh_translation": "футболка"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19644,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Shorts",
+    "kazakh_translation": "шорты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19645,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Jacket",
+    "kazakh_translation": "күрте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19646,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Boots",
+    "kazakh_translation": "етік"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19647,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Gloves",
+    "kazakh_translation": "қолғап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19648,
+  "fields": {
+    "lesson": 35,
+    "english_word": "Wear",
+    "kazakh_translation": "кию"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19649,
+  "fields": {
+    "lesson": 35,
+    "english_word": "White",
+    "kazakh_translation": "ақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19660,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Jacket",
+    "kazakh_translation": "күрте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19661,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Shoes",
+    "kazakh_translation": "аяқ киім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19662,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19663,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Comfortable",
+    "kazakh_translation": "ыңғайлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19664,
+  "fields": {
+    "lesson": 36,
+    "english_word": "New",
+    "kazakh_translation": "жаңа"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19665,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Warm",
+    "kazakh_translation": "жылы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19666,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Old",
+    "kazakh_translation": "ескі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19667,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Big",
+    "kazakh_translation": "үлкен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19668,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Small",
+    "kazakh_translation": "кішкентай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19669,
+  "fields": {
+    "lesson": 36,
+    "english_word": "Black",
+    "kazakh_translation": "қара"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19690,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Home",
+    "kazakh_translation": "үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19691,
+  "fields": {
+    "lesson": 37,
+    "english_word": "House",
+    "kazakh_translation": "жеке үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19692,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Room",
+    "kazakh_translation": "бөлме"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19693,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Living room",
+    "kazakh_translation": "қонақ бөлме"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19694,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Kitchen",
+    "kazakh_translation": "ас үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19695,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Bedroom",
+    "kazakh_translation": "жатын бөлме"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19696,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Bathroom",
+    "kazakh_translation": "жуынатын бөлме"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19697,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Cozy",
+    "kazakh_translation": "жайлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19698,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Comfortable",
+    "kazakh_translation": "ыңғайлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19699,
+  "fields": {
+    "lesson": 37,
+    "english_word": "Beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19710,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Furniture",
+    "kazakh_translation": "жиһаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19711,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Sofa",
+    "kazakh_translation": "диван"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19712,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Armchair",
+    "kazakh_translation": "кресло"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19713,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Table",
+    "kazakh_translation": "үстел"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19714,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Bed",
+    "kazakh_translation": "төсек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19715,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Desk",
+    "kazakh_translation": "жазу үстелі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19716,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Chair",
+    "kazakh_translation": "орындық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19717,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Refrigerator (fridge)",
+    "kazakh_translation": "тоңазытқыш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19718,
+  "fields": {
+    "lesson": 38,
+    "english_word": "Stove",
+    "kazakh_translation": "пеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19719,
+  "fields": {
+    "lesson": 38,
+    "english_word": "New",
+    "kazakh_translation": "жаңа"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19730,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Room",
+    "kazakh_translation": "бөлме"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19731,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Wall",
+    "kazakh_translation": "қабырға"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19732,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Carpet",
+    "kazakh_translation": "кілем"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19733,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Floor",
+    "kazakh_translation": "еден"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19734,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Bed",
+    "kazakh_translation": "төсек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19735,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Window",
+    "kazakh_translation": "терезе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19736,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Desk",
+    "kazakh_translation": "жазу үстелі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19737,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Book",
+    "kazakh_translation": "кітап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19738,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Pencil",
+    "kazakh_translation": "қарындаш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19739,
+  "fields": {
+    "lesson": 39,
+    "english_word": "Near",
+    "kazakh_translation": "жанында, қасында"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19750,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Get up",
+    "kazakh_translation": "тұру, ояну"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19751,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Wash face",
+    "kazakh_translation": "бетті жуу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19752,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Brush teeth",
+    "kazakh_translation": "тісті тазалау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19753,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Eat breakfast",
+    "kazakh_translation": "таңғы ас ішу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19754,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Do homework",
+    "kazakh_translation": "үй тапсырмасын жасау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19755,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19756,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Watch cartoons",
+    "kazakh_translation": "мультфильм көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19757,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Go to bed",
+    "kazakh_translation": "ұйықтауға жату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19758,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Every day",
+    "kazakh_translation": "күн сайын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19759,
+  "fields": {
+    "lesson": 40,
+    "english_word": "Then",
+    "kazakh_translation": "содан кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19760,
+  "fields": {
+    "lesson": 41,
+    "english_word": "School bag",
+    "kazakh_translation": "мектеп сөмкесі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19761,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Notebook",
+    "kazakh_translation": "дәптер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19762,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Pencil",
+    "kazakh_translation": "қарындаш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19763,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Pen",
+    "kazakh_translation": "қалам"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19764,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Eraser",
+    "kazakh_translation": "өшіргіш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19765,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Ruler",
+    "kazakh_translation": "сызғыш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19766,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Scissors",
+    "kazakh_translation": "қайшы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19767,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Glue",
+    "kazakh_translation": "желім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19768,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Colored pencils",
+    "kazakh_translation": "түрлі-түсті қарындаштар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19769,
+  "fields": {
+    "lesson": 41,
+    "english_word": "Use",
+    "kazakh_translation": "қолдану"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19780,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Classroom",
+    "kazakh_translation": "сынып"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19781,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Blackboard",
+    "kazakh_translation": "тақта"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19782,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Desk",
+    "kazakh_translation": "парта"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19783,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Chair",
+    "kazakh_translation": "орындық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19784,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Clock",
+    "kazakh_translation": "сағат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19785,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Write",
+    "kazakh_translation": "жазу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19786,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Sit",
+    "kazakh_translation": "отыру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19787,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Study",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19788,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19789,
+  "fields": {
+    "lesson": 42,
+    "english_word": "Clean",
+    "kazakh_translation": "таза"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19810,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Subject",
+    "kazakh_translation": "пән"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19811,
+  "fields": {
+    "lesson": 43,
+    "english_word": "English",
+    "kazakh_translation": "ағылшын тілі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19812,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Math",
+    "kazakh_translation": "математика"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19813,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Music",
+    "kazakh_translation": "музыка"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19814,
+  "fields": {
+    "lesson": 43,
+    "english_word": "History",
+    "kazakh_translation": "тарих"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19815,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Geography",
+    "kazakh_translation": "география"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19816,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Art",
+    "kazakh_translation": "сурет сабағы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19817,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Favorite",
+    "kazakh_translation": "сүйікті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19818,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Lesson",
+    "kazakh_translation": "сабақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19819,
+  "fields": {
+    "lesson": 43,
+    "english_word": "Draw",
+    "kazakh_translation": "сурет салу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19820,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Office",
+    "kazakh_translation": "кеңсе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19821,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Computer",
+    "kazakh_translation": "компьютер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19822,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Printer",
+    "kazakh_translation": "принтер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19823,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Paper",
+    "kazakh_translation": "қағаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19824,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Phone",
+    "kazakh_translation": "телефон"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19825,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Calendar",
+    "kazakh_translation": "күнтізбе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19826,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Laptop",
+    "kazakh_translation": "ноутбук"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19827,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Job",
+    "kazakh_translation": "жұмыс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19828,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Help",
+    "kazakh_translation": "көмектесу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19829,
+  "fields": {
+    "lesson": 44,
+    "english_word": "Use",
+    "kazakh_translation": "қолдану"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19840,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Job",
+    "kazakh_translation": "мамандық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19841,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Doctor",
+    "kazakh_translation": "дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19842,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Hospital",
+    "kazakh_translation": "аурухана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19843,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Teacher",
+    "kazakh_translation": "мұғалім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19844,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Driver",
+    "kazakh_translation": "жүргізуші"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19845,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Bus",
+    "kazakh_translation": "автобус"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19846,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Cook",
+    "kazakh_translation": "аспаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19847,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Restaurant",
+    "kazakh_translation": "мейрамхана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19848,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Important",
+    "kazakh_translation": "маңызды"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19849,
+  "fields": {
+    "lesson": 45,
+    "english_word": "Work",
+    "kazakh_translation": "жұмыс істеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19850,
+  "fields": {
+    "lesson": 46,
+    "english_word": "City",
+    "kazakh_translation": "қала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19851,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Park",
+    "kazakh_translation": "саябақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19852,
+  "fields": {
+    "lesson": 46,
+    "english_word": "School",
+    "kazakh_translation": "мектеп"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19853,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Hospital",
+    "kazakh_translation": "аурухана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19854,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Shop",
+    "kazakh_translation": "дүкен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19855,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Cafe",
+    "kazakh_translation": "кафе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19856,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Supermarket",
+    "kazakh_translation": "супермаркет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19857,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Near",
+    "kazakh_translation": "жақын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19858,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Buy",
+    "kazakh_translation": "сатып алу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19859,
+  "fields": {
+    "lesson": 46,
+    "english_word": "Work",
+    "kazakh_translation": "жұмыс істеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19860,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Now",
+    "kazakh_translation": "қазір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19861,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19862,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19863,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Cook",
+    "kazakh_translation": "дайындау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19864,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Do",
+    "kazakh_translation": "жасау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19865,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19866,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Enjoy",
+    "kazakh_translation": "ләззат алу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19867,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19868,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Look",
+    "kazakh_translation": "қарау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19869,
+  "fields": {
+    "lesson": 47,
+    "english_word": "Kitchen",
+    "kazakh_translation": "ас үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19880,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Usually",
+    "kazakh_translation": "әдетте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19881,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Always",
+    "kazakh_translation": "әрқашан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19882,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Today",
+    "kazakh_translation": "бүгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19883,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Watch",
+    "kazakh_translation": "көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19884,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Basketball",
+    "kazakh_translation": "баскетбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19885,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Football",
+    "kazakh_translation": "футбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19886,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19887,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19888,
+  "fields": {
+    "lesson": 48,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19889,
+  "fields": {
+    "lesson": 48,
+    "english_word": "After",
+    "kazakh_translation": "кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19890,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19891,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Sunday",
+    "kazakh_translation": "жексенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19892,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Weather",
+    "kazakh_translation": "ауа райы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19893,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Nice",
+    "kazakh_translation": "жақсы, тамаша"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19894,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Happy",
+    "kazakh_translation": "бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19895,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19896,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Also",
+    "kazakh_translation": "сондай-ақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19897,
+  "fields": {
+    "lesson": 49,
+    "english_word": "There",
+    "kazakh_translation": "сонда"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19898,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Day",
+    "kazakh_translation": "күн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19899,
+  "fields": {
+    "lesson": 49,
+    "english_word": "Family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19910,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Name",
+    "kazakh_translation": "есім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19911,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19912,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Live",
+    "kazakh_translation": "тұру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19913,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Teacher",
+    "kazakh_translation": "мұғалім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19914,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Doctor",
+    "kazakh_translation": "дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19915,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Early",
+    "kazakh_translation": "ерте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19916,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19917,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19918,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19919,
+  "fields": {
+    "lesson": 50,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19920,
+  "fields": {
+    "lesson": 51,
+    "english_word": "wake up",
+    "kazakh_translation": "ояну"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19921,
+  "fields": {
+    "lesson": 51,
+    "english_word": "breakfast",
+    "kazakh_translation": "таңғы ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19922,
+  "fields": {
+    "lesson": 51,
+    "english_word": "usually",
+    "kazakh_translation": "әдетте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19923,
+  "fields": {
+    "lesson": 51,
+    "english_word": "work",
+    "kazakh_translation": "жұмыс істеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19924,
+  "fields": {
+    "lesson": 51,
+    "english_word": "office",
+    "kazakh_translation": "кеңсе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19925,
+  "fields": {
+    "lesson": 51,
+    "english_word": "after",
+    "kazakh_translation": "кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19926,
+  "fields": {
+    "lesson": 51,
+    "english_word": "homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19927,
+  "fields": {
+    "lesson": 51,
+    "english_word": "play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19928,
+  "fields": {
+    "lesson": 51,
+    "english_word": "every",
+    "kazakh_translation": "әрбір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19929,
+  "fields": {
+    "lesson": 51,
+    "english_word": "morning",
+    "kazakh_translation": "таңертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19930,
+  "fields": {
+    "lesson": 52,
+    "english_word": "evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19931,
+  "fields": {
+    "lesson": 52,
+    "english_word": "now",
+    "kazakh_translation": "қазір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19932,
+  "fields": {
+    "lesson": 52,
+    "english_word": "busy",
+    "kazakh_translation": "бос емес"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19933,
+  "fields": {
+    "lesson": 52,
+    "english_word": "cook",
+    "kazakh_translation": "тамақ дайындау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19934,
+  "fields": {
+    "lesson": 52,
+    "english_word": "watch",
+    "kazakh_translation": "көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19935,
+  "fields": {
+    "lesson": 52,
+    "english_word": "read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19936,
+  "fields": {
+    "lesson": 52,
+    "english_word": "homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19937,
+  "fields": {
+    "lesson": 52,
+    "english_word": "enjoy",
+    "kazakh_translation": "ләззат алу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19938,
+  "fields": {
+    "lesson": 52,
+    "english_word": "dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19939,
+  "fields": {
+    "lesson": 52,
+    "english_word": "family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19970,
+  "fields": {
+    "lesson": 53,
+    "english_word": "usually",
+    "kazakh_translation": "әдетте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19971,
+  "fields": {
+    "lesson": 53,
+    "english_word": "today",
+    "kazakh_translation": "бүгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19972,
+  "fields": {
+    "lesson": 53,
+    "english_word": "drink",
+    "kazakh_translation": "ішу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19973,
+  "fields": {
+    "lesson": 53,
+    "english_word": "tea",
+    "kazakh_translation": "шай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19974,
+  "fields": {
+    "lesson": 53,
+    "english_word": "coffee",
+    "kazakh_translation": "кофе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19975,
+  "fields": {
+    "lesson": 53,
+    "english_word": "wear",
+    "kazakh_translation": "кию"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19976,
+  "fields": {
+    "lesson": 53,
+    "english_word": "dress",
+    "kazakh_translation": "көйлек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19977,
+  "fields": {
+    "lesson": 53,
+    "english_word": "jeans",
+    "kazakh_translation": "джинсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19978,
+  "fields": {
+    "lesson": 53,
+    "english_word": "basketball",
+    "kazakh_translation": "баскетбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 19979,
+  "fields": {
+    "lesson": 53,
+    "english_word": "always",
+    "kazakh_translation": "әрқашан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20050,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Usually",
+    "kazakh_translation": "әдетте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20051,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Today",
+    "kazakh_translation": "бүгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20052,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Walk",
+    "kazakh_translation": "жаяу жүру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20053,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Weather",
+    "kazakh_translation": "ауа райы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20054,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Nice",
+    "kazakh_translation": "жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20055,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20056,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20057,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Test",
+    "kazakh_translation": "тест"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20058,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Tomorrow",
+    "kazakh_translation": "ертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20059,
+  "fields": {
+    "lesson": 60,
+    "english_word": "Because",
+    "kazakh_translation": "себебі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20060,
+  "fields": {
+    "lesson": 61,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20061,
+  "fields": {
+    "lesson": 61,
+    "english_word": "visit",
+    "kazakh_translation": "бару, келу (visited)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20062,
+  "fields": {
+    "lesson": 61,
+    "english_word": "help",
+    "kazakh_translation": "көмектесу (helped)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20063,
+  "fields": {
+    "lesson": 61,
+    "english_word": "cook",
+    "kazakh_translation": "дайындау (cooked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20064,
+  "fields": {
+    "lesson": 61,
+    "english_word": "watch",
+    "kazakh_translation": "көру (watched)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20065,
+  "fields": {
+    "lesson": 61,
+    "english_word": "movie",
+    "kazakh_translation": "фильм"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20066,
+  "fields": {
+    "lesson": 61,
+    "english_word": "talk",
+    "kazakh_translation": "сөйлеу, әңгімелеу (talked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20067,
+  "fields": {
+    "lesson": 61,
+    "english_word": "childhood",
+    "kazakh_translation": "балалық шақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20068,
+  "fields": {
+    "lesson": 61,
+    "english_word": "enjoy",
+    "kazakh_translation": "ұнату, ләззат алу (enjoyed)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20069,
+  "fields": {
+    "lesson": 61,
+    "english_word": "day",
+    "kazakh_translation": "күн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20070,
+  "fields": {
+    "lesson": 62,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20071,
+  "fields": {
+    "lesson": 62,
+    "english_word": "go",
+    "kazakh_translation": "бару (went)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20072,
+  "fields": {
+    "lesson": 62,
+    "english_word": "see",
+    "kazakh_translation": "көру (saw)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20073,
+  "fields": {
+    "lesson": 62,
+    "english_word": "beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20074,
+  "fields": {
+    "lesson": 62,
+    "english_word": "flower",
+    "kazakh_translation": "гүл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20075,
+  "fields": {
+    "lesson": 62,
+    "english_word": "have",
+    "kazakh_translation": "бар болу, иелену, жеу (had)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20076,
+  "fields": {
+    "lesson": 62,
+    "english_word": "ice cream",
+    "kazakh_translation": "балмұздақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20077,
+  "fields": {
+    "lesson": 62,
+    "english_word": "play",
+    "kazakh_translation": "ойнау (played)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20078,
+  "fields": {
+    "lesson": 62,
+    "english_word": "fantastic",
+    "kazakh_translation": "керемет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20079,
+  "fields": {
+    "lesson": 62,
+    "english_word": "last",
+    "kazakh_translation": "өткен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20090,
+  "fields": {
+    "lesson": 63,
+    "english_word": "feel",
+    "kazakh_translation": "сезіну (felt)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20091,
+  "fields": {
+    "lesson": 63,
+    "english_word": "well",
+    "kazakh_translation": "жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20092,
+  "fields": {
+    "lesson": 63,
+    "english_word": "leave",
+    "kazakh_translation": "қалдыру, кету (left)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20093,
+  "fields": {
+    "lesson": 63,
+    "english_word": "alone",
+    "kazakh_translation": "жалғыз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20094,
+  "fields": {
+    "lesson": 63,
+    "english_word": "outside",
+    "kazakh_translation": "сыртта"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20095,
+  "fields": {
+    "lesson": 63,
+    "english_word": "stay",
+    "kazakh_translation": "қалу, тұру (stayed)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20096,
+  "fields": {
+    "lesson": 63,
+    "english_word": "rest",
+    "kazakh_translation": "демалу (rested)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20097,
+  "fields": {
+    "lesson": 63,
+    "english_word": "all day",
+    "kazakh_translation": "күні бойы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20098,
+  "fields": {
+    "lesson": 63,
+    "english_word": "because",
+    "kazakh_translation": "себебі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20099,
+  "fields": {
+    "lesson": 63,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20100,
+  "fields": {
+    "lesson": 64,
+    "english_word": "cinema",
+    "kazakh_translation": "кинотеатр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20101,
+  "fields": {
+    "lesson": 64,
+    "english_word": "come",
+    "kazakh_translation": "келу (came)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20102,
+  "fields": {
+    "lesson": 64,
+    "english_word": "film",
+    "kazakh_translation": "фильм"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20103,
+  "fields": {
+    "lesson": 64,
+    "english_word": "parents",
+    "kazakh_translation": "ата-ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20104,
+  "fields": {
+    "lesson": 64,
+    "english_word": "like",
+    "kazakh_translation": "ұнату (liked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20105,
+  "fields": {
+    "lesson": 64,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20106,
+  "fields": {
+    "lesson": 64,
+    "english_word": "enjoy",
+    "kazakh_translation": "ләззат алу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20107,
+  "fields": {
+    "lesson": 64,
+    "english_word": "last",
+    "kazakh_translation": "өткен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20108,
+  "fields": {
+    "lesson": 64,
+    "english_word": "with",
+    "kazakh_translation": "бірге"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20109,
+  "fields": {
+    "lesson": 64,
+    "english_word": "did",
+    "kazakh_translation": "(сұрақ қоюға көмектесетін сөз)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20120,
+  "fields": {
+    "lesson": 65,
+    "english_word": "wake up",
+    "kazakh_translation": "ояну (woke up)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20121,
+  "fields": {
+    "lesson": 65,
+    "english_word": "brush",
+    "kazakh_translation": "тазалау (brushed)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20122,
+  "fields": {
+    "lesson": 65,
+    "english_word": "wash",
+    "kazakh_translation": "жуу (washed)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20123,
+  "fields": {
+    "lesson": 65,
+    "english_word": "breakfast",
+    "kazakh_translation": "таңғы ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20124,
+  "fields": {
+    "lesson": 65,
+    "english_word": "play",
+    "kazakh_translation": "ойнау (played)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20125,
+  "fields": {
+    "lesson": 65,
+    "english_word": "basketball",
+    "kazakh_translation": "баскетбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20126,
+  "fields": {
+    "lesson": 65,
+    "english_word": "homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20127,
+  "fields": {
+    "lesson": 65,
+    "english_word": "early",
+    "kazakh_translation": "ерте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20128,
+  "fields": {
+    "lesson": 65,
+    "english_word": "bed",
+    "kazakh_translation": "төсек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20129,
+  "fields": {
+    "lesson": 65,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20140,
+  "fields": {
+    "lesson": 66,
+    "english_word": "last weekend",
+    "kazakh_translation": "өткен демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20141,
+  "fields": {
+    "lesson": 66,
+    "english_word": "cousin",
+    "kazakh_translation": "немере аға/қарындас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20142,
+  "fields": {
+    "lesson": 66,
+    "english_word": "computer games",
+    "kazakh_translation": "компьютерлік ойындар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20143,
+  "fields": {
+    "lesson": 66,
+    "english_word": "listen",
+    "kazakh_translation": "тыңдау (listened)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20144,
+  "fields": {
+    "lesson": 66,
+    "english_word": "music",
+    "kazakh_translation": "музыка"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20145,
+  "fields": {
+    "lesson": 66,
+    "english_word": "shopping mall",
+    "kazakh_translation": "сауда орталығы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20146,
+  "fields": {
+    "lesson": 66,
+    "english_word": "buy",
+    "kazakh_translation": "сатып алу (bought)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20147,
+  "fields": {
+    "lesson": 66,
+    "english_word": "clothes",
+    "kazakh_translation": "киім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20148,
+  "fields": {
+    "lesson": 66,
+    "english_word": "lunch",
+    "kazakh_translation": "түскі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20149,
+  "fields": {
+    "lesson": 66,
+    "english_word": "café",
+    "kazakh_translation": "кафе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20220,
+  "fields": {
+    "lesson": 69,
+    "english_word": "walk",
+    "kazakh_translation": "жаяу жүру (walked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20221,
+  "fields": {
+    "lesson": 69,
+    "english_word": "park",
+    "kazakh_translation": "саябақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20222,
+  "fields": {
+    "lesson": 69,
+    "english_word": "suddenly",
+    "kazakh_translation": "кенеттен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20223,
+  "fields": {
+    "lesson": 69,
+    "english_word": "start",
+    "kazakh_translation": "бастау (started)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20224,
+  "fields": {
+    "lesson": 69,
+    "english_word": "rain",
+    "kazakh_translation": "жаңбыр жауу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20225,
+  "fields": {
+    "lesson": 69,
+    "english_word": "run",
+    "kazakh_translation": "жүгіру (ran)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20226,
+  "fields": {
+    "lesson": 69,
+    "english_word": "shelter",
+    "kazakh_translation": "баспана, ықтасын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20227,
+  "fields": {
+    "lesson": 69,
+    "english_word": "wait",
+    "kazakh_translation": "күту (waited)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20228,
+  "fields": {
+    "lesson": 69,
+    "english_word": "rainbow",
+    "kazakh_translation": "кемпірқосақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20229,
+  "fields": {
+    "lesson": 69,
+    "english_word": "unforgettable",
+    "kazakh_translation": "ұмытылмас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20230,
+  "fields": {
+    "lesson": 70,
+    "english_word": "visit",
+    "kazakh_translation": "бару (visited)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20231,
+  "fields": {
+    "lesson": 70,
+    "english_word": "friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20232,
+  "fields": {
+    "lesson": 70,
+    "english_word": "cold",
+    "kazakh_translation": "суық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20233,
+  "fields": {
+    "lesson": 70,
+    "english_word": "watch",
+    "kazakh_translation": "көру (watched)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20234,
+  "fields": {
+    "lesson": 70,
+    "english_word": "movie",
+    "kazakh_translation": "фильм"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20235,
+  "fields": {
+    "lesson": 70,
+    "english_word": "play",
+    "kazakh_translation": "ойнау (played)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20236,
+  "fields": {
+    "lesson": 70,
+    "english_word": "talk",
+    "kazakh_translation": "әңгімелесу (talked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20237,
+  "fields": {
+    "lesson": 70,
+    "english_word": "meet",
+    "kazakh_translation": "кездесу (met)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20238,
+  "fields": {
+    "lesson": 70,
+    "english_word": "enjoy",
+    "kazakh_translation": "ләззат алу (enjoyed)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20239,
+  "fields": {
+    "lesson": 70,
+    "english_word": "outside",
+    "kazakh_translation": "сыртта"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20250,
+  "fields": {
+    "lesson": 71,
+    "english_word": "evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20251,
+  "fields": {
+    "lesson": 71,
+    "english_word": "read",
+    "kazakh_translation": "оқу (reading)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20252,
+  "fields": {
+    "lesson": 71,
+    "english_word": "listen",
+    "kazakh_translation": "тыңдау (listening)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20253,
+  "fields": {
+    "lesson": 71,
+    "english_word": "cook",
+    "kazakh_translation": "тамақ дайындау (cooking)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20254,
+  "fields": {
+    "lesson": 71,
+    "english_word": "dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20255,
+  "fields": {
+    "lesson": 71,
+    "english_word": "watch",
+    "kazakh_translation": "көру (watching)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20256,
+  "fields": {
+    "lesson": 71,
+    "english_word": "quiet",
+    "kazakh_translation": "тыныш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20257,
+  "fields": {
+    "lesson": 71,
+    "english_word": "home",
+    "kazakh_translation": "үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20258,
+  "fields": {
+    "lesson": 71,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20259,
+  "fields": {
+    "lesson": 71,
+    "english_word": "music",
+    "kazakh_translation": "музыка"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20270,
+  "fields": {
+    "lesson": 72,
+    "english_word": "walk",
+    "kazakh_translation": "жүру (walking)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20271,
+  "fields": {
+    "lesson": 72,
+    "english_word": "see",
+    "kazakh_translation": "көру (saw)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20272,
+  "fields": {
+    "lesson": 72,
+    "english_word": "friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20273,
+  "fields": {
+    "lesson": 72,
+    "english_word": "ride",
+    "kazakh_translation": "тебу, айдау (riding)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20274,
+  "fields": {
+    "lesson": 72,
+    "english_word": "bike",
+    "kazakh_translation": "велосипед"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20275,
+  "fields": {
+    "lesson": 72,
+    "english_word": "stop",
+    "kazakh_translation": "тоқтау (stopped)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20276,
+  "fields": {
+    "lesson": 72,
+    "english_word": "talk",
+    "kazakh_translation": "сөйлесу (talked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20277,
+  "fields": {
+    "lesson": 72,
+    "english_word": "minute",
+    "kazakh_translation": "минут"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20278,
+  "fields": {
+    "lesson": 72,
+    "english_word": "continue",
+    "kazakh_translation": "жалғастыру (continued)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20279,
+  "fields": {
+    "lesson": 72,
+    "english_word": "home",
+    "kazakh_translation": "үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20300,
+  "fields": {
+    "lesson": 73,
+    "english_word": "last night",
+    "kazakh_translation": "өткен түн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20301,
+  "fields": {
+    "lesson": 73,
+    "english_word": "homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20302,
+  "fields": {
+    "lesson": 73,
+    "english_word": "play",
+    "kazakh_translation": "ойнау (playing)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20303,
+  "fields": {
+    "lesson": 73,
+    "english_word": "computer",
+    "kazakh_translation": "компьютер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20304,
+  "fields": {
+    "lesson": 73,
+    "english_word": "parents",
+    "kazakh_translation": "ата-ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20305,
+  "fields": {
+    "lesson": 73,
+    "english_word": "film",
+    "kazakh_translation": "фильм"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20306,
+  "fields": {
+    "lesson": 73,
+    "english_word": "cat",
+    "kazakh_translation": "мысық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20307,
+  "fields": {
+    "lesson": 73,
+    "english_word": "sleep",
+    "kazakh_translation": "ұйықтау (sleeping)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20308,
+  "fields": {
+    "lesson": 73,
+    "english_word": "sofa",
+    "kazakh_translation": "диван"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20309,
+  "fields": {
+    "lesson": 73,
+    "english_word": "do",
+    "kazakh_translation": "жасау (doing)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20320,
+  "fields": {
+    "lesson": 74,
+    "english_word": "breakfast",
+    "kazakh_translation": "таңғы ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20321,
+  "fields": {
+    "lesson": 74,
+    "english_word": "phone",
+    "kazakh_translation": "телефон"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20322,
+  "fields": {
+    "lesson": 74,
+    "english_word": "ring",
+    "kazakh_translation": "шырылдау (rang)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20323,
+  "fields": {
+    "lesson": 74,
+    "english_word": "take a shower",
+    "kazakh_translation": "душ қабылдау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20324,
+  "fields": {
+    "lesson": 74,
+    "english_word": "water",
+    "kazakh_translation": "су"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20325,
+  "fields": {
+    "lesson": 74,
+    "english_word": "stop",
+    "kazakh_translation": "тоқтау (stopped)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20326,
+  "fields": {
+    "lesson": 74,
+    "english_word": "drive",
+    "kazakh_translation": "көлік жүргізу (driving)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20327,
+  "fields": {
+    "lesson": 74,
+    "english_word": "car",
+    "kazakh_translation": "көлік"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20328,
+  "fields": {
+    "lesson": 74,
+    "english_word": "break down",
+    "kazakh_translation": "бұзылу (broke down)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20329,
+  "fields": {
+    "lesson": 74,
+    "english_word": "happen",
+    "kazakh_translation": "болу, орын алу (happened)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20340,
+  "fields": {
+    "lesson": 75,
+    "english_word": "tomorrow",
+    "kazakh_translation": "ертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20341,
+  "fields": {
+    "lesson": 75,
+    "english_word": "visit",
+    "kazakh_translation": "бару, кездесу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20342,
+  "fields": {
+    "lesson": 75,
+    "english_word": "play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20343,
+  "fields": {
+    "lesson": 75,
+    "english_word": "football",
+    "kazakh_translation": "футбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20344,
+  "fields": {
+    "lesson": 75,
+    "english_word": "watch",
+    "kazakh_translation": "көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20345,
+  "fields": {
+    "lesson": 75,
+    "english_word": "bake",
+    "kazakh_translation": "пісіру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20346,
+  "fields": {
+    "lesson": 75,
+    "english_word": "cake",
+    "kazakh_translation": "торт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20347,
+  "fields": {
+    "lesson": 75,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20348,
+  "fields": {
+    "lesson": 75,
+    "english_word": "nice",
+    "kazakh_translation": "жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20349,
+  "fields": {
+    "lesson": 75,
+    "english_word": "friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20360,
+  "fields": {
+    "lesson": 76,
+    "english_word": "going to",
+    "kazakh_translation": "жоспарлау (бір нәрсені істеуге дайындалу)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20361,
+  "fields": {
+    "lesson": 76,
+    "english_word": "visit",
+    "kazakh_translation": "бару"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20362,
+  "fields": {
+    "lesson": 76,
+    "english_word": "grandparents",
+    "kazakh_translation": "ата-әже"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20363,
+  "fields": {
+    "lesson": 76,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20364,
+  "fields": {
+    "lesson": 76,
+    "english_word": "buy",
+    "kazakh_translation": "сатып алу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20365,
+  "fields": {
+    "lesson": 76,
+    "english_word": "phone",
+    "kazakh_translation": "телефон"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20366,
+  "fields": {
+    "lesson": 76,
+    "english_word": "travel",
+    "kazakh_translation": "саяхаттау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20367,
+  "fields": {
+    "lesson": 76,
+    "english_word": "next month",
+    "kazakh_translation": "келесі ай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20368,
+  "fields": {
+    "lesson": 76,
+    "english_word": "picnic",
+    "kazakh_translation": "табиғат аясына шығу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20369,
+  "fields": {
+    "lesson": 76,
+    "english_word": "Sunday",
+    "kazakh_translation": "жексенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20380,
+  "fields": {
+    "lesson": 77,
+    "english_word": "summer",
+    "kazakh_translation": "жаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20381,
+  "fields": {
+    "lesson": 77,
+    "english_word": "Burabai",
+    "kazakh_translation": "Бурабай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20382,
+  "fields": {
+    "lesson": 77,
+    "english_word": "hotel",
+    "kazakh_translation": "қонақүй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20383,
+  "fields": {
+    "lesson": 77,
+    "english_word": "lake",
+    "kazakh_translation": "көл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20384,
+  "fields": {
+    "lesson": 77,
+    "english_word": "swim",
+    "kazakh_translation": "жүзу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20385,
+  "fields": {
+    "lesson": 77,
+    "english_word": "nature",
+    "kazakh_translation": "табиғат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20386,
+  "fields": {
+    "lesson": 77,
+    "english_word": "ride",
+    "kazakh_translation": "айдау, тебу (көлік, велосипед)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20387,
+  "fields": {
+    "lesson": 77,
+    "english_word": "bike",
+    "kazakh_translation": "велосипед"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20388,
+  "fields": {
+    "lesson": 77,
+    "english_word": "fantastic",
+    "kazakh_translation": "керемет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20389,
+  "fields": {
+    "lesson": 77,
+    "english_word": "stay",
+    "kazakh_translation": "тұру (уақытша)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20390,
+  "fields": {
+    "lesson": 78,
+    "english_word": "future",
+    "kazakh_translation": "болашақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20391,
+  "fields": {
+    "lesson": 78,
+    "english_word": "goal",
+    "kazakh_translation": "мақсат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20392,
+  "fields": {
+    "lesson": 78,
+    "english_word": "become",
+    "kazakh_translation": "болу (бір нәрсеге айналу)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20393,
+  "fields": {
+    "lesson": 78,
+    "english_word": "doctor",
+    "kazakh_translation": "дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20394,
+  "fields": {
+    "lesson": 78,
+    "english_word": "study",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20395,
+  "fields": {
+    "lesson": 78,
+    "english_word": "help",
+    "kazakh_translation": "көмектесу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20396,
+  "fields": {
+    "lesson": 78,
+    "english_word": "teacher",
+    "kazakh_translation": "мұғалім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20397,
+  "fields": {
+    "lesson": 78,
+    "english_word": "children",
+    "kazakh_translation": "балалар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20398,
+  "fields": {
+    "lesson": 78,
+    "english_word": "teach",
+    "kazakh_translation": "сабақ беру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20399,
+  "fields": {
+    "lesson": 78,
+    "english_word": "proud",
+    "kazakh_translation": "мақтан тұтатын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20420,
+  "fields": {
+    "lesson": 79,
+    "english_word": "sky",
+    "kazakh_translation": "аспан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20421,
+  "fields": {
+    "lesson": 79,
+    "english_word": "cloudy",
+    "kazakh_translation": "бұлтты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20422,
+  "fields": {
+    "lesson": 79,
+    "english_word": "rain",
+    "kazakh_translation": "жаңбыр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20423,
+  "fields": {
+    "lesson": 79,
+    "english_word": "soon",
+    "kazakh_translation": "жақында"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20424,
+  "fields": {
+    "lesson": 79,
+    "english_word": "late",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20425,
+  "fields": {
+    "lesson": 79,
+    "english_word": "probably",
+    "kazakh_translation": "мүмкін, ықтимал"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20426,
+  "fields": {
+    "lesson": 79,
+    "english_word": "miss",
+    "kazakh_translation": "өткізіп алу, кешігу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20427,
+  "fields": {
+    "lesson": 79,
+    "english_word": "bus",
+    "kazakh_translation": "автобус"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20428,
+  "fields": {
+    "lesson": 79,
+    "english_word": "worry",
+    "kazakh_translation": "уайымдау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20429,
+  "fields": {
+    "lesson": 79,
+    "english_word": "fine",
+    "kazakh_translation": "жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20450,
+  "fields": {
+    "lesson": 80,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20451,
+  "fields": {
+    "lesson": 80,
+    "english_word": "watch",
+    "kazakh_translation": "көру (watching)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20452,
+  "fields": {
+    "lesson": 80,
+    "english_word": "visit",
+    "kazakh_translation": "бару"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20453,
+  "fields": {
+    "lesson": 80,
+    "english_word": "uncle",
+    "kazakh_translation": "көке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20454,
+  "fields": {
+    "lesson": 80,
+    "english_word": "study",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20455,
+  "fields": {
+    "lesson": 80,
+    "english_word": "speak",
+    "kazakh_translation": "сөйлеу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20456,
+  "fields": {
+    "lesson": 80,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20457,
+  "fields": {
+    "lesson": 80,
+    "english_word": "picnic",
+    "kazakh_translation": "пикник"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20458,
+  "fields": {
+    "lesson": 80,
+    "english_word": "rain",
+    "kazakh_translation": "жаңбыр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20459,
+  "fields": {
+    "lesson": 80,
+    "english_word": "start",
+    "kazakh_translation": "бастау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20460,
+  "fields": {
+    "lesson": 81,
+    "english_word": "cat",
+    "kazakh_translation": "мысық (cats)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20461,
+  "fields": {
+    "lesson": 81,
+    "english_word": "dog",
+    "kazakh_translation": "ит (dogs)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20462,
+  "fields": {
+    "lesson": 81,
+    "english_word": "apple",
+    "kazakh_translation": "алма (apples)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20463,
+  "fields": {
+    "lesson": 81,
+    "english_word": "orange",
+    "kazakh_translation": "апельсин (oranges)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20464,
+  "fields": {
+    "lesson": 81,
+    "english_word": "book",
+    "kazakh_translation": "кітап (books)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20465,
+  "fields": {
+    "lesson": 81,
+    "english_word": "flower",
+    "kazakh_translation": "гүл (flowers)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20466,
+  "fields": {
+    "lesson": 81,
+    "english_word": "garden",
+    "kazakh_translation": "бақша"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20467,
+  "fields": {
+    "lesson": 81,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20468,
+  "fields": {
+    "lesson": 81,
+    "english_word": "many",
+    "kazakh_translation": "көп"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20469,
+  "fields": {
+    "lesson": 81,
+    "english_word": "buy",
+    "kazakh_translation": "сатып алу (bought)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20470,
+  "fields": {
+    "lesson": 82,
+    "english_word": "child",
+    "kazakh_translation": "бала (children)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20471,
+  "fields": {
+    "lesson": 82,
+    "english_word": "man",
+    "kazakh_translation": "ер адам (men)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20472,
+  "fields": {
+    "lesson": 82,
+    "english_word": "woman",
+    "kazakh_translation": "әйел адам (women)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20473,
+  "fields": {
+    "lesson": 82,
+    "english_word": "tooth",
+    "kazakh_translation": "тіс (teeth)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20474,
+  "fields": {
+    "lesson": 82,
+    "english_word": "mouse",
+    "kazakh_translation": "тышқан (mice)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20475,
+  "fields": {
+    "lesson": 82,
+    "english_word": "play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20476,
+  "fields": {
+    "lesson": 82,
+    "english_word": "park",
+    "kazakh_translation": "саябақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20477,
+  "fields": {
+    "lesson": 82,
+    "english_word": "walk",
+    "kazakh_translation": "жүру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20478,
+  "fields": {
+    "lesson": 82,
+    "english_word": "street",
+    "kazakh_translation": "көше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20479,
+  "fields": {
+    "lesson": 82,
+    "english_word": "field",
+    "kazakh_translation": "дала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20480,
+  "fields": {
+    "lesson": 83,
+    "english_word": "apple",
+    "kazakh_translation": "алма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20481,
+  "fields": {
+    "lesson": 83,
+    "english_word": "banana",
+    "kazakh_translation": "банан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20482,
+  "fields": {
+    "lesson": 83,
+    "english_word": "pencil",
+    "kazakh_translation": "қарындаш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20483,
+  "fields": {
+    "lesson": 83,
+    "english_word": "chair",
+    "kazakh_translation": "орындық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20484,
+  "fields": {
+    "lesson": 83,
+    "english_word": "classroom",
+    "kazakh_translation": "сынып бөлмесі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20485,
+  "fields": {
+    "lesson": 83,
+    "english_word": "how many",
+    "kazakh_translation": "қанша?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20486,
+  "fields": {
+    "lesson": 83,
+    "english_word": "have",
+    "kazakh_translation": "бар болу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20487,
+  "fields": {
+    "lesson": 83,
+    "english_word": "book",
+    "kazakh_translation": "кітап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20488,
+  "fields": {
+    "lesson": 83,
+    "english_word": "buy",
+    "kazakh_translation": "сатып алу (bought)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20489,
+  "fields": {
+    "lesson": 83,
+    "english_word": "many",
+    "kazakh_translation": "көп"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20510,
+  "fields": {
+    "lesson": 84,
+    "english_word": "milk",
+    "kazakh_translation": "сүт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20511,
+  "fields": {
+    "lesson": 84,
+    "english_word": "coffee",
+    "kazakh_translation": "кофе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20512,
+  "fields": {
+    "lesson": 84,
+    "english_word": "sugar",
+    "kazakh_translation": "қант"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20513,
+  "fields": {
+    "lesson": 84,
+    "english_word": "tea",
+    "kazakh_translation": "шай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20514,
+  "fields": {
+    "lesson": 84,
+    "english_word": "water",
+    "kazakh_translation": "су"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20515,
+  "fields": {
+    "lesson": 84,
+    "english_word": "bottle",
+    "kazakh_translation": "бөтелке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20516,
+  "fields": {
+    "lesson": 84,
+    "english_word": "bread",
+    "kazakh_translation": "нан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20517,
+  "fields": {
+    "lesson": 84,
+    "english_word": "drink",
+    "kazakh_translation": "ішу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20518,
+  "fields": {
+    "lesson": 84,
+    "english_word": "use",
+    "kazakh_translation": "қолдану"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20519,
+  "fields": {
+    "lesson": 84,
+    "english_word": "need",
+    "kazakh_translation": "қажет ету"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20520,
+  "fields": {
+    "lesson": 85,
+    "english_word": "dog",
+    "kazakh_translation": "ит"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20521,
+  "fields": {
+    "lesson": 85,
+    "english_word": "apple",
+    "kazakh_translation": "алма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20522,
+  "fields": {
+    "lesson": 85,
+    "english_word": "bird",
+    "kazakh_translation": "құс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20523,
+  "fields": {
+    "lesson": 85,
+    "english_word": "elephant",
+    "kazakh_translation": "піл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20524,
+  "fields": {
+    "lesson": 85,
+    "english_word": "zoo",
+    "kazakh_translation": "зоопарк"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20525,
+  "fields": {
+    "lesson": 85,
+    "english_word": "dress",
+    "kazakh_translation": "көйлек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20526,
+  "fields": {
+    "lesson": 85,
+    "english_word": "umbrella",
+    "kazakh_translation": "қолшатыр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20527,
+  "fields": {
+    "lesson": 85,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20528,
+  "fields": {
+    "lesson": 85,
+    "english_word": "buy",
+    "kazakh_translation": "сатып алу (bought)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20529,
+  "fields": {
+    "lesson": 85,
+    "english_word": "have",
+    "kazakh_translation": "бар болу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20530,
+  "fields": {
+    "lesson": 86,
+    "english_word": "sun",
+    "kazakh_translation": "күн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20531,
+  "fields": {
+    "lesson": 86,
+    "english_word": "bright",
+    "kazakh_translation": "жарқын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20532,
+  "fields": {
+    "lesson": 86,
+    "english_word": "moon",
+    "kazakh_translation": "ай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20533,
+  "fields": {
+    "lesson": 86,
+    "english_word": "beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20534,
+  "fields": {
+    "lesson": 86,
+    "english_word": "night",
+    "kazakh_translation": "түн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20535,
+  "fields": {
+    "lesson": 86,
+    "english_word": "museum",
+    "kazakh_translation": "мұражай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20536,
+  "fields": {
+    "lesson": 86,
+    "english_word": "book",
+    "kazakh_translation": "кітап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20537,
+  "fields": {
+    "lesson": 86,
+    "english_word": "table",
+    "kazakh_translation": "үстел"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20538,
+  "fields": {
+    "lesson": 86,
+    "english_word": "mine",
+    "kazakh_translation": "менікі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20539,
+  "fields": {
+    "lesson": 86,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20540,
+  "fields": {
+    "lesson": 87,
+    "english_word": "water",
+    "kazakh_translation": "су"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20541,
+  "fields": {
+    "lesson": 87,
+    "english_word": "dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20542,
+  "fields": {
+    "lesson": 87,
+    "english_word": "cat",
+    "kazakh_translation": "мысық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20543,
+  "fields": {
+    "lesson": 87,
+    "english_word": "milk",
+    "kazakh_translation": "сүт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20544,
+  "fields": {
+    "lesson": 87,
+    "english_word": "people",
+    "kazakh_translation": "адамдар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20545,
+  "fields": {
+    "lesson": 87,
+    "english_word": "air",
+    "kazakh_translation": "ауа"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20546,
+  "fields": {
+    "lesson": 87,
+    "english_word": "breathe",
+    "kazakh_translation": "демалу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20547,
+  "fields": {
+    "lesson": 87,
+    "english_word": "love",
+    "kazakh_translation": "жақсы көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20548,
+  "fields": {
+    "lesson": 87,
+    "english_word": "cook",
+    "kazakh_translation": "тамақ жасау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20549,
+  "fields": {
+    "lesson": 87,
+    "english_word": "every day",
+    "kazakh_translation": "күн сайын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20550,
+  "fields": {
+    "lesson": 88,
+    "english_word": "book",
+    "kazakh_translation": "кітап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20551,
+  "fields": {
+    "lesson": 88,
+    "english_word": "table",
+    "kazakh_translation": "үстел"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20552,
+  "fields": {
+    "lesson": 88,
+    "english_word": "shoes",
+    "kazakh_translation": "аяқ киім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20553,
+  "fields": {
+    "lesson": 88,
+    "english_word": "bed",
+    "kazakh_translation": "төсек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20554,
+  "fields": {
+    "lesson": 88,
+    "english_word": "family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20555,
+  "fields": {
+    "lesson": 88,
+    "english_word": "home",
+    "kazakh_translation": "үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20556,
+  "fields": {
+    "lesson": 88,
+    "english_word": "live",
+    "kazakh_translation": "тұру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20557,
+  "fields": {
+    "lesson": 88,
+    "english_word": "pencils",
+    "kazakh_translation": "қарындаштар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20558,
+  "fields": {
+    "lesson": 88,
+    "english_word": "box",
+    "kazakh_translation": "қорап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20559,
+  "fields": {
+    "lesson": 88,
+    "english_word": "under",
+    "kazakh_translation": "астында"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20570,
+  "fields": {
+    "lesson": 89,
+    "english_word": "wake up",
+    "kazakh_translation": "ояну"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20571,
+  "fields": {
+    "lesson": 89,
+    "english_word": "birthday",
+    "kazakh_translation": "туған күн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20572,
+  "fields": {
+    "lesson": 89,
+    "english_word": "exam",
+    "kazakh_translation": "емтихан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20573,
+  "fields": {
+    "lesson": 89,
+    "english_word": "holidays",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20574,
+  "fields": {
+    "lesson": 89,
+    "english_word": "summer",
+    "kazakh_translation": "жаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20575,
+  "fields": {
+    "lesson": 89,
+    "english_word": "meet",
+    "kazakh_translation": "кездесу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20576,
+  "fields": {
+    "lesson": 89,
+    "english_word": "lunchtime",
+    "kazakh_translation": "түскі ас уақыты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20577,
+  "fields": {
+    "lesson": 89,
+    "english_word": "July",
+    "kazakh_translation": "шілде"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20578,
+  "fields": {
+    "lesson": 89,
+    "english_word": "Monday",
+    "kazakh_translation": "дүйсенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20579,
+  "fields": {
+    "lesson": 89,
+    "english_word": "o'clock",
+    "kazakh_translation": "тура сағат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20590,
+  "fields": {
+    "lesson": 90,
+    "english_word": "buy",
+    "kazakh_translation": "сатып алу (bought)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20591,
+  "fields": {
+    "lesson": 90,
+    "english_word": "apple",
+    "kazakh_translation": "алма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20592,
+  "fields": {
+    "lesson": 90,
+    "english_word": "orange",
+    "kazakh_translation": "апельсин"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20593,
+  "fields": {
+    "lesson": 90,
+    "english_word": "red",
+    "kazakh_translation": "қызыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20594,
+  "fields": {
+    "lesson": 90,
+    "english_word": "sweet",
+    "kazakh_translation": "тәтті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20595,
+  "fields": {
+    "lesson": 90,
+    "english_word": "dog",
+    "kazakh_translation": "ит"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20596,
+  "fields": {
+    "lesson": 90,
+    "english_word": "play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20597,
+  "fields": {
+    "lesson": 90,
+    "english_word": "cook",
+    "kazakh_translation": "тамақ дайындау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20598,
+  "fields": {
+    "lesson": 90,
+    "english_word": "dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20599,
+  "fields": {
+    "lesson": 90,
+    "english_word": "evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20610,
+  "fields": {
+    "lesson": 91,
+    "english_word": "tall",
+    "kazakh_translation": "ұзын бойлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20611,
+  "fields": {
+    "lesson": 91,
+    "english_word": "big",
+    "kazakh_translation": "үлкен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20612,
+  "fields": {
+    "lesson": 91,
+    "english_word": "small",
+    "kazakh_translation": "кішкентай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20613,
+  "fields": {
+    "lesson": 91,
+    "english_word": "house",
+    "kazakh_translation": "үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20614,
+  "fields": {
+    "lesson": 91,
+    "english_word": "cat",
+    "kazakh_translation": "мысық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20615,
+  "fields": {
+    "lesson": 91,
+    "english_word": "dog",
+    "kazakh_translation": "ит"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20616,
+  "fields": {
+    "lesson": 91,
+    "english_word": "than",
+    "kazakh_translation": "қарағанда"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20617,
+  "fields": {
+    "lesson": 91,
+    "english_word": "city",
+    "kazakh_translation": "қала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20618,
+  "fields": {
+    "lesson": 91,
+    "english_word": "brother",
+    "kazakh_translation": "аға, іні"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20619,
+  "fields": {
+    "lesson": 91,
+    "english_word": "friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20630,
+  "fields": {
+    "lesson": 92,
+    "english_word": "tall",
+    "kazakh_translation": "ұзын бойлы (tallest)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20631,
+  "fields": {
+    "lesson": 92,
+    "english_word": "big",
+    "kazakh_translation": "үлкен (biggest)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20632,
+  "fields": {
+    "lesson": 92,
+    "english_word": "small",
+    "kazakh_translation": "кішкентай (smallest)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20633,
+  "fields": {
+    "lesson": 92,
+    "english_word": "family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20634,
+  "fields": {
+    "lesson": 92,
+    "english_word": "street",
+    "kazakh_translation": "көше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20635,
+  "fields": {
+    "lesson": 92,
+    "english_word": "animal",
+    "kazakh_translation": "жануар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20636,
+  "fields": {
+    "lesson": 92,
+    "english_word": "zoo",
+    "kazakh_translation": "зоопарк"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20637,
+  "fields": {
+    "lesson": 92,
+    "english_word": "mouse",
+    "kazakh_translation": "тышқан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20638,
+  "fields": {
+    "lesson": 92,
+    "english_word": "hot",
+    "kazakh_translation": "ыстық (hottest)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20639,
+  "fields": {
+    "lesson": 92,
+    "english_word": "year",
+    "kazakh_translation": "жыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20640,
+  "fields": {
+    "lesson": 93,
+    "english_word": "must",
+    "kazakh_translation": "міндетті түрде керек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20641,
+  "fields": {
+    "lesson": 93,
+    "english_word": "should",
+    "kazakh_translation": "кеңес ретінде керек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20642,
+  "fields": {
+    "lesson": 93,
+    "english_word": "homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20643,
+  "fields": {
+    "lesson": 93,
+    "english_word": "healthy",
+    "kazakh_translation": "пайдалы, денсаулыққа жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20644,
+  "fields": {
+    "lesson": 93,
+    "english_word": "food",
+    "kazakh_translation": "тағам"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20645,
+  "fields": {
+    "lesson": 93,
+    "english_word": "polite",
+    "kazakh_translation": "сыпайы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20646,
+  "fields": {
+    "lesson": 93,
+    "english_word": "teacher",
+    "kazakh_translation": "мұғалім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20647,
+  "fields": {
+    "lesson": 93,
+    "english_word": "sleep",
+    "kazakh_translation": "ұйықтау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20648,
+  "fields": {
+    "lesson": 93,
+    "english_word": "early",
+    "kazakh_translation": "ерте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20649,
+  "fields": {
+    "lesson": 93,
+    "english_word": "every day",
+    "kazakh_translation": "күн сайын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20650,
+  "fields": {
+    "lesson": 94,
+    "english_word": "tea",
+    "kazakh_translation": "шай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20651,
+  "fields": {
+    "lesson": 94,
+    "english_word": "coffee",
+    "kazakh_translation": "кофе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20652,
+  "fields": {
+    "lesson": 94,
+    "english_word": "apple",
+    "kazakh_translation": "алма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20653,
+  "fields": {
+    "lesson": 94,
+    "english_word": "banana",
+    "kazakh_translation": "банан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20654,
+  "fields": {
+    "lesson": 94,
+    "english_word": "study",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20655,
+  "fields": {
+    "lesson": 94,
+    "english_word": "English",
+    "kazakh_translation": "ағылшын тілі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20656,
+  "fields": {
+    "lesson": 94,
+    "english_word": "interesting",
+    "kazakh_translation": "қызықты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20657,
+  "fields": {
+    "lesson": 94,
+    "english_word": "like",
+    "kazakh_translation": "ұнату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20658,
+  "fields": {
+    "lesson": 94,
+    "english_word": "and",
+    "kazakh_translation": "және"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20659,
+  "fields": {
+    "lesson": 94,
+    "english_word": "because",
+    "kazakh_translation": "өйткені"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20700,
+  "fields": {
+    "lesson": 95,
+    "english_word": "eye",
+    "kazakh_translation": "көз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20701,
+  "fields": {
+    "lesson": 95,
+    "english_word": "ear",
+    "kazakh_translation": "құлақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20702,
+  "fields": {
+    "lesson": 95,
+    "english_word": "nose",
+    "kazakh_translation": "мұрын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20703,
+  "fields": {
+    "lesson": 95,
+    "english_word": "mouth",
+    "kazakh_translation": "ауыз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20704,
+  "fields": {
+    "lesson": 95,
+    "english_word": "hand",
+    "kazakh_translation": "қол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20705,
+  "fields": {
+    "lesson": 95,
+    "english_word": "leg",
+    "kazakh_translation": "аяқ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20706,
+  "fields": {
+    "lesson": 95,
+    "english_word": "healthy",
+    "kazakh_translation": "дені сау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20707,
+  "fields": {
+    "lesson": 95,
+    "english_word": "wash",
+    "kazakh_translation": "жуу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20708,
+  "fields": {
+    "lesson": 95,
+    "english_word": "brush teeth",
+    "kazakh_translation": "тісті тазалау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20709,
+  "fields": {
+    "lesson": 95,
+    "english_word": "good food",
+    "kazakh_translation": "пайдалы тамақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20710,
+  "fields": {
+    "lesson": 96,
+    "english_word": "city",
+    "kazakh_translation": "қала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20711,
+  "fields": {
+    "lesson": 96,
+    "english_word": "countryside",
+    "kazakh_translation": "ауыл, қала сыртындағы жер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20712,
+  "fields": {
+    "lesson": 96,
+    "english_word": "noisy",
+    "kazakh_translation": "шулы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20713,
+  "fields": {
+    "lesson": 96,
+    "english_word": "quiet",
+    "kazakh_translation": "тыныш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20714,
+  "fields": {
+    "lesson": 96,
+    "english_word": "beautiful",
+    "kazakh_translation": "әдемі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20715,
+  "fields": {
+    "lesson": 96,
+    "english_word": "tree",
+    "kazakh_translation": "ағаш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20716,
+  "fields": {
+    "lesson": 96,
+    "english_word": "animal",
+    "kazakh_translation": "жануар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20717,
+  "fields": {
+    "lesson": 96,
+    "english_word": "farm",
+    "kazakh_translation": "ферма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20718,
+  "fields": {
+    "lesson": 96,
+    "english_word": "busy",
+    "kazakh_translation": "қарбалас, бос емес"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20719,
+  "fields": {
+    "lesson": 96,
+    "english_word": "life",
+    "kazakh_translation": "өмір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20720,
+  "fields": {
+    "lesson": 97,
+    "english_word": "nature",
+    "kazakh_translation": "табиғат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20721,
+  "fields": {
+    "lesson": 97,
+    "english_word": "weather",
+    "kazakh_translation": "ауа райы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20722,
+  "fields": {
+    "lesson": 97,
+    "english_word": "summer",
+    "kazakh_translation": "жаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20723,
+  "fields": {
+    "lesson": 97,
+    "english_word": "winter",
+    "kazakh_translation": "қыс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20724,
+  "fields": {
+    "lesson": 97,
+    "english_word": "hot",
+    "kazakh_translation": "ыстық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20725,
+  "fields": {
+    "lesson": 97,
+    "english_word": "sunny",
+    "kazakh_translation": "күн шуақты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20726,
+  "fields": {
+    "lesson": 97,
+    "english_word": "cold",
+    "kazakh_translation": "суық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20727,
+  "fields": {
+    "lesson": 97,
+    "english_word": "snowy",
+    "kazakh_translation": "қарлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20728,
+  "fields": {
+    "lesson": 97,
+    "english_word": "cloudy",
+    "kazakh_translation": "бұлтты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20729,
+  "fields": {
+    "lesson": 97,
+    "english_word": "rain",
+    "kazakh_translation": "жаңбыр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20740,
+  "fields": {
+    "lesson": 98,
+    "english_word": "job",
+    "kazakh_translation": "мамандық, жұмыс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20741,
+  "fields": {
+    "lesson": 98,
+    "english_word": "profession",
+    "kazakh_translation": "кәсіп"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20742,
+  "fields": {
+    "lesson": 98,
+    "english_word": "teacher",
+    "kazakh_translation": "мұғалім"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20743,
+  "fields": {
+    "lesson": 98,
+    "english_word": "doctor",
+    "kazakh_translation": "дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20744,
+  "fields": {
+    "lesson": 98,
+    "english_word": "farmer",
+    "kazakh_translation": "фермер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20745,
+  "fields": {
+    "lesson": 98,
+    "english_word": "student",
+    "kazakh_translation": "оқушы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20746,
+  "fields": {
+    "lesson": 98,
+    "english_word": "help",
+    "kazakh_translation": "көмектесу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20747,
+  "fields": {
+    "lesson": 98,
+    "english_word": "sick",
+    "kazakh_translation": "науқас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20748,
+  "fields": {
+    "lesson": 98,
+    "english_word": "grow",
+    "kazakh_translation": "өсіру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20749,
+  "fields": {
+    "lesson": 98,
+    "english_word": "vegetables",
+    "kazakh_translation": "көкөністер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20750,
+  "fields": {
+    "lesson": 99,
+    "english_word": "hobby",
+    "kazakh_translation": "хобби"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20751,
+  "fields": {
+    "lesson": 99,
+    "english_word": "interest",
+    "kazakh_translation": "қызығушылық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20752,
+  "fields": {
+    "lesson": 99,
+    "english_word": "football",
+    "kazakh_translation": "футбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20753,
+  "fields": {
+    "lesson": 99,
+    "english_word": "read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20754,
+  "fields": {
+    "lesson": 99,
+    "english_word": "book",
+    "kazakh_translation": "кітап"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20755,
+  "fields": {
+    "lesson": 99,
+    "english_word": "paint",
+    "kazakh_translation": "сурет салу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20756,
+  "fields": {
+    "lesson": 99,
+    "english_word": "cycling",
+    "kazakh_translation": "велосипед тебу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20757,
+  "fields": {
+    "lesson": 99,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20758,
+  "fields": {
+    "lesson": 99,
+    "english_word": "like",
+    "kazakh_translation": "ұнату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20759,
+  "fields": {
+    "lesson": 99,
+    "english_word": "often",
+    "kazakh_translation": "жиі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20760,
+  "fields": {
+    "lesson": 100,
+    "english_word": "city",
+    "kazakh_translation": "қала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20761,
+  "fields": {
+    "lesson": 100,
+    "english_word": "morning",
+    "kazakh_translation": "таңертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20762,
+  "fields": {
+    "lesson": 100,
+    "english_word": "wake up",
+    "kazakh_translation": "ояну"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20763,
+  "fields": {
+    "lesson": 100,
+    "english_word": "yesterday",
+    "kazakh_translation": "кеше"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20764,
+  "fields": {
+    "lesson": 100,
+    "english_word": "tomorrow",
+    "kazakh_translation": "ертең"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20765,
+  "fields": {
+    "lesson": 100,
+    "english_word": "visit",
+    "kazakh_translation": "бару, кездесу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20766,
+  "fields": {
+    "lesson": 100,
+    "english_word": "park",
+    "kazakh_translation": "саябақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20767,
+  "fields": {
+    "lesson": 100,
+    "english_word": "tall",
+    "kazakh_translation": "ұзын бойлы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20768,
+  "fields": {
+    "lesson": 100,
+    "english_word": "healthy",
+    "kazakh_translation": "пайдалы, денсаулыққа жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20769,
+  "fields": {
+    "lesson": 100,
+    "english_word": "food",
+    "kazakh_translation": "тағам"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20830,
+  "fields": {
+    "lesson": 102,
+    "english_word": "adventure",
+    "kazakh_translation": "шытырман оқиға"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20831,
+  "fields": {
+    "lesson": 102,
+    "english_word": "been",
+    "kazakh_translation": "болып қайтты, барды (барған және қайтып келген)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20832,
+  "fields": {
+    "lesson": 102,
+    "english_word": "gone",
+    "kazakh_translation": "кетіп қалды, барды (қайтып келмеген)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20833,
+  "fields": {
+    "lesson": 102,
+    "english_word": "done",
+    "kazakh_translation": "жасаған (do етістігінің үшінші формасы)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20834,
+  "fields": {
+    "lesson": 102,
+    "english_word": "seen",
+    "kazakh_translation": "көрген (see етістігінің үшінші формасы)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20835,
+  "fields": {
+    "lesson": 102,
+    "english_word": "exciting",
+    "kazakh_translation": "қызықты, толқытатын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20836,
+  "fields": {
+    "lesson": 102,
+    "english_word": "mountain",
+    "kazakh_translation": "тау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20837,
+  "fields": {
+    "lesson": 102,
+    "english_word": "sea",
+    "kazakh_translation": "теңіз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20838,
+  "fields": {
+    "lesson": 102,
+    "english_word": "abroad",
+    "kazakh_translation": "шетелде"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20839,
+  "fields": {
+    "lesson": 102,
+    "english_word": "travel",
+    "kazakh_translation": "саяхаттау (traveled)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20840,
+  "fields": {
+    "lesson": 102,
+    "english_word": "best",
+    "kazakh_translation": "ең жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20841,
+  "fields": {
+    "lesson": 102,
+    "english_word": "experience",
+    "kazakh_translation": "тәжірибе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20842,
+  "fields": {
+    "lesson": 102,
+    "english_word": "ever",
+    "kazakh_translation": "бір кездері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20843,
+  "fields": {
+    "lesson": 102,
+    "english_word": "twice",
+    "kazakh_translation": "екі рет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20844,
+  "fields": {
+    "lesson": 102,
+    "english_word": "different",
+    "kazakh_translation": "әртүрлі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20860,
+  "fields": {
+    "lesson": 101,
+    "english_word": "experience",
+    "kazakh_translation": "тәжірибе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20861,
+  "fields": {
+    "lesson": 101,
+    "english_word": "visit",
+    "kazakh_translation": "бару, келу (visited)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20862,
+  "fields": {
+    "lesson": 101,
+    "english_word": "travel",
+    "kazakh_translation": "саяхаттау (traveled)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20863,
+  "fields": {
+    "lesson": 101,
+    "english_word": "try",
+    "kazakh_translation": "байқап көру, дәмін көру (tried)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20864,
+  "fields": {
+    "lesson": 101,
+    "english_word": "food",
+    "kazakh_translation": "тағам"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20865,
+  "fields": {
+    "lesson": 101,
+    "english_word": "meet",
+    "kazakh_translation": "кездесу, танысу (met)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20866,
+  "fields": {
+    "lesson": 101,
+    "english_word": "people",
+    "kazakh_translation": "адамдар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20867,
+  "fields": {
+    "lesson": 101,
+    "english_word": "study",
+    "kazakh_translation": "оқу (studied)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20868,
+  "fields": {
+    "lesson": 101,
+    "english_word": "improve",
+    "kazakh_translation": "жақсару, жетілдіру (improved)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20869,
+  "fields": {
+    "lesson": 101,
+    "english_word": "work",
+    "kazakh_translation": "жұмыс істеу (worked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20870,
+  "fields": {
+    "lesson": 101,
+    "english_word": "live",
+    "kazakh_translation": "тұру (lived)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20871,
+  "fields": {
+    "lesson": 101,
+    "english_word": "cook",
+    "kazakh_translation": "тамақ дайындау (cooked)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20872,
+  "fields": {
+    "lesson": 101,
+    "english_word": "dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20873,
+  "fields": {
+    "lesson": 101,
+    "english_word": "finish",
+    "kazakh_translation": "аяқтау (finished)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20874,
+  "fields": {
+    "lesson": 101,
+    "english_word": "yet",
+    "kazakh_translation": "әлі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20917,
+  "fields": {
+    "lesson": 54,
+    "english_word": "working day",
+    "kazakh_translation": "жұмыс күні"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20918,
+  "fields": {
+    "lesson": 54,
+    "english_word": "get up",
+    "kazakh_translation": "ояну"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20919,
+  "fields": {
+    "lesson": 54,
+    "english_word": "wash",
+    "kazakh_translation": "жуу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20920,
+  "fields": {
+    "lesson": 54,
+    "english_word": "brush teeth",
+    "kazakh_translation": "тісті тазалау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20921,
+  "fields": {
+    "lesson": 54,
+    "english_word": "breakfast",
+    "kazakh_translation": "таңғы ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20922,
+  "fields": {
+    "lesson": 54,
+    "english_word": "lesson",
+    "kazakh_translation": "сабақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20923,
+  "fields": {
+    "lesson": 54,
+    "english_word": "finish",
+    "kazakh_translation": "аяқталу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20924,
+  "fields": {
+    "lesson": 54,
+    "english_word": "watch cartoons",
+    "kazakh_translation": "мультфильм көру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20925,
+  "fields": {
+    "lesson": 54,
+    "english_word": "go to bed",
+    "kazakh_translation": "ұйықтауға жату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20926,
+  "fields": {
+    "lesson": 54,
+    "english_word": "evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20927,
+  "fields": {
+    "lesson": 55,
+    "english_word": "weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20928,
+  "fields": {
+    "lesson": 55,
+    "english_word": "Saturday",
+    "kazakh_translation": "сенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20929,
+  "fields": {
+    "lesson": 55,
+    "english_word": "Sunday",
+    "kazakh_translation": "жексенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20930,
+  "fields": {
+    "lesson": 55,
+    "english_word": "clean",
+    "kazakh_translation": "тазалау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20931,
+  "fields": {
+    "lesson": 55,
+    "english_word": "house",
+    "kazakh_translation": "үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20932,
+  "fields": {
+    "lesson": 55,
+    "english_word": "afternoon",
+    "kazakh_translation": "түс уақытында"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20933,
+  "fields": {
+    "lesson": 55,
+    "english_word": "grandparents",
+    "kazakh_translation": "ата-әже"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20934,
+  "fields": {
+    "lesson": 55,
+    "english_word": "park",
+    "kazakh_translation": "саябақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20935,
+  "fields": {
+    "lesson": 55,
+    "english_word": "film",
+    "kazakh_translation": "фильм"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20936,
+  "fields": {
+    "lesson": 55,
+    "english_word": "fun",
+    "kazakh_translation": "көңілді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20937,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Right now",
+    "kazakh_translation": "дәл қазір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20938,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Bake",
+    "kazakh_translation": "пісіру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20939,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Cake",
+    "kazakh_translation": "торт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20940,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Kitchen",
+    "kazakh_translation": "ас үй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20941,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Wash",
+    "kazakh_translation": "жуу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20942,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Car",
+    "kazakh_translation": "көлік"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20943,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Yard",
+    "kazakh_translation": "аула"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20944,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Draw",
+    "kazakh_translation": "сурет салу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20945,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Favorite",
+    "kazakh_translation": "сүйікті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20946,
+  "fields": {
+    "lesson": 56,
+    "english_word": "Cartoon",
+    "kazakh_translation": "мультфильм"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20957,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Relax",
+    "kazakh_translation": "демалу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20958,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Read",
+    "kazakh_translation": "оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20959,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Newspaper",
+    "kazakh_translation": "газет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20960,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Listen",
+    "kazakh_translation": "тыңдау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20961,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Music",
+    "kazakh_translation": "музыка"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20962,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Phone",
+    "kazakh_translation": "телефон"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20963,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Study",
+    "kazakh_translation": "сабақ оқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20964,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Exam",
+    "kazakh_translation": "емтихан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20965,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Diary",
+    "kazakh_translation": "күнделік"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 20966,
+  "fields": {
+    "lesson": 57,
+    "english_word": "Quiet",
+    "kazakh_translation": "тыныш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21495,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Usually",
+    "kazakh_translation": "әдетте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21496,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Drink",
+    "kazakh_translation": "ішу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21497,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Orange juice",
+    "kazakh_translation": "апельсин шырыны"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21498,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Cook",
+    "kazakh_translation": "тамақ дайындау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21499,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Dinner",
+    "kazakh_translation": "кешкі ас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21500,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Play",
+    "kazakh_translation": "ойнау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21501,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Football",
+    "kazakh_translation": "футбол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21502,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Homework",
+    "kazakh_translation": "үй тапсырмасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21503,
+  "fields": {
+    "lesson": 58,
+    "english_word": "After school",
+    "kazakh_translation": "мектептен кейін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21504,
+  "fields": {
+    "lesson": 58,
+    "english_word": "Today",
+    "kazakh_translation": "бүгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21505,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Uncle",
+    "kazakh_translation": "көке, ағай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21506,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Hospital",
+    "kazakh_translation": "аурухана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21507,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Early",
+    "kazakh_translation": "ерте"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21508,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Aunt",
+    "kazakh_translation": "тәте, апай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21509,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Teach",
+    "kazakh_translation": "сабақ беру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21510,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Cousin",
+    "kazakh_translation": "бөле, немере"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21511,
+  "fields": {
+    "lesson": 59,
+    "english_word": "University",
+    "kazakh_translation": "университет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21512,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Library",
+    "kazakh_translation": "кітапхана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21513,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Knit",
+    "kazakh_translation": "тоқу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21514,
+  "fields": {
+    "lesson": 59,
+    "english_word": "Warm socks",
+    "kazakh_translation": "жылы шұлықтар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21635,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Clock",
+    "kazakh_translation": "сағат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21636,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Time",
+    "kazakh_translation": "уақыт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21637,
+  "fields": {
+    "lesson": 15,
+    "english_word": "O'clock",
+    "kazakh_translation": "тура сағат"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21638,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Minute",
+    "kazakh_translation": "минут"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21639,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Hour",
+    "kazakh_translation": "сағат (60 минут)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21640,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Half past",
+    "kazakh_translation": "жарым"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21641,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Morning",
+    "kazakh_translation": "таң"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21642,
+  "fields": {
+    "lesson": 15,
+    "english_word": "Evening",
+    "kazakh_translation": "кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21763,
+  "fields": {
+    "lesson": 9,
+    "english_word": "Friend",
+    "kazakh_translation": "дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21764,
+  "fields": {
+    "lesson": 9,
+    "english_word": "Best friend",
+    "kazakh_translation": "ең жақын дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21765,
+  "fields": {
+    "lesson": 9,
+    "english_word": "Kind",
+    "kazakh_translation": "мейірімді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21766,
+  "fields": {
+    "lesson": 9,
+    "english_word": "Funny",
+    "kazakh_translation": "көңілді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21767,
+  "fields": {
+    "lesson": 9,
+    "english_word": "Smart",
+    "kazakh_translation": "ақылды"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21768,
+  "fields": {
+    "lesson": 9,
+    "english_word": "Happy",
+    "kazakh_translation": "бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21769,
+  "fields": {
+    "lesson": 10,
+    "english_word": "About me",
+    "kazakh_translation": "Мен туралы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21770,
+  "fields": {
+    "lesson": 10,
+    "english_word": "Live",
+    "kazakh_translation": "тұру, өмір сүру"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21771,
+  "fields": {
+    "lesson": 10,
+    "english_word": "Like",
+    "kazakh_translation": "ұнату"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21772,
+  "fields": {
+    "lesson": 10,
+    "english_word": "Cat",
+    "kazakh_translation": "мысық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21773,
+  "fields": {
+    "lesson": 10,
+    "english_word": "Dog",
+    "kazakh_translation": "ит"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21774,
+  "fields": {
+    "lesson": 10,
+    "english_word": "City",
+    "kazakh_translation": "қала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21775,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Monday",
+    "kazakh_translation": "Дүйсенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21776,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Tuesday",
+    "kazakh_translation": "Сейсенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21777,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Wednesday",
+    "kazakh_translation": "Сәрсенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21778,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Thursday",
+    "kazakh_translation": "Бейсенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21779,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Friday",
+    "kazakh_translation": "Жұма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21780,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Saturday",
+    "kazakh_translation": "Сенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21781,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Sunday",
+    "kazakh_translation": "Жексенбі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21782,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Weekdays",
+    "kazakh_translation": "жұмыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21783,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Weekend",
+    "kazakh_translation": "демалыс күндері"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21784,
+  "fields": {
+    "lesson": 11,
+    "english_word": "Week",
+    "kazakh_translation": "апта"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21833,
+  "fields": {
+    "lesson": 12,
+    "english_word": "January",
+    "kazakh_translation": "Қаңтар"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21834,
+  "fields": {
+    "lesson": 12,
+    "english_word": "February",
+    "kazakh_translation": "Ақпан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21835,
+  "fields": {
+    "lesson": 12,
+    "english_word": "March",
+    "kazakh_translation": "Наурыз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21836,
+  "fields": {
+    "lesson": 12,
+    "english_word": "April",
+    "kazakh_translation": "Сәуір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21837,
+  "fields": {
+    "lesson": 12,
+    "english_word": "May",
+    "kazakh_translation": "Мамыр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21838,
+  "fields": {
+    "lesson": 12,
+    "english_word": "June",
+    "kazakh_translation": "Маусым"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21839,
+  "fields": {
+    "lesson": 12,
+    "english_word": "July",
+    "kazakh_translation": "Шілде"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21840,
+  "fields": {
+    "lesson": 12,
+    "english_word": "August",
+    "kazakh_translation": "Тамыз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21841,
+  "fields": {
+    "lesson": 12,
+    "english_word": "September",
+    "kazakh_translation": "Қыркүйек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21842,
+  "fields": {
+    "lesson": 12,
+    "english_word": "October",
+    "kazakh_translation": "Қазан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21843,
+  "fields": {
+    "lesson": 12,
+    "english_word": "November",
+    "kazakh_translation": "Қараша"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21844,
+  "fields": {
+    "lesson": 12,
+    "english_word": "December",
+    "kazakh_translation": "Желтоқсан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21845,
+  "fields": {
+    "lesson": 12,
+    "english_word": "Winter",
+    "kazakh_translation": "қыс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21846,
+  "fields": {
+    "lesson": 12,
+    "english_word": "Spring",
+    "kazakh_translation": "көктем"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21847,
+  "fields": {
+    "lesson": 12,
+    "english_word": "Summer",
+    "kazakh_translation": "жаз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21848,
+  "fields": {
+    "lesson": 12,
+    "english_word": "Autumn",
+    "kazakh_translation": "күз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21918,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Nice to meet you",
+    "kazakh_translation": "Танысқаныма қуаныштымын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21919,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Too",
+    "kazakh_translation": "да, де"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21920,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Your",
+    "kazakh_translation": "сенің"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21921,
+  "fields": {
+    "lesson": 3,
+    "english_word": "He",
+    "kazakh_translation": "Ол (ер адам)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21922,
+  "fields": {
+    "lesson": 3,
+    "english_word": "She",
+    "kazakh_translation": "Ол (әйел адам)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21923,
+  "fields": {
+    "lesson": 3,
+    "english_word": "It",
+    "kazakh_translation": "Ол (зат немесе жануар)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21924,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Is",
+    "kazakh_translation": "to be етістігінің формасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21925,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Brother",
+    "kazakh_translation": "Аға"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21926,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Sister",
+    "kazakh_translation": "Әпке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21927,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Cat",
+    "kazakh_translation": "Мысық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21928,
+  "fields": {
+    "lesson": 3,
+    "english_word": "Doctor",
+    "kazakh_translation": "Дәрігер"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21929,
+  "fields": {
+    "lesson": 4,
+    "english_word": "zero",
+    "kazakh_translation": "нөл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21930,
+  "fields": {
+    "lesson": 4,
+    "english_word": "one",
+    "kazakh_translation": "бір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21931,
+  "fields": {
+    "lesson": 4,
+    "english_word": "two",
+    "kazakh_translation": "екі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21932,
+  "fields": {
+    "lesson": 4,
+    "english_word": "three",
+    "kazakh_translation": "үш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21933,
+  "fields": {
+    "lesson": 4,
+    "english_word": "four",
+    "kazakh_translation": "төрт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21934,
+  "fields": {
+    "lesson": 4,
+    "english_word": "five",
+    "kazakh_translation": "бес"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21935,
+  "fields": {
+    "lesson": 4,
+    "english_word": "six",
+    "kazakh_translation": "алты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21936,
+  "fields": {
+    "lesson": 4,
+    "english_word": "seven",
+    "kazakh_translation": "жеті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21937,
+  "fields": {
+    "lesson": 4,
+    "english_word": "eight",
+    "kazakh_translation": "сегіз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21938,
+  "fields": {
+    "lesson": 4,
+    "english_word": "ten",
+    "kazakh_translation": "он"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21939,
+  "fields": {
+    "lesson": 5,
+    "english_word": "eleven",
+    "kazakh_translation": "он бір"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21940,
+  "fields": {
+    "lesson": 5,
+    "english_word": "twelve",
+    "kazakh_translation": "он екі"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21941,
+  "fields": {
+    "lesson": 5,
+    "english_word": "thirteen",
+    "kazakh_translation": "он үш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21942,
+  "fields": {
+    "lesson": 5,
+    "english_word": "fourteen",
+    "kazakh_translation": "он төрт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21943,
+  "fields": {
+    "lesson": 5,
+    "english_word": "fifteen",
+    "kazakh_translation": "он бес"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21944,
+  "fields": {
+    "lesson": 5,
+    "english_word": "twenty",
+    "kazakh_translation": "жиырма"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21945,
+  "fields": {
+    "lesson": 5,
+    "english_word": "thirty",
+    "kazakh_translation": "отыз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21946,
+  "fields": {
+    "lesson": 5,
+    "english_word": "forty",
+    "kazakh_translation": "қырық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21947,
+  "fields": {
+    "lesson": 5,
+    "english_word": "fifty",
+    "kazakh_translation": "елу"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21948,
+  "fields": {
+    "lesson": 5,
+    "english_word": "sixty",
+    "kazakh_translation": "алпыс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21949,
+  "fields": {
+    "lesson": 5,
+    "english_word": "seventy",
+    "kazakh_translation": "жетпіс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21950,
+  "fields": {
+    "lesson": 5,
+    "english_word": "eighty",
+    "kazakh_translation": "сексен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21951,
+  "fields": {
+    "lesson": 5,
+    "english_word": "ninety",
+    "kazakh_translation": "тоқсан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21952,
+  "fields": {
+    "lesson": 5,
+    "english_word": "one hundred",
+    "kazakh_translation": "бір жүз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21953,
+  "fields": {
+    "lesson": 6,
+    "english_word": "How old are you?",
+    "kazakh_translation": "Жасың нешеде?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21954,
+  "fields": {
+    "lesson": 6,
+    "english_word": "I am ... years old",
+    "kazakh_translation": "Менің жасым..."
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21955,
+  "fields": {
+    "lesson": 6,
+    "english_word": "Year",
+    "kazakh_translation": "жыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21956,
+  "fields": {
+    "lesson": 6,
+    "english_word": "Old",
+    "kazakh_translation": "ескі, жас (жасына қатысты)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21957,
+  "fields": {
+    "lesson": 7,
+    "english_word": "Country",
+    "kazakh_translation": "Ел"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21958,
+  "fields": {
+    "lesson": 7,
+    "english_word": "From",
+    "kazakh_translation": "-дан, -ден"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21959,
+  "fields": {
+    "lesson": 7,
+    "english_word": "Kazakhstan",
+    "kazakh_translation": "Қазақстан"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21960,
+  "fields": {
+    "lesson": 7,
+    "english_word": "Kazakh",
+    "kazakh_translation": "Қазақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21961,
+  "fields": {
+    "lesson": 7,
+    "english_word": "City",
+    "kazakh_translation": "қала"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21962,
+  "fields": {
+    "lesson": 7,
+    "english_word": "Village",
+    "kazakh_translation": "ауыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21963,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Family",
+    "kazakh_translation": "отбасы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21964,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Father",
+    "kazakh_translation": "әке"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21965,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Mother",
+    "kazakh_translation": "ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21966,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Brother",
+    "kazakh_translation": "аға, іні"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21967,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Sister",
+    "kazakh_translation": "әпке, қарындас"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21968,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Grandfather",
+    "kazakh_translation": "ата"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21969,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Grandmother",
+    "kazakh_translation": "әже"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21970,
+  "fields": {
+    "lesson": 8,
+    "english_word": "Parents",
+    "kazakh_translation": "ата-ана"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21971,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Blue",
+    "kazakh_translation": "көк"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21972,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Red",
+    "kazakh_translation": "қызыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21973,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Green",
+    "kazakh_translation": "жасыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21974,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Yellow",
+    "kazakh_translation": "сары"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21975,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Black",
+    "kazakh_translation": "қара"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21976,
+  "fields": {
+    "lesson": 13,
+    "english_word": "White",
+    "kazakh_translation": "ақ"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21977,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Brown",
+    "kazakh_translation": "қоңыр"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21978,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Orange",
+    "kazakh_translation": "қызғылт сары"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21979,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Pink",
+    "kazakh_translation": "алқызыл"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21980,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Purple",
+    "kazakh_translation": "күлгін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21981,
+  "fields": {
+    "lesson": 13,
+    "english_word": "Colorful",
+    "kazakh_translation": "түрлі түсті"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21992,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Shape",
+    "kazakh_translation": "пішін"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21993,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Round",
+    "kazakh_translation": "дөңгелек"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21994,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Square",
+    "kazakh_translation": "шаршы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21995,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Rectangle",
+    "kazakh_translation": "тік төртбұрыш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21996,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Triangle",
+    "kazakh_translation": "үшбұрыш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21997,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Big",
+    "kazakh_translation": "үлкен"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21998,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Small",
+    "kazakh_translation": "кішкентай"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 21999,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Long",
+    "kazakh_translation": "ұзын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22000,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Short",
+    "kazakh_translation": "қысқа"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22001,
+  "fields": {
+    "lesson": 14,
+    "english_word": "Size",
+    "kazakh_translation": "өлшем, көлем"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22002,
+  "fields": {
+    "lesson": 67,
+    "english_word": "holiday",
+    "kazakh_translation": "демалыс"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22003,
+  "fields": {
+    "lesson": 67,
+    "english_word": "travel",
+    "kazakh_translation": "саяхаттау (traveled)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22004,
+  "fields": {
+    "lesson": 67,
+    "english_word": "hotel",
+    "kazakh_translation": "қонақүй"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22005,
+  "fields": {
+    "lesson": 67,
+    "english_word": "stay",
+    "kazakh_translation": "тұру (stayed)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22006,
+  "fields": {
+    "lesson": 67,
+    "english_word": "mountain",
+    "kazakh_translation": "тау"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22007,
+  "fields": {
+    "lesson": 67,
+    "english_word": "take",
+    "kazakh_translation": "алу, түсіру (took)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22008,
+  "fields": {
+    "lesson": 67,
+    "english_word": "photo",
+    "kazakh_translation": "сурет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22009,
+  "fields": {
+    "lesson": 67,
+    "english_word": "weather",
+    "kazakh_translation": "ауа райы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22010,
+  "fields": {
+    "lesson": 67,
+    "english_word": "sunny",
+    "kazakh_translation": "күн шуақты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22011,
+  "fields": {
+    "lesson": 67,
+    "english_word": "warm",
+    "kazakh_translation": "жылы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22012,
+  "fields": {
+    "lesson": 68,
+    "english_word": "birthday",
+    "kazakh_translation": "туған күн"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22013,
+  "fields": {
+    "lesson": 68,
+    "english_word": "amazing",
+    "kazakh_translation": "таңғажайып, керемет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22014,
+  "fields": {
+    "lesson": 68,
+    "english_word": "organize",
+    "kazakh_translation": "ұйымдастыру (organized)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22015,
+  "fields": {
+    "lesson": 68,
+    "english_word": "party",
+    "kazakh_translation": "кеш, той"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22016,
+  "fields": {
+    "lesson": 68,
+    "english_word": "gift",
+    "kazakh_translation": "сыйлық"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22017,
+  "fields": {
+    "lesson": 68,
+    "english_word": "sing",
+    "kazakh_translation": "ән айту (sang)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22018,
+  "fields": {
+    "lesson": 68,
+    "english_word": "dance",
+    "kazakh_translation": "билеу (danced)"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22019,
+  "fields": {
+    "lesson": 68,
+    "english_word": "delicious",
+    "kazakh_translation": "дәмді"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22020,
+  "fields": {
+    "lesson": 68,
+    "english_word": "cake",
+    "kazakh_translation": "торт"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22021,
+  "fields": {
+    "lesson": 68,
+    "english_word": "happy",
+    "kazakh_translation": "бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22038,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Hello",
+    "kazakh_translation": "Сәлеметсіз бе"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22039,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Hi",
+    "kazakh_translation": "Сәлем"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22040,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Goodbye",
+    "kazakh_translation": "Сау болыңыз"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22041,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Bye",
+    "kazakh_translation": "Сау бол"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22042,
+  "fields": {
+    "lesson": 1,
+    "english_word": "My name is...",
+    "kazakh_translation": "Менің атым..."
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22043,
+  "fields": {
+    "lesson": 1,
+    "english_word": "What’s your name?",
+    "kazakh_translation": "Сенің атың кім?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22044,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Nice to meet you",
+    "kazakh_translation": "Танысқаныма қуаныштымын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22045,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Too",
+    "kazakh_translation": "да, де"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22046,
+  "fields": {
+    "lesson": 1,
+    "english_word": "How are you?",
+    "kazakh_translation": "Қал-жағдайың қалай?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22047,
+  "fields": {
+    "lesson": 1,
+    "english_word": "I’m fine",
+    "kazakh_translation": "Мен жақсымын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22048,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Thank you",
+    "kazakh_translation": "Рақмет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22049,
+  "fields": {
+    "lesson": 1,
+    "english_word": "And you?",
+    "kazakh_translation": "Ал сен ше?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22050,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Good morning",
+    "kazakh_translation": "Қайырлы таң"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22051,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Good evening",
+    "kazakh_translation": "Қайырлы кеш"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22052,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Friend",
+    "kazakh_translation": "Дос"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22053,
+  "fields": {
+    "lesson": 1,
+    "english_word": "Happy",
+    "kazakh_translation": "Қуанышты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22054,
+  "fields": {
+    "lesson": 2,
+    "english_word": "How are you?",
+    "kazakh_translation": "Қалың қалай? / Қалайсың?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22055,
+  "fields": {
+    "lesson": 2,
+    "english_word": "I'm fine",
+    "kazakh_translation": "Жақсымын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22056,
+  "fields": {
+    "lesson": 2,
+    "english_word": "I'm good",
+    "kazakh_translation": "Жақсымын"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22057,
+  "fields": {
+    "lesson": 2,
+    "english_word": "Thank you / Thanks",
+    "kazakh_translation": "Рақмет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22058,
+  "fields": {
+    "lesson": 2,
+    "english_word": "And you?",
+    "kazakh_translation": "Ал сен ше?"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22059,
+  "fields": {
+    "lesson": 2,
+    "english_word": "I'm OK",
+    "kazakh_translation": "Менде бәрі жақсы"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22060,
+  "fields": {
+    "lesson": 2,
+    "english_word": "Great",
+    "kazakh_translation": "Керемет"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22061,
+  "fields": {
+    "lesson": 2,
+    "english_word": "Not bad",
+    "kazakh_translation": "Жаман емес"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22062,
+  "fields": {
+    "lesson": 2,
+    "english_word": "Happy",
+    "kazakh_translation": "Бақытты"
+  }
+},
+{
+  "model": "lessons.quizquestion",
+  "pk": 22063,
+  "fields": {
+    "lesson": 2,
+    "english_word": "Sad",
+    "kazakh_translation": "Мұңды, көңілсіз"
+  }
+}
+]

@@ -1,0 +1,542 @@
+✅ OpenAI API кілті сәтті жүктелді!
+[
+{
+  "model": "lessons.userprofile",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 253
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 4,
+  "fields": {
+    "user": 7,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 5,
+  "fields": {
+    "user": 8,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 68
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 6,
+  "fields": {
+    "user": 9,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 7,
+  "fields": {
+    "user": 10,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 8,
+  "fields": {
+    "user": 11,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 9,
+  "fields": {
+    "user": 12,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 11,
+  "fields": {
+    "user": 13,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 12,
+  "fields": {
+    "user": 15,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 13,
+  "fields": {
+    "user": 16,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 14,
+  "fields": {
+    "user": 17,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 15,
+  "fields": {
+    "user": 18,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 16,
+  "fields": {
+    "user": 19,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 27
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 17,
+  "fields": {
+    "user": 20,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 18,
+  "fields": {
+    "user": 21,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 19,
+  "fields": {
+    "user": 22,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 20,
+  "fields": {
+    "user": 23,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 21,
+  "fields": {
+    "user": 24,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 22,
+  "fields": {
+    "user": 25,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 23,
+  "fields": {
+    "user": 26,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 24,
+  "fields": {
+    "user": 27,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 25,
+  "fields": {
+    "user": 28,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 5
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 26,
+  "fields": {
+    "user": 29,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 27,
+  "fields": {
+    "user": 30,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 28,
+  "fields": {
+    "user": 31,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77781029394",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 29,
+  "fields": {
+    "user": 32,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77765107906",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 30,
+  "fields": {
+    "user": 33,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77770253614",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 31,
+  "fields": {
+    "user": 34,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77771029394",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 32,
+  "fields": {
+    "user": 35,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77765107906",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 33,
+  "fields": {
+    "user": 36,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77775107906",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 34,
+  "fields": {
+    "user": 37,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77715804134",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 35,
+  "fields": {
+    "user": 38,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": null,
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 36,
+  "fields": {
+    "user": 39,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77058570659",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 37,
+  "fields": {
+    "user": 41,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77058570659",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 38,
+  "fields": {
+    "user": 42,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77058570659",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 39,
+  "fields": {
+    "user": 43,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77752974764",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 40,
+  "fields": {
+    "user": 44,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77472288257",
+    "current_lesson": 6
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 41,
+  "fields": {
+    "user": 45,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77016743508",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 42,
+  "fields": {
+    "user": 46,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": "+77051688098",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 43,
+  "fields": {
+    "user": 47,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77085237801",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 44,
+  "fields": {
+    "user": 48,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77055933196",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 45,
+  "fields": {
+    "user": 49,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77055933196",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 46,
+  "fields": {
+    "user": 50,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77771234263",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 47,
+  "fields": {
+    "user": 51,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77067073797",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 48,
+  "fields": {
+    "user": 52,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": "+77067073797",
+    "current_lesson": 14
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 49,
+  "fields": {
+    "user": 53,
+    "lock_until": null,
+    "is_paid": true,
+    "phone": null,
+    "current_lesson": 14
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 50,
+  "fields": {
+    "user": 54,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77088080439",
+    "current_lesson": 1
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 51,
+  "fields": {
+    "user": 55,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77087527787",
+    "current_lesson": 9
+  }
+},
+{
+  "model": "lessons.userprofile",
+  "pk": 52,
+  "fields": {
+    "user": 56,
+    "lock_until": null,
+    "is_paid": false,
+    "phone": "+77058094773",
+    "current_lesson": 3
+  }
+}
+]
