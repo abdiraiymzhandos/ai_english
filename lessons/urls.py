@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, advertisement, account_locked, vocabulary_list, register_lead
+from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, advertisement, account_locked, vocabulary_list, register_lead, mint_realtime_token
 from .views import start_quiz, submit_answer
 from django.conf import settings
 from django.conf.urls.static import static
@@ -23,4 +23,5 @@ urlpatterns = [
     path('vocabulary/', vocabulary_list, name='vocabulary_list'),
     path("register-lead/", register_lead, name="register_lead"),
     path('register/', register, name='register'),
+    path('api/realtime/token/<int:lesson_id>/', mint_realtime_token, name='mint_realtime_token'),
 ]

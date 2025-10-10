@@ -13,6 +13,10 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.lesson_id = self.scope['url_route']['kwargs']['lesson_id']
         self.openai_ws = None
+        self.listen_task = None
+        self.has_pending_audio = False
+        self.awaiting_response = False
+        self.user_is_speaking = False
 
         try:
             logger.info(f"🔌 New WebSocket connection request for lesson {self.lesson_id}")
@@ -43,6 +47,8 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
                 await self.openai_ws.close()
             except Exception as e:
                 logger.error(f"Error closing OpenAI WebSocket: {e}")
+        if self.listen_task and not self.listen_task.done():
+            self.listen_task.cancel()
 
     async def receive(self, text_data=None, bytes_data=None):
         """Handle incoming audio data from frontend"""
@@ -58,6 +64,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
                 }
                 await self.openai_ws.send(json.dumps(audio_message))
                 logger.debug(f"Sent audio chunk of {len(bytes_data)} bytes")
+                self.has_pending_audio = True
 
             elif text_data:
                 # Handle text commands (like starting/stopping)
@@ -68,6 +75,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
                     # Don't create another response if AI is already responding
                     logger.info("Recording started, AI should already be responding from initial greeting")
                 elif data.get('type') == 'stop_recording':
+                    await self._finalize_user_audio(reason="client_stop")
                     await self.stop_conversation()
 
         except websockets.exceptions.ConnectionClosed:
@@ -132,7 +140,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
 
             # Start listening to OpenAI responses
             logger.info("👂 Starting OpenAI listener task...")
-            asyncio.create_task(self.listen_to_openai())
+            self.listen_task = asyncio.create_task(self.listen_to_openai())
 
             # Wait a moment for session to be configured
             await asyncio.sleep(1)
@@ -178,12 +186,15 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
                     await self.send(text_data=json.dumps({
                         'type': 'audio_complete'
                     }))
+                    self.awaiting_response = False
 
                 elif msg_type == "response.created":
                     logger.info("🎬 OpenAI response created")
+                    self.awaiting_response = True
 
                 elif msg_type == "response.done":
                     logger.info("✅ OpenAI response done")
+                    self.awaiting_response = False
 
                 elif msg_type == "conversation.item.created":
                     logger.info("💬 Conversation item created")
@@ -191,6 +202,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
                 elif msg_type == "input_audio_buffer.speech_started":
                     # User started speaking - stop any ongoing AI audio
                     logger.info("👤 User speech started")
+                    self.user_is_speaking = True
                     await self.send(text_data=json.dumps({
                         'type': 'user_speech_started'
                     }))
@@ -198,9 +210,11 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
                 elif msg_type == "input_audio_buffer.speech_stopped":
                     # User stopped speaking
                     logger.info("🔇 User speech stopped")
+                    self.user_is_speaking = False
                     await self.send(text_data=json.dumps({
                         'type': 'user_speech_stopped'
                     }))
+                    await self._finalize_user_audio(reason="vad_stop")
 
                 elif msg_type == "conversation.item.input_audio_transcription.completed":
                     # Send transcription to frontend for debugging
@@ -303,6 +317,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
             logger.info("📤 Sending response.create to trigger AI speech...")
             await self.openai_ws.send(json.dumps(response_create))
             logger.info("✅ Triggered AI response for lesson start")
+            self.awaiting_response = True
 
         except Exception as e:
             logger.error(f"❌ Error starting lesson immediately: {e}")
@@ -359,3 +374,40 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             logger.error(f"Error fetching lesson: {e}")
             return None
+
+    async def _finalize_user_audio(self, *, reason: str = "unknown"):
+        """Commit buffered audio and ask the model to respond."""
+        if not self.openai_ws:
+            logger.warning(f"Finalize requested ({reason}) but OpenAI socket missing")
+            return
+
+        if self.awaiting_response:
+            logger.info(f"Skipping finalize ({reason}) — already awaiting response")
+            return
+
+        if not self.has_pending_audio:
+            logger.info(f"No pending audio to commit on finalize ({reason})")
+            return
+
+        try:
+            logger.info(f"🔒 Committing audio buffer due to {reason}")
+            await self.openai_ws.send(json.dumps({"type": "input_audio_buffer.commit"}))
+
+            response_payload = {
+                "type": "response.create",
+                "response": {
+                    "modalities": ["text", "audio"],
+                    "instructions": (
+                        "Студент жауап берді. Сабақты қазақ тілінде жалғастырып, түсінікті түрде"
+                        " жауап беріңіз, әрі қарай сұрақ қойыңыз."
+                    )
+                }
+            }
+
+            await self.openai_ws.send(json.dumps(response_payload))
+            logger.info("📨 Requested AI response after user speech")
+            self.awaiting_response = True
+            self.has_pending_audio = False
+
+        except Exception as e:
+            logger.error(f"❌ Failed to finalize audio ({reason}): {e}")

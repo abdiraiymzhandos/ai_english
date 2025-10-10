@@ -1,10 +1,19 @@
+import logging
 import openai
+import os
+import random
+import re
+import uuid
+import glob
+
+import requests
 from openai import OpenAI
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import Lesson, QuizQuestion, QuizAttempt, Explanation, Lead
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -14,15 +23,36 @@ from .forms import CustomRegisterForm
 from .models import UserProfile
 from django.contrib.auth import login
 
-import uuid, os, glob
 from asgiref.sync import async_to_sync
 from english_course.utils.realtime_tts import synthesize_audio_realtime_wav
 
-import random
-import os
-import glob
-import uuid
-import re
+
+logger = logging.getLogger(__name__)
+
+REALTIME_MODEL = "gpt-realtime"
+
+
+def _teacher_instructions(lesson: Lesson) -> str:
+    lessons_data = (
+        f"Lesson {lesson.id}: {lesson.title}\n"
+        f"Vocabulary: {lesson.vocabulary}\n"
+        f"Content: {lesson.content}\n"
+        f"Grammar: {lesson.grammar}\n"
+        f"Dialogue: {lesson.dialogue}\n"
+    )
+    return (
+        "You are a warm, patient Kazakh English teacher and Russian Espanyol teacher. "
+        "Speak mostly in Kazakh, but give short and clear English examples. "
+        "If lesson's data in Espanyol then teach that lesson in Russian and speak Russian not Kazakh"
+        "Encourage the student, correct grammar and pronunciation gently, "
+        "ask short, direct questions, and adapt to their level. and after asking question wait user's answer\n\n"
+        "Lesson context:\n" + lessons_data + "\n\n"
+        "Rules:\n"
+        "- Keep sentences short and audio-friendly.\n"
+        "- Avoid meta talk; speak like a real teacher in conversation.\n"
+        "- After asking a question, pause and let the student speak.\n"
+        "- Do not react to your own audio.\n"
+    )
 
 
 def register(request):
@@ -85,7 +115,7 @@ def lesson_list(request):
         {'title': 'Pre-Intermediate', 'lessons': lessons[100:150]},
         {'title': 'Intermediate', 'lessons': lessons[150:200]},
         {'title': 'Upper-Intermediate', 'lessons': lessons[200:250]},
-        # {'title': 'Beginner (ru)', 'lessons': lessons[250:300]},
+        {'title': 'Espanyol', 'lessons': lessons[250:300]},
         # {'title': 'Elementary (ru)', 'lessons': lessons[300:350]},
         # {'title': 'Pre-Intermediate (ru)', 'lessons': lessons[350:400]},
         # {'title': 'Intermediate (ru)', 'lessons': lessons[400:450]},
@@ -158,6 +188,59 @@ def advertisement(request):
     })
 
 
+@csrf_exempt
+@require_POST
+def mint_realtime_token(request, lesson_id):
+    api_key = os.environ.get("OPENAI_API_KEY") or getattr(settings, "OPENAI_API_KEY", None)
+    if not api_key:
+        return HttpResponseBadRequest("OpenAI API key missing")
+
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    payload = {
+        "model": REALTIME_MODEL,
+        "modalities": ["audio", "text"],
+        "voice": "cedar",
+        "turn_detection": {"type": "server_vad"},
+        "instructions": _teacher_instructions(lesson),
+    }
+
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/realtime/sessions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "OpenAI-Beta": "realtime=v1",
+            },
+            json=payload,
+            timeout=20,
+        )
+        if response.status_code >= 400:
+            try:
+                err_payload = response.json()
+            except ValueError:
+                err_payload = {"error": response.text}
+            logger.error(
+                "OpenAI realtime session error %s for lesson %s: %s",
+                response.status_code,
+                lesson_id,
+                err_payload,
+            )
+            return JsonResponse({"error": "OpenAI realtime session error", "details": err_payload}, status=502)
+    except requests.RequestException as exc:
+        logger.exception("Failed to mint realtime session token for lesson %s", lesson_id)
+        return JsonResponse({"error": "OpenAI realtime session error", "details": str(exc)}, status=502)
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
+        return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
+
+    return JsonResponse(data)
+
+
 def explain_section(request, lesson_id):
     """
     AJAX endpoint: generates text and audio explanation for a given section,
@@ -221,24 +304,19 @@ def explain_section(request, lesson_id):
 
         elif section == "grammar":
             prompt = (
-                f"""Сен жылы жүзді, шыдамды ағылшын мұғалімі сияқты сөйле. Төмендегі грамматикалық ережені
-        (American English) – 12 жастан жоғары, 0-ден B2 деңгейіне дейінгі қазақ тілді оқушыларға
-        қарапайым тілмен түсіндір:
+                f"""You are a warm, patient English teacher speaking to a Kazakh-speaking student.
+Explain the grammar topic in a friendly, conversational tone as if you're talking directly to the student.
+Do not give a formal definition first; use simple, spoken language and short sentences.
+For each rule, give two or three very short examples: first in English, then a short Kazakh meaning.
+Point out common mistakes ("Many students get confused here...") with a brief example and fix.
+Mention any special cases briefly.
+Keep the output audio-friendly: short sentences and clear punctuation.
+Write ordinal numbers as words. Do not use bold or any special markup.
 
-        Сабақтың грамматикасы:
-        {lesson.grammar}
+Grammar topic:
+{lesson.grammar}
 
-        - Грамматикалық ережені қарапайым, түсінікті тілмен жеткіз. Күрделі терминдерден аулақ бол.
-        - Оқушылар жиі қателесетін тұстарға бөлек тоқталып, 1 мысалмен түсіндір.
-        - Ерекше жағдайлар немесе қосымша түсіндірме қажет болса, оны да қысқаша атап өт.
-        - Кез келген ағылшынша келтірілген мысал немесе сөйлемді қазақшаға аударып бер. Бірақ қазақшасы не аудармасы деп ескертудің керегі жоқ.
-        - Тыныс белгілерді қазақша айт.
-        - Мақсат — оқушыға түсінікті, жеңіл, достық әңгіме стилінде түсіндіру.
-        - Реттік сандарды мүлдем қолданба, жазба (мысалы, бірінші, екінші, 1, 2, 3).
-        - Қарапайым мәтін түрінде жаз, сөздерді қою (қалың) ету үшін жұлдызша (**) қолданба.
-        - Жауап қысқа, нақты болсын.
-        - Сен генерация жасаған текстке TTS арқылы аудиоға айналдыруға ыңғайлы етіп тыныс белгілерді қой.
-        """
+Always end by inviting the student to try one short sentence using the rule."""
             )
 
         elif section == "dialogue":
@@ -401,12 +479,12 @@ def chat_with_gpt(request, lesson_id):
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-5",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question},
                 ],
-                temperature=0.7,
+                temperature=1,
             )
             gpt_answer = response.choices[0].message.content
             return JsonResponse({"answer": gpt_answer})
@@ -429,9 +507,9 @@ def motivational_message(request):
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-4o-mini",  # Use your preferred model.
+                model="gpt-5",  # Use your preferred model.
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
+                temperature=1,
             )
             message = response.choices[0].message.content
             return JsonResponse({"message": message})
