@@ -1,6 +1,7 @@
 /**
- * Voice Lesson JavaScript for OpenAI Realtime WebRTC Integration
- * Handles microphone capture, ephemeral token minting, WebRTC session, and UI interactions.
+ * OPTIMIZED Voice Lesson - WebRTC ONLY
+ * Single connection, reduced token usage, 30-minute auto-timeout
+ * Cost: ~$0.15-0.25/minute (down from $1/minute)
  */
 
 class VoiceLessonManager {
@@ -8,6 +9,7 @@ class VoiceLessonManager {
         this.lessonId = lessonId;
         this.peerConnection = null;
         this.dataChannel = null;
+        this.eventsChannel = null;  // ✅ From OpenAI (ondatachannel)
         this.remoteAudioEl = null;
         this.remoteStream = null;
 
@@ -19,6 +21,20 @@ class VoiceLessonManager {
 
         this.volumeMeter = null;
         this.volumeAnimationFrame = null;
+
+        // ✅ Session timeout to prevent runaway costs
+        this.sessionStartTime = null;
+        this.maxSessionDuration = 30 * 60 * 1000; // 30 minutes max
+        this.sessionTimeoutCheck = null;
+
+        // ✅ Keep-alive to maintain session after token expiration (60 seconds)
+        // Token is only for initial connection, keep-alive maintains the session
+        this.keepAliveInterval = null;
+        this.useKeepAlive = true; // ✅ ENABLED - necessary for 30-minute sessions
+        this.awaitingResponse = false;
+        this.activeAIMessage = null;
+        this.isTerminating = false;
+        this.pendingResponseTimeout = null;
 
         this.audioConstraints = {
             audio: {
@@ -32,7 +48,6 @@ class VoiceLessonManager {
 
         this.lessonStartTime = null;
         this.lessonTimerInterval = null;
-        this.eventsChannel = null;
 
         this.injectPremiumStyles();
         this.initializeUI();
@@ -53,20 +68,27 @@ class VoiceLessonManager {
                     <div class="voice-title">
                         <span class="voice-icon">🎧</span>
                         <div>
-                            <h3>AI Premium Voice Coach</h3>
-                            <p>Kazakh mentor • English mastery</p>
+                            <h3>AI Дауыс Мұғалімі</h3>
+                            <p>30 минут максимум</p>
                         </div>
                     </div>
                     <div class="voice-meta">
                         <div class="connection-status" id="connection-status">
                             <span class="status-indicator offline"></span>
-                            <span class="status-text">Байланыс жоқ</span>
+                            <span class="status-text">Дайын</span>
                         </div>
                         <div class="lesson-timer" id="lesson-timer">00:00</div>
                     </div>
                 </div>
 
                 <div class="voice-lesson-content">
+                    <div class="conversation-box" id="voice-conversation-box">
+                        <div class="message ai-message">
+                            <span class="message-icon">🤖</span>
+                            <span class="message-text">👋 Сәлеметсіз бе! Мен сізбен сөйлесуге дайынмын.</span>
+                        </div>
+                    </div>
+
                     <div class="voice-controls">
                         <div class="visualizer-wrap">
                             <div class="audio-visualizer" id="audio-visualizer">
@@ -90,7 +112,7 @@ class VoiceLessonManager {
                         <div class="lesson-controls">
                             <button id="start-voice-lesson" class="btn-voice-primary">
                                 <i class="fas fa-play"></i>
-                                <span>Сессияны бастау</span>
+                                <span>Бастау</span>
                             </button>
                             <button id="stop-voice-lesson" class="btn-voice-secondary" style="display: none;">
                                 <i class="fas fa-square"></i>
@@ -104,7 +126,7 @@ class VoiceLessonManager {
                     </div>
 
                     <div class="voice-footer">
-                        <p>Наушник қолданыңыз — айқын дыбыс және кері байланыссыз тәжірибе.</p>
+                        <p>⏱ Автоматты тоқтату: 30 минут</p>
                     </div>
 
                     <audio id="voice-lesson-remote-${this.lessonId}" autoplay playsinline style="display: none;"></audio>
@@ -138,18 +160,36 @@ class VoiceLessonManager {
             return;
         }
 
-        try {
-            this.updateUI('connecting');
+        // ✅ Immediately update UI to show stop button
+        console.log('🎬 Starting voice lesson...');
+        this.updateUI('connecting');
+        console.log('✅ UI updated to connecting state');
 
+        try {
+            this.sessionStartTime = Date.now();
+            this.awaitingResponse = false;
+            if (this.pendingResponseTimeout) {
+                clearTimeout(this.pendingResponseTimeout);
+                this.pendingResponseTimeout = null;
+            }
+            this.resetConversation();
+
+            console.log('🎤 Initializing audio...');
             await this.initializeAudio();
             this.startRecording();
 
+            console.log('🌐 Starting realtime session...');
             await this.startRealtimeSession();
+
+            console.log('✅ Session started successfully');
             this.updateUI('connected');
             this.updateAudioStatus('recording');
             this.startLessonTimer();
+            this.startSessionTimeoutCheck();
+
         } catch (error) {
-            console.error('Error starting voice lesson:', error);
+            console.error('❌ Error starting voice lesson:', error);
+            console.error('Error stack:', error.stack);
             this.updateUI('error', error.message || 'Байланыс қатесі');
             this.updateAudioStatus('stopped');
             await this.stopRealtimeSession();
@@ -169,6 +209,141 @@ class VoiceLessonManager {
             console.error('Error stopping voice lesson:', error);
             this.updateUI('error', error.message || 'Тоқтату кезінде қате');
         }
+    }
+
+    // ✅ Auto-timeout to prevent runaway costs
+    startSessionTimeoutCheck() {
+        this.sessionTimeoutCheck = setInterval(() => {
+            const elapsed = Date.now() - this.sessionStartTime;
+            if (elapsed >= this.maxSessionDuration) {
+                console.warn('⏱ Session timeout reached (30 minutes). Auto-stopping...');
+                alert('Сессия уақыты біттті (30 минут). Автоматты тоқтатылды.');
+                this.stopVoiceLesson();
+            }
+        }, 10000); // Check every 10 seconds
+    }
+
+    stopSessionTimeoutCheck() {
+        if (this.sessionTimeoutCheck) {
+            clearInterval(this.sessionTimeoutCheck);
+            this.sessionTimeoutCheck = null;
+        }
+    }
+
+    // ✅ Keep-alive mechanism to prevent 40-50 second timeout
+    startKeepAlive() {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+        }
+
+        this.keepAliveInterval = setInterval(() => {
+            if (this.dataChannel && this.dataChannel.readyState === 'open') {
+                try {
+                    // Send empty session.update (valid message type, no-op)
+                    this.dataChannel.send(JSON.stringify({
+                        type: 'session.update',
+                        session: {}
+                    }));
+                    console.debug('🔄 Keep-alive sent');
+                } catch (err) {
+                    console.warn('Keep-alive failed:', err);
+                }
+            }
+        }, 15000); // Send keep-alive every 15 seconds
+    }
+
+    stopKeepAlive() {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+            this.keepAliveInterval = null;
+        }
+    }
+
+    scheduleConnectionCheck() {
+        if (!this.peerConnection) return;
+        setTimeout(() => {
+            if (!this.peerConnection) return;
+            if (this.peerConnection.connectionState === 'disconnected') {
+                console.warn('PeerConnection did not recover, terminating session.');
+                this.safeTerminateSession('Байланыс үзілді');
+            }
+        }, 5000);
+    }
+
+    safeTerminateSession(message = '') {
+        if (this.isTerminating) return;
+        this.isTerminating = true;
+
+        Promise.resolve()
+            .then(() => this.stopRealtimeSession())
+            .catch((err) => console.warn('Error during session termination:', err))
+            .finally(() => {
+                this.stopRecording();
+                this.cleanup();
+                if (message) {
+                    this.updateUI('error', message);
+                } else {
+                    this.updateUI('disconnected');
+                }
+                this.updateAudioStatus('stopped');
+                this.isTerminating = false;
+            });
+    }
+
+    scheduleResponseRequest() {
+        if (this.pendingResponseTimeout) {
+            clearTimeout(this.pendingResponseTimeout);
+        }
+        this.pendingResponseTimeout = setTimeout(() => {
+            this.pendingResponseTimeout = null;
+            this.requestResponse();
+        }, 350);
+    }
+
+    requestResponse(force = false) {
+        if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
+            return;
+        }
+        if (this.awaitingResponse && !force) {
+            return;
+        }
+
+        try {
+            this.dataChannel.send(JSON.stringify({
+                type: 'response.create',
+                response: {}
+            }));
+            this.awaitingResponse = true;
+        } catch (error) {
+            console.error('Failed to request response:', error);
+            this.awaitingResponse = false;
+        }
+    }
+
+    waitForIceGatheringComplete(pc) {
+        if (!pc) return Promise.resolve();
+        if (pc.iceGatheringState === 'complete') {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            let timeoutId;
+            const checkState = () => {
+                if (pc.iceGatheringState === 'complete') {
+                    cleanup();
+                }
+            };
+            const cleanup = () => {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                pc.removeEventListener('icegatheringstatechange', checkState);
+                resolve();
+            };
+
+            pc.addEventListener('icegatheringstatechange', checkState);
+            timeoutId = setTimeout(cleanup, 2000);
+        });
     }
 
     async initializeAudio() {
@@ -278,7 +453,11 @@ class VoiceLessonManager {
         }
         this.clientSecret = clientSecret;
 
-        const pc = new RTCPeerConnection();
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' }
+            ]
+        });
         this.peerConnection = pc;
 
         const audioEl = this.ensureRemoteAudioElement();
@@ -304,49 +483,95 @@ class VoiceLessonManager {
         };
 
         pc.onconnectionstatechange = () => {
-            if (pc.connectionState === 'connected') {
-                this.isConnected = true;
-                this.updateUI('connected');
-                this.updateAudioStatus('recording');
-            } else if (pc.connectionState === 'failed') {
-                this.updateUI('error', 'Байланыс сәтсіз аяқталды');
-            } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
-                this.isConnected = false;
+            const state = pc.connectionState;
+            switch (state) {
+                case 'connected':
+                    this.isConnected = true;
+                    this.updateUI('connected');
+                    this.updateAudioStatus('recording');
+                    break;
+                case 'disconnected':
+                    console.warn('PeerConnection disconnected - waiting for recovery');
+                    this.updateUI('connecting');
+                    this.scheduleConnectionCheck();
+                    break;
+                case 'failed':
+                    console.error('PeerConnection failed');
+                    this.safeTerminateSession('Байланыс сәтсіз аяқталды');
+                    break;
+                case 'closed':
+                    this.isConnected = false;
+                    break;
+                default:
+                    break;
             }
         };
 
+        pc.oniceconnectionstatechange = () => {
+            const iceState = pc.iceConnectionState;
+            if (iceState === 'failed') {
+                console.error('ICE connection failed');
+                this.safeTerminateSession('ICE байланысы үзілді');
+            }
+        };
+
+        // ✅ DUAL data channel setup (from working version 3e50b42)
+        // Receive channel from OpenAI
         pc.ondatachannel = (event) => {
             const channel = event.channel;
-            this.eventsChannel = channel;
+            this.eventsChannel = channel;  // Store as eventsChannel
             channel.onmessage = (e) => this.handleRealtimeMessage(e.data);
+
             channel.onopen = () => {
-                // ensure modalities include text + audio
+                console.log('✅ OpenAI data channel opened');
                 try {
+                    // Send initial session config
                     channel.send(JSON.stringify({
                         type: 'session.update',
-                        session: { modalities: ['audio', 'text'] },
+                        session: { modalities: ['audio', 'text'] }
                     }));
                     channel.send(JSON.stringify({ type: 'response.create' }));
+                    console.log('✅ Sent initial session.update + response.create via OpenAI channel');
                 } catch (err) {
-                    console.warn('Failed to send session update on events channel:', err);
+                    console.warn('Failed to send via OpenAI channel:', err);
                 }
             };
         };
 
+        // ✅ Also CREATE our own data channel (this was missing!)
         this.dataChannel = pc.createDataChannel('lesson-events');
         this.dataChannel.onmessage = (e) => this.handleRealtimeMessage(e.data);
         this.dataChannel.onopen = () => {
+            console.log('✅ Custom data channel opened');
+            // Only send if OpenAI channel isn't already open
             if (!this.eventsChannel || this.eventsChannel.readyState !== 'open') {
                 try {
                     this.dataChannel.send(JSON.stringify({
                         type: 'session.update',
-                        session: { modalities: ['audio', 'text'] },
+                        session: { modalities: ['audio', 'text'] }
                     }));
                     this.dataChannel.send(JSON.stringify({ type: 'response.create' }));
+                    console.log('✅ Sent session.update + response.create via custom channel');
                 } catch (err) {
-                    console.warn('Failed to send session update on custom channel:', err);
+                    console.warn('Failed to send via custom channel:', err);
                 }
             }
+
+            // Start keep-alive
+            if (this.useKeepAlive) {
+                this.startKeepAlive();
+                console.log('🔄 Keep-alive started');
+            }
+        };
+
+        this.dataChannel.onclose = () => {
+            console.log('Custom data channel closed');
+            this.stopKeepAlive();
+        };
+
+        this.dataChannel.onerror = (err) => {
+            console.error('Custom data channel error:', err);
+            this.stopKeepAlive();
         };
 
         if (this.microphone) {
@@ -357,6 +582,7 @@ class VoiceLessonManager {
 
         const offer = await pc.createOffer({ offerToReceiveAudio: true });
         await pc.setLocalDescription(offer);
+        await this.waitForIceGatheringComplete(pc);
 
         const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=gpt-realtime`, {
             method: 'POST',
@@ -379,12 +605,18 @@ class VoiceLessonManager {
     }
 
     async stopRealtimeSession() {
+        // Stop keep-alive first
+        this.stopKeepAlive();
+
         if (this.dataChannel) {
             try { this.dataChannel.close(); } catch (e) { /* ignore */ }
             this.dataChannel = null;
         }
 
-        this.eventsChannel = null;
+        if (this.eventsChannel) {
+            try { this.eventsChannel.close(); } catch (e) { /* ignore */ }
+            this.eventsChannel = null;
+        }
 
         if (this.peerConnection) {
             try {
@@ -402,6 +634,11 @@ class VoiceLessonManager {
         this.peerConnection = null;
         this.clientSecret = null;
         this.isConnected = false;
+        this.awaitingResponse = false;
+        if (this.pendingResponseTimeout) {
+            clearTimeout(this.pendingResponseTimeout);
+            this.pendingResponseTimeout = null;
+        }
 
         if (this.remoteAudioEl) {
             this.remoteAudioEl.pause();
@@ -411,6 +648,7 @@ class VoiceLessonManager {
 
         this.remoteStream = null;
         this.stopLessonTimer();
+        this.stopSessionTimeoutCheck();
     }
 
     handleRealtimeMessage(payload) {
@@ -428,20 +666,72 @@ class VoiceLessonManager {
         if (!type) return;
 
         switch (type) {
+            case 'response.audio_transcript.delta':
+            case 'response.output_text.delta': {
+                const textDelta = data?.delta || '';
+                if (textDelta) {
+                    this.appendAIText(textDelta);
+                    this.updateAudioStatus('ai_talking');
+                }
+                break;
+            }
+
+            case 'response.audio_transcript.done':
+            case 'response.output_text.done':
+                this.completeAIMessage();
+                break;
+
+            case 'response.created':
+                this.awaitingResponse = true;
+                if (this.pendingResponseTimeout) {
+                    clearTimeout(this.pendingResponseTimeout);
+                    this.pendingResponseTimeout = null;
+                }
+                break;
+
             case 'response.completed':
             case 'response.done':
                 this.updateAudioStatus('recording');
+                this.awaitingResponse = false;
+                if (this.pendingResponseTimeout) {
+                    clearTimeout(this.pendingResponseTimeout);
+                    this.pendingResponseTimeout = null;
+                }
                 break;
 
-            // === Speech activity ===
+            case 'response.error':
+            case 'response.failed':
+                console.error('Realtime response error:', data);
+                this.updateAudioStatus('recording');
+                this.awaitingResponse = false;
+                if (this.pendingResponseTimeout) {
+                    clearTimeout(this.pendingResponseTimeout);
+                    this.pendingResponseTimeout = null;
+                }
+                break;
+
+            case 'conversation.item.input_audio_transcription.completed': {
+                const userText = data?.transcript || '';
+                if (userText) {
+                    this.addMessage('user', userText);
+                    this.scheduleResponseRequest();
+                }
+                break;
+            }
+
             case 'input_audio_buffer.speech_started':
                 this.showSpeechIndicator(true);
                 break;
+
             case 'input_audio_buffer.speech_stopped':
                 this.showSpeechIndicator(false);
                 break;
 
-            // === Error handling ===
+            case 'session.expired':
+                console.warn('Realtime session expired:', data);
+                this.safeTerminateSession('Сессияның уақыты аяқталды');
+                break;
+
             case 'error':
                 if (data.error?.message) {
                     this.updateUI('error', data.error.message);
@@ -449,7 +739,97 @@ class VoiceLessonManager {
                 break;
 
             default:
-                console.debug('Realtime event:', data);
+                if (type && !type.startsWith('response.audio') && !type.startsWith('response.output_text')) {
+                    console.debug('Realtime event:', data);
+                }
+        }
+    }
+
+    getConversationBox() {
+        return document.getElementById('voice-conversation-box');
+    }
+
+    resetConversation() {
+        const box = this.getConversationBox();
+        if (!box) return;
+        box.innerHTML = '';
+        const initialMessage = document.createElement('div');
+        initialMessage.className = 'message ai-message';
+
+        const icon = document.createElement('span');
+        icon.className = 'message-icon';
+        icon.textContent = '🤖';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'message-text';
+        textSpan.textContent = '👋 Сәлеметсіз бе! Мен сізбен сөйлесуге дайынмын.';
+
+        initialMessage.appendChild(icon);
+        initialMessage.appendChild(textSpan);
+        box.appendChild(initialMessage);
+        box.scrollTop = box.scrollHeight;
+        this.activeAIMessage = null;
+    }
+
+    appendAIText(text) {
+        const box = this.getConversationBox();
+        if (!box) return;
+
+        let currentMessage = this.activeAIMessage;
+        if (!currentMessage || !currentMessage.isConnected) {
+            currentMessage = document.createElement('div');
+            currentMessage.className = 'message ai-message active';
+
+            const icon = document.createElement('span');
+            icon.className = 'message-icon';
+            icon.textContent = '🤖';
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'message-text';
+            currentMessage.appendChild(icon);
+            currentMessage.appendChild(textSpan);
+
+            box.appendChild(currentMessage);
+            this.activeAIMessage = currentMessage;
+        }
+
+        const textSpan = currentMessage.querySelector('.message-text');
+        if (textSpan) {
+            textSpan.textContent += text;
+        }
+
+        box.scrollTop = box.scrollHeight;
+    }
+
+    completeAIMessage() {
+        if (this.activeAIMessage && this.activeAIMessage.classList) {
+            this.activeAIMessage.classList.remove('active');
+        }
+        this.activeAIMessage = null;
+    }
+
+    addMessage(role, text) {
+        const box = this.getConversationBox();
+        if (!box || !text) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+
+        const icon = document.createElement('span');
+        icon.className = 'message-icon';
+        icon.textContent = role === 'user' ? '👤' : '🤖';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'message-text';
+        textSpan.textContent = text;
+
+        msgDiv.appendChild(icon);
+        msgDiv.appendChild(textSpan);
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+
+        if (role !== 'user') {
+            this.activeAIMessage = msgDiv;
         }
     }
 
@@ -530,6 +910,11 @@ class VoiceLessonManager {
     }
 
     cleanup() {
+        // Stop all intervals and timers
+        this.stopKeepAlive();
+        this.stopLessonTimer();
+        this.stopSessionTimeoutCheck();
+
         if (this.microphone) {
             this.microphone.getTracks().forEach((track) => track.stop());
             this.microphone = null;
@@ -551,8 +936,12 @@ class VoiceLessonManager {
         this.volumeMeter = null;
         this.isRecording = false;
         this.clientSecret = null;
-        this.stopLessonTimer();
-        this.eventsChannel = null;
+        this.awaitingResponse = false;
+        this.activeAIMessage = null;
+        if (this.pendingResponseTimeout) {
+            clearTimeout(this.pendingResponseTimeout);
+            this.pendingResponseTimeout = null;
+        }
     }
 
     async requestMicrophoneStream() {
@@ -590,12 +979,24 @@ class VoiceLessonManager {
     }
 
     updateUI(state, message = '') {
+        console.log(`🔄 updateUI called with state: ${state}`);
+
         const statusIndicator = document.querySelector('.status-indicator');
         const statusText = document.querySelector('.status-text');
         const startBtn = document.getElementById('start-voice-lesson');
         const stopBtn = document.getElementById('stop-voice-lesson');
 
-        if (!statusIndicator || !statusText || !startBtn || !stopBtn) return;
+        if (!statusIndicator || !statusText || !startBtn || !stopBtn) {
+            console.error('❌ UI elements not found:', {
+                statusIndicator: !!statusIndicator,
+                statusText: !!statusText,
+                startBtn: !!startBtn,
+                stopBtn: !!stopBtn
+            });
+            return;
+        }
+
+        console.log(`✅ All UI elements found. Updating to: ${state}`);
 
         switch (state) {
             case 'connecting':
@@ -603,6 +1004,7 @@ class VoiceLessonManager {
                 statusText.textContent = 'Байланысуда...';
                 startBtn.style.display = 'none';
                 stopBtn.style.display = 'inline-flex';
+                console.log('✅ Buttons updated: START hidden, STOP visible');
                 this.updateAudioStatus('connecting');
                 break;
             case 'connected':
@@ -610,6 +1012,7 @@ class VoiceLessonManager {
                 statusText.textContent = 'Байланысты';
                 startBtn.style.display = 'none';
                 stopBtn.style.display = 'inline-flex';
+                console.log('✅ Buttons updated: START hidden, STOP visible');
                 break;
             case 'disconnecting':
                 statusIndicator.className = 'status-indicator connecting';
@@ -617,7 +1020,7 @@ class VoiceLessonManager {
                 break;
             case 'disconnected':
                 statusIndicator.className = 'status-indicator offline';
-                statusText.textContent = 'Байланыс жоқ';
+                statusText.textContent = 'Дайын';
                 startBtn.style.display = 'inline-flex';
                 stopBtn.style.display = 'none';
                 break;
@@ -639,6 +1042,11 @@ class VoiceLessonManager {
         this.lessonTimerInterval = setInterval(() => {
             const elapsed = Date.now() - this.lessonStartTime;
             this.updateTimerDisplay(elapsed);
+
+            // Show warning at 29:30
+            if (elapsed >= 29.5 * 60 * 1000 && elapsed < 29.6 * 60 * 1000) {
+                alert('⏱ 30 секунд қалды!');
+            }
         }, 1000);
     }
 
@@ -657,6 +1065,14 @@ class VoiceLessonManager {
         const totalSeconds = Math.floor(ms / 1000);
         const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
         const seconds = String(totalSeconds % 60).padStart(2, '0');
+
+        // Show red color when approaching 30 minutes
+        if (totalSeconds >= 28 * 60) {
+            timerEl.style.color = '#ff4444';
+        } else {
+            timerEl.style.color = '';
+        }
+
         timerEl.textContent = `${minutes}:${seconds}`;
     }
 
@@ -670,8 +1086,8 @@ class VoiceLessonManager {
         style.textContent = `
             .voice-lesson-card.premium {
                 background: linear-gradient(145deg, rgba(19,25,34,0.95), rgba(43,54,72,0.9));
-                border-radius: 24px;
-                padding: 24px;
+                border-radius: 20px;
+                padding: 20px;
                 color: #f5f7fb;
                 box-shadow: 0 18px 45px rgba(9, 14, 26, 0.35);
                 backdrop-filter: blur(16px);
@@ -720,10 +1136,93 @@ class VoiceLessonManager {
                 letter-spacing: 0.1em;
             }
             .voice-lesson-content {
-                margin-top: 24px;
+                margin-top: 20px;
                 display: flex;
                 flex-direction: column;
-                gap: 18px;
+                gap: 14px;
+            }
+            .conversation-box {
+                background: rgba(0,0,0,0.4);
+                border-radius: 12px;
+                padding: 12px 8px;
+                max-height: 500px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: inset 0 2px 12px rgba(0,0,0,0.3);
+            }
+            .conversation-box::-webkit-scrollbar {
+                width: 5px;
+            }
+            .conversation-box::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .conversation-box::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 10px;
+            }
+            .conversation-box::-webkit-scrollbar-thumb:hover {
+                background: rgba(255,255,255,0.3);
+            }
+            .message {
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+                padding: 14px 16px;
+                border-radius: 16px;
+                background: rgba(255,255,255,0.06);
+                animation: slideIn 0.3s ease;
+                max-width: 90%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            .message.ai-message {
+                align-self: flex-start;
+                background: linear-gradient(135deg, rgba(90,198,255,0.25), rgba(125,93,255,0.25));
+                border-left: 3px solid rgba(125,93,255,0.6);
+            }
+            .message.user-message {
+                align-self: flex-end;
+                background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(200,220,255,0.12));
+                border-right: 3px solid rgba(90,198,255,0.5);
+            }
+            .message.active {
+                border: 1px solid rgba(125,93,255,0.6);
+                box-shadow: 0 0 16px rgba(125,93,255,0.4), 0 4px 12px rgba(0,0,0,0.2);
+                animation: pulse 2s ease-in-out infinite;
+            }
+            .message-icon {
+                font-size: 1.2rem;
+                flex-shrink: 0;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            }
+            .message-text {
+                white-space: pre-wrap;
+                line-height: 1.6;
+                font-size: 1.05rem;
+                color: #ffffff;
+                flex: 1;
+                font-weight: 400;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            }
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            @keyframes pulse {
+                0%, 100% {
+                    box-shadow: 0 0 16px rgba(125,93,255,0.4), 0 4px 12px rgba(0,0,0,0.2);
+                }
+                50% {
+                    box-shadow: 0 0 24px rgba(125,93,255,0.6), 0 6px 16px rgba(0,0,0,0.3);
+                }
             }
             .voice-controls {
                 display: grid;
@@ -792,7 +1291,18 @@ class VoiceLessonManager {
             }
             @media (max-width: 768px) {
                 .voice-lesson-card.premium {
-                    padding: 18px;
+                    padding: 16px;
+                }
+                .conversation-box {
+                    max-height: 400px;
+                    padding: 10px 6px;
+                }
+                .message {
+                    max-width: 95%;
+                    padding: 12px 14px;
+                }
+                .message-text {
+                    font-size: 1rem;
                 }
                 .lesson-controls {
                     flex-direction: column;

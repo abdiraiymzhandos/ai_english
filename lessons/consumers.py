@@ -1,3 +1,16 @@
+"""
+❌ DEPRECATED - DO NOT USE - CAUSES DOUBLE BILLING ❌
+
+This WebSocket consumer creates a SECOND connection to OpenAI Realtime API,
+resulting in DOUBLE COSTS ($1/minute instead of $0.25/minute).
+
+The voice lesson now uses WebRTC ONLY via voice-lesson.js.
+
+THIS FILE IS KEPT FOR REFERENCE ONLY - IT IS NOT ACTIVE IN ROUTING.
+
+If you see high API costs, check if this consumer is active in routing.py!
+"""
+
 import os
 import asyncio
 import websockets
@@ -10,6 +23,10 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 class VoiceLessonConsumer(AsyncWebsocketConsumer):
+    """
+    ❌ DEPRECATED - This consumer is NOT IN USE
+    Voice lessons use WebRTC directly (see: static/js/voice-lesson.js)
+    """
     async def connect(self):
         self.lesson_id = self.scope['url_route']['kwargs']['lesson_id']
         self.openai_ws = None

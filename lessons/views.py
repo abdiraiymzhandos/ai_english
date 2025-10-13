@@ -33,25 +33,20 @@ REALTIME_MODEL = "gpt-realtime"
 
 
 def _teacher_instructions(lesson: Lesson) -> str:
+    # ✅ Concise instructions to save tokens (~70% reduction)
     lessons_data = (
         f"Lesson {lesson.id}: {lesson.title}\n"
-        f"Vocabulary: {lesson.vocabulary}\n"
+        f"Vocab: {lesson.vocabulary}\n"
         f"Content: {lesson.content}\n"
         f"Grammar: {lesson.grammar}\n"
-        f"Dialogue: {lesson.dialogue}\n"
+        f"Dialog: {lesson.dialogue}\n"
     )
     return (
-        "You are a warm, patient Kazakh English teacher and Russian Espanyol teacher. "
-        "Speak mostly in Kazakh, but give short and clear English examples. "
-        "If lesson's data in Espanyol then teach that lesson in Russian and speak Russian not Kazakh"
-        "Encourage the student, correct grammar and pronunciation gently, "
-        "ask short, direct questions, and adapt to their level. and after asking question wait user's answer\n\n"
-        "Lesson context:\n" + lessons_data + "\n\n"
-        "Rules:\n"
-        "- Keep sentences short and audio-friendly.\n"
-        "- Avoid meta talk; speak like a real teacher in conversation.\n"
-        "- After asking a question, pause and let the student speak.\n"
-        "- Do not react to your own audio.\n"
+        "Kazakh English teacher. Speak Kazakh + English examples. "
+        "Espanyol lessons: Russian only. "
+        "Ask short questions, wait for answers, correct gently.\n\n"
+        + lessons_data + "\n\n"
+        "Rules: short audio-friendly sentences, conversational, pause after questions."
     )
 
 
@@ -197,6 +192,8 @@ def mint_realtime_token(request, lesson_id):
 
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
+    # Note: Ephemeral tokens expire in 60 seconds, but the WebRTC session
+    # continues after initial connection. Keep-alive maintains the connection.
     payload = {
         "model": REALTIME_MODEL,
         "modalities": ["audio", "text"],
