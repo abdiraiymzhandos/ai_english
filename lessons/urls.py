@@ -1,13 +1,17 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, advertisement, account_locked, vocabulary_list, register_lead, mint_realtime_token
-from .views import start_quiz, submit_answer
+from .views import start_quiz, submit_answer, service_worker, pwa_manifest
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import reverse_lazy
 
 
 urlpatterns = [
+    # PWA files - must be served from root
+    path('sw.js', service_worker, name='service_worker'),
+    path('manifest.json', pwa_manifest, name='pwa_manifest'),
+
     path('', lesson_list, name='lesson_list'),
     path('lesson/<int:lesson_id>/', lesson_detail, name='lesson_detail'),
     path('lesson/<int:lesson_id>/explain-section/',

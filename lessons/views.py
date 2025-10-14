@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import Lesson, QuizQuestion, QuizAttempt, Explanation, Lead
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -711,4 +711,27 @@ def register_lead(request):
         return JsonResponse({"redirect_url": lesson_url})
 
     return JsonResponse({"error": "POST керек"}, status=405)
+
+
+# PWA views - serve service worker and manifest from root
+def service_worker(request):
+    """Serve service worker from root path for PWA"""
+    sw_path = os.path.join(settings.BASE_DIR, 'staticfiles', 'sw.js')
+    try:
+        with open(sw_path, 'r') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='application/javascript')
+    except FileNotFoundError:
+        return HttpResponse('Service worker not found', status=404)
+
+
+def pwa_manifest(request):
+    """Serve manifest.json from root path for PWA"""
+    manifest_path = os.path.join(settings.BASE_DIR, 'staticfiles', 'manifest.json')
+    try:
+        with open(manifest_path, 'r') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='application/manifest+json')
+    except FileNotFoundError:
+        return HttpResponse('Manifest not found', status=404)
 #weeeeeeeeeeeeeeeeeeeeeeeeeeee
