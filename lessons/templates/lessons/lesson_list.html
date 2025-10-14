@@ -19,6 +19,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/guide-modal.css' %}">
 
     <style>
         body {
@@ -464,12 +465,22 @@
         </div>
     </div>
 
+    <!-- Magic Button - How to Use Guide -->
+    <div class="text-center my-4">
+        <button id="guide-btn" class="btn rounded-pill magic-button">
+            <i class="fas fa-question-circle me-2"></i>
+            <span class="magic-text">Қалай пайдалануға болады?</span>
+        </button>
+    </div>
+
     <!-- Жүйеге кіру / шығу батырмалары -->
     <div class="d-flex justify-content-end align-items-center auth-buttons">
-        <!-- Сөздікке сілтеме -->
-        <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
-            <i class="fas fa-book me-2"></i>Сөздік
-        </a>
+        {% if user.is_authenticated %}
+            <!-- Сөздікке сілтеме -->
+            <a href="{% url 'vocabulary_list' %}" class="btn btn-success rounded-pill me-3">
+                <i class="fas fa-book me-2"></i>Сөздік
+            </a>
+        {% endif %}
 
         {% if user.is_authenticated %}
             <!-- Кіру жасаған қолданушыға сәлемдесу -->
@@ -572,6 +583,7 @@
     </div>
 </div>
 
+{% include 'lessons/includes/guide-modal.html' %}
 
 <!-- Тіркелу модалы -->
 <!-- <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
@@ -756,6 +768,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 <!-- Bootstrap JS (Modal және т.б. үшін) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/guide-modal.js' %}"></script>
 
 </body>
 </html>

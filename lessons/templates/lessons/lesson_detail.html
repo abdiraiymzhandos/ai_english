@@ -937,67 +937,18 @@
 
   <!-- Voice Lesson Feature Section -->
   <div id="voice-lesson-section">
-    {% if user.is_authenticated %}
-      {% if user.profile.has_active_voice_access %}
-        <!-- Active Voice Access - Show Voice Lesson Interface -->
-        <div class="voice-lesson-active">
-          <div class="premium-voice-feature">
-            <h3>🎙️ AI Дауыс Мұғалімі - Белсенді</h3>
-
-            {% if user.profile.voice_access_until %}
-              <p class="access-info">
-                <i class="fas fa-calendar"></i>
-                Мерзімі: {{ user.profile.voice_access_until|date:"d.m.Y" }}
-              </p>
-            {% endif %}
-          </div>
-        </div>
-      {% else %}
-        <!-- No Voice Access - Show Subscription Options -->
+    {% if user.is_authenticated and user.profile.has_active_voice_access %}
+      <!-- Active Voice Access - Show Voice Lesson Interface -->
+      <div class="voice-lesson-active">
         <div class="premium-voice-feature">
-          <h3>🎙️Жандос AI Мұғалім</h3>
-          {% comment %} <p>Жеке сабақ. Тікелей сөйлесіп үйреніңіз!</p> {% endcomment %}
+          <h3>🎙️ AI Дауыс Мұғалімі - Белсенді</h3>
 
-          <ul class="features">
-            <li>Жеке сабақ. Тікелей сөйлесіп үйреніңіз!</li>
-            <li>Айтылымды түзету және бағалау</li>
-            <li>Сіздің деңгейіңізге бейімделген сабақ</li>
-            <li>Өзіңізге ыңғайлы уақытта сабақты оқытатын мұғалім</li>
-          </ul>
-
-          <div class="price">22,500 ₸ / ай</div>
-
-          <a href="https://wa.me/77781029394?text=Сәлеметсіз%20бе!%20Жандос%20AI%20мұғалімі%20қызметіне%20жазылғым%20келеді.%20Толығырақ%20ақпарат%20бере%20аласыз%20ба?"
-             class="premium-whatsapp-btn" target="_blank">
-            <i class="fab fa-whatsapp"></i>
-            <span>WhatsApp арқылы жазылу</span>
-          </a>
-        </div>
-      {% endif %}
-    {% else %}
-      <!-- Advertisement for Non-authenticated Users -->
-      <div class="voice-advertisement">
-        <h3>🎙️ Жандос AI Мұғалім</h3>
-        {% comment %} <p>OpenAI технологиясымен жасалған революциялық дауыс оқыту жүйесі!</p> {% endcomment %}
-
-        <ul class="locked-features">
-          <li>Жеке сабақ. Тікелей сөйлесіп үйреніңіз!</li>
-          <li>Айтылымды түзету және бағалау</li>
-          <li>Сіздің деңгейіңізге бейімделген сабақ</li>
-          <li>Өзіңізге ыңғайлы уақытта сабақты оқытатын мұғалім</li>
-        </ul>
-
-        <p><strong>Бұл мүмкіндікті пайдалану үшін тіркеліңіз және премиум жазылым алыңыз!</strong></p>
-
-        <div style="margin-top: 1.5rem;">
-          <a href="{% url 'register' %}" class="btn-voice-primary" style="margin-right: 1rem;">
-            <i class="fas fa-user-plus"></i>
-            <span>Тіркелу</span>
-          </a>
-          <a href="{% url 'login' %}" class="btn-voice-secondary">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Кіру</span>
-          </a>
+          {% if user.profile.voice_access_until %}
+            <p class="access-info">
+              <i class="fas fa-calendar"></i>
+              Мерзімі: {{ user.profile.voice_access_until|date:"d.m.Y" }}
+            </p>
+          {% endif %}
         </div>
       </div>
     {% endif %}
