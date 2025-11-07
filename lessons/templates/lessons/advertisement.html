@@ -1,26 +1,241 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="kk">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8" />-->
+<!--  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />-->
+<!--  <title>OQYAI English</title>-->
+
+<!--  <link rel="preconnect" href="https://fonts.googleapis.com">-->
+<!--  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>-->
+<!--  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">-->
+
+<!--  <style>-->
+<!--    * {-->
+<!--      margin: 0;-->
+<!--      padding: 0;-->
+<!--      box-sizing: border-box;-->
+<!--    }-->
+
+<!--    html, body {-->
+<!--      height: 100%;-->
+<!--      overflow: hidden;-->
+<!--    }-->
+
+<!--    body {-->
+<!--      font-family: 'Inter', -apple-system, system-ui, sans-serif;-->
+<!--      background: #0a0a0a;-->
+<!--      color: #e5e5e7;-->
+<!--      display: flex;-->
+<!--      align-items: center;-->
+<!--      justify-content: center;-->
+<!--      padding: 20px;-->
+<!--      position: relative;-->
+<!--    }-->
+
+<!--    body::before {-->
+<!--      content: "";-->
+<!--      position: absolute;-->
+<!--      top: 0;-->
+<!--      left: 0;-->
+<!--      right: 0;-->
+<!--      bottom: 0;-->
+<!--      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1), transparent 50%);-->
+<!--      pointer-events: none;-->
+<!--    }-->
+
+<!--    .card {-->
+<!--      width: 100%;-->
+<!--      max-width: 360px;-->
+<!--      background: rgba(255, 255, 255, 0.03);-->
+<!--      border: 1px solid rgba(255, 255, 255, 0.06);-->
+<!--      border-radius: 20px;-->
+<!--      padding: 32px 24px;-->
+<!--      text-align: center;-->
+<!--      position: relative;-->
+<!--      z-index: 1;-->
+<!--    }-->
+
+<!--    .logo {-->
+<!--      font-size: 12px;-->
+<!--      font-weight: 600;-->
+<!--      letter-spacing: 0.1em;-->
+<!--      text-transform: uppercase;-->
+<!--      color: #8b8b8d;-->
+<!--      margin-bottom: 20px;-->
+<!--    }-->
+
+<!--    h1 {-->
+<!--      font-size: 24px;-->
+<!--      font-weight: 700;-->
+<!--      line-height: 1.3;-->
+<!--      margin-bottom: 12px;-->
+<!--      background: linear-gradient(135deg, #e5e5e7, #a5a5a7);-->
+<!--      -webkit-background-clip: text;-->
+<!--      background-clip: text;-->
+<!--      -webkit-text-fill-color: transparent;-->
+<!--    }-->
+
+<!--    .subtitle {-->
+<!--      font-size: 14px;-->
+<!--      color: #8b8b8d;-->
+<!--      line-height: 1.5;-->
+<!--      margin-bottom: 24px;-->
+<!--    }-->
+
+<!--    .price {-->
+<!--      font-size: 28px;-->
+<!--      font-weight: 700;-->
+<!--      margin-bottom: 8px;-->
+<!--    }-->
+
+<!--    .duration {-->
+<!--      font-size: 13px;-->
+<!--      color: #6b6b6d;-->
+<!--      margin-bottom: 28px;-->
+<!--    }-->
+
+<!--    .btn {-->
+<!--      display: block;-->
+<!--      width: 100%;-->
+<!--      padding: 14px 20px;-->
+<!--      border: none;-->
+<!--      border-radius: 12px;-->
+<!--      font-size: 15px;-->
+<!--      font-weight: 600;-->
+<!--      text-decoration: none;-->
+<!--      transition: transform 0.2s ease, opacity 0.2s ease;-->
+<!--      cursor: pointer;-->
+<!--    }-->
+
+<!--    .btn-primary {-->
+<!--      background: #25d366;-->
+<!--      color: #0a0a0a;-->
+<!--      margin-bottom: 12px;-->
+<!--    }-->
+
+<!--    .btn-primary:active {-->
+<!--      transform: scale(0.98);-->
+<!--      opacity: 0.9;-->
+<!--    }-->
+
+<!--    .btn-secondary {-->
+<!--      background: rgba(255, 255, 255, 0.05);-->
+<!--      border: 1px solid rgba(255, 255, 255, 0.08);-->
+<!--      color: #e5e5e7;-->
+<!--    }-->
+
+<!--    .btn-secondary:active {-->
+<!--      transform: scale(0.98);-->
+<!--    }-->
+
+<!--    .offer {-->
+<!--      font-size: 11px;-->
+<!--      color: #6b6b6d;-->
+<!--      margin-top: 16px;-->
+<!--      letter-spacing: 0.02em;-->
+<!--    }-->
+
+<!--    @media (max-height: 667px) {-->
+<!--      .card {-->
+<!--        padding: 24px 20px;-->
+<!--      }-->
+<!--      h1 {-->
+<!--        font-size: 22px;-->
+<!--        margin-bottom: 10px;-->
+<!--      }-->
+<!--      .subtitle {-->
+<!--        margin-bottom: 20px;-->
+<!--      }-->
+<!--      .price {-->
+<!--        font-size: 26px;-->
+<!--      }-->
+<!--      .duration {-->
+<!--        margin-bottom: 24px;-->
+<!--      }-->
+<!--      .btn {-->
+<!--        padding: 12px 18px;-->
+<!--        font-size: 14px;-->
+<!--      }-->
+<!--    }-->
+
+<!--    @media (max-height: 568px) {-->
+<!--      .card {-->
+<!--        padding: 20px 18px;-->
+<!--      }-->
+<!--      .logo {-->
+<!--        margin-bottom: 16px;-->
+<!--      }-->
+<!--      h1 {-->
+<!--        font-size: 20px;-->
+<!--      }-->
+<!--      .subtitle {-->
+<!--        font-size: 13px;-->
+<!--        margin-bottom: 18px;-->
+<!--      }-->
+<!--      .price {-->
+<!--        font-size: 24px;-->
+<!--      }-->
+<!--      .duration {-->
+<!--        margin-bottom: 20px;-->
+<!--      }-->
+<!--      .offer {-->
+<!--        margin-top: 12px;-->
+<!--      }-->
+<!--    }-->
+<!--  </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--  <div class="card">-->
+<!--    <div class="logo">OQYAI • English</div>-->
+
+<!--    <h1>Ағылшын тілін үйреніңіз, жетістікке жетіңіз</h1>-->
+
+<!--    <p class="subtitle">-->
+<!--      AI технологиясымен біріккен заманауи оқу платформасы-->
+<!--    </p>-->
+
+<!--    <div class="price" style="color: #4CAF50;">ТЕГІН</div>-->
+<!--    <div class="duration">250 сабақ • Барлығы тегін</div>-->
+
+<!--    <a class="btn btn-primary" href="{% url 'register' %}" style="background: #4CAF50;">-->
+<!--      Тегін тіркелу-->
+<!--    </a>-->
+
+<!--    <a class="btn btn-secondary" href="{% url 'login' %}">-->
+<!--      Кіру-->
+<!--    </a>-->
+
+<!--    <div class="offer">Барлық сабақтар мен функциялар тегін қолжетімді</div>-->
+<!--  </div>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
 <!DOCTYPE html>
 <html lang="kk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>OQYAI English</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * { 
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     html, body {
       height: 100%;
       overflow: hidden;
     }
-    
+
     body {
       font-family: 'Inter', -apple-system, system-ui, sans-serif;
       background: #0a0a0a;
@@ -31,7 +246,7 @@
       padding: 20px;
       position: relative;
     }
-    
+
     body::before {
       content: "";
       position: absolute;
@@ -42,7 +257,7 @@
       background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1), transparent 50%);
       pointer-events: none;
     }
-    
+
     .card {
       width: 100%;
       max-width: 360px;
@@ -54,7 +269,7 @@
       position: relative;
       z-index: 1;
     }
-    
+
     .logo {
       font-size: 12px;
       font-weight: 600;
@@ -63,7 +278,7 @@
       color: #8b8b8d;
       margin-bottom: 20px;
     }
-    
+
     h1 {
       font-size: 24px;
       font-weight: 700;
@@ -74,26 +289,26 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+
     .subtitle {
       font-size: 14px;
       color: #8b8b8d;
       line-height: 1.5;
       margin-bottom: 24px;
     }
-    
+
     .price {
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 8px;
     }
-    
+
     .duration {
       font-size: 13px;
       color: #6b6b6d;
       margin-bottom: 28px;
     }
-    
+
     .btn {
       display: block;
       width: 100%;
@@ -106,35 +321,35 @@
       transition: transform 0.2s ease, opacity 0.2s ease;
       cursor: pointer;
     }
-    
+
     .btn-primary {
       background: #25d366;
       color: #0a0a0a;
       margin-bottom: 12px;
     }
-    
+
     .btn-primary:active {
       transform: scale(0.98);
       opacity: 0.9;
     }
-    
+
     .btn-secondary {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: #e5e5e7;
     }
-    
+
     .btn-secondary:active {
       transform: scale(0.98);
     }
-    
+
     .offer {
       font-size: 11px;
       color: #6b6b6d;
       margin-top: 16px;
       letter-spacing: 0.02em;
     }
-    
+
     @media (max-height: 667px) {
       .card {
         padding: 24px 20px;
@@ -157,7 +372,7 @@
         font-size: 14px;
       }
     }
-    
+
     @media (max-height: 568px) {
       .card {
         padding: 20px 18px;
@@ -187,24 +402,24 @@
 <body>
   <div class="card">
     <div class="logo">OQYAI • English</div>
-    
+
     <h1>Ағылшын тілін үйреніңіз, жетістікке жетіңіз</h1>
-    
+
     <p class="subtitle">
       AI технологиясымен біріккен заманауи оқу платформасы
     </p>
-    
+
     <div class="price">{{ price }}</div>
     <div class="duration">{{ duration }} • 250 сабақ</div>
-    
+
     <a class="btn btn-primary" href="https://wa.me/{{ whatsapp }}" target="_blank" rel="noopener">
       WhatsApp арқылы жазу
     </a>
-    
+
     <a class="btn btn-secondary" href="{% url 'lesson_list' %}">
       Басты бет
     </a>
-    
+
     <div class="offer">Шектеулі ұсыныс</div>
   </div>
 </body>

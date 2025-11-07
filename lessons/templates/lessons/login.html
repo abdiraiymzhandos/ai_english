@@ -9,14 +9,14 @@
       <div class="logo">OQYAI</div>
       <div class="tagline">English</div>
     </div>
-    
+
     <h1>Кіру</h1>
     <p class="subtitle">Аккаунтыңызға кіріңіз</p>
-    
+
     <form method="post" class="register-form" novalidate>
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.GET.next }}">
-      
+
       <div class="form-group">
         <label for="username">Пайдаланушы аты</label>
         <input type="text" name="username" id="username" class="form-input" placeholder="Пайдаланушы аты" required>
@@ -29,7 +29,7 @@
 
       <button type="submit" class="btn-primary">Кіру</button>
     </form>
-    
+
     <div class="links">
       <a href="{% url 'register' %}">Аккаунтыңыз жоқ па? Тіркелу</a>
       <a href="{% url 'lesson_list' %}">Негізгі бетке қайту</a>

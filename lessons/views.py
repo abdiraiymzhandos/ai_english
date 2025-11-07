@@ -15,9 +15,10 @@ from django.utils import timezone
 from .models import Lesson, QuizQuestion, QuizAttempt, Explanation, Lead
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.contrib import messages
 
 from .forms import CustomRegisterForm
 from .models import UserProfile
@@ -76,7 +77,7 @@ def lesson_list(request):
         )
         # ✅ Ақылы емес қолданушы болса – тек 1–15 сабаққа ғана доступ
         if not request.user.profile.is_paid:
-            passed_lessons = [i for i in passed_lessons if i <= 10 or i >= 251]
+            passed_lessons = [i for i in passed_lessons if i <= 3 or i >= 251]
         if not passed_lessons:
             passed_lessons = [0]
     else:
@@ -110,7 +111,7 @@ def lesson_list(request):
         {'title': 'Pre-Intermediate', 'lessons': lessons[100:150]},
         {'title': 'Intermediate', 'lessons': lessons[150:200]},
         {'title': 'Upper-Intermediate', 'lessons': lessons[200:250]},
-        {'title': 'Espanyol', 'lessons': lessons[250:300]},
+        # {'title': 'Espanyol', 'lessons': lessons[250:300]},
         # {'title': 'Elementary (ru)', 'lessons': lessons[300:350]},
         # {'title': 'Pre-Intermediate (ru)', 'lessons': lessons[350:400]},
         # {'title': 'Intermediate (ru)', 'lessons': lessons[400:450]},
@@ -149,7 +150,7 @@ def lesson_detail(request, lesson_id):
     if lesson.id not in free_lesson_ids and request.user.is_authenticated:
         passed_lessons = request.session.get('passed_lessons', [])
 
-        if not request.user.profile.is_paid and lesson.id > 10 and lesson.id < 251:
+        if not request.user.profile.is_paid and lesson.id > 3 and lesson.id < 251:
             return redirect('advertisement')
 
         if lesson.id not in passed_lessons:
@@ -734,4 +735,46 @@ def pwa_manifest(request):
         return HttpResponse(content, content_type='application/manifest+json')
     except FileNotFoundError:
         return HttpResponse('Manifest not found', status=404)
-#weeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+
+def privacy_policy(request):
+    """
+    Құпиялылық саясаты бетін көрсету
+    """
+    return render(request, 'lessons/privacy_policy.html')
+
+
+@login_required
+def profile(request):
+    """
+    Пайдаланушы профилі беті. Аккаунт ақпараты мен аккаунтты жою мүмкіндігі.
+    """
+    if request.method == 'POST':
+        # Handle account deletion directly on profile page
+        password = request.POST.get('password')
+        confirm = request.POST.get('confirm')
+
+        # Verify all fields are filled
+        if not password or not confirm:
+            messages.error(request, 'Барлық өрістерді толтырыңыз!')
+            return render(request, 'lessons/profile.html')
+
+        # Authenticate user with current username and provided password
+        user = authenticate(request, username=request.user.username, password=password)
+
+        if user is not None:
+            # User authenticated successfully - delete account
+            try:
+                user.delete()
+                logout(request)
+                messages.success(request, 'Аккаунт сәтті жойылды!')
+                return redirect('lesson_list')
+            except Exception as e:
+                messages.error(request, f'Аккаунтты жою кезінде қате пайда болды: {str(e)}')
+                return render(request, 'lessons/profile.html')
+        else:
+            # Wrong password
+            messages.error(request, 'Құпиясөз қате!')
+            return render(request, 'lessons/profile.html')
+
+    return render(request, 'lessons/profile.html')

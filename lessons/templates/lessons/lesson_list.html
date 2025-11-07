@@ -484,10 +484,10 @@
 
         {% if user.is_authenticated %}
             <!-- Кіру жасаған қолданушыға сәлемдесу -->
-            <span class="me-3">
+            <a href="{% url 'profile' %}" class="me-3" style="text-decoration: none; color: white; transition: all 0.3s ease;">
                 <i class="fas fa-user me-2"></i>
-                Қош келдіңіз, <strong>{{ user.username }}</strong>!
-            </span>
+                Қош келдіңіз, <strong style="text-decoration: underline;">{{ user.username }}</strong>!
+            </a>
 
             <!-- Шығу -->
             <form action="{% url 'logout' %}" method="post" class="d-inline">
@@ -580,6 +580,16 @@
             <i class="fas fa-lightbulb me-2"></i>Мотивациялық хабарды алу
         </button>
         <div id="motivational-message" class="mt-3"></div>
+    </div>
+
+    <!-- Footer with Privacy Policy Link -->
+    <div class="text-center mt-5 mb-3" style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
+        <a href="{% url 'privacy_policy' %}" class="btn btn-outline-light rounded-pill" style="border: 1px solid rgba(76, 175, 80, 0.5); color: #4CAF50; transition: all 0.3s ease;">
+            <i class="fas fa-shield-alt me-2"></i>Құпиялылық саясаты
+        </a>
+        <p class="mt-3 text-muted" style="font-size: 0.85em;">
+            © 2025 oqy.ai - AI көмегімен тіл үйрену платформасы
+        </p>
     </div>
 </div>
 

@@ -1,0 +1,135 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Профиль - OQYAI{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">English</div>
+    </div>
+
+    <h1>Менің профилім</h1>
+    <p class="subtitle">Аккаунт ақпараты және баптаулар</p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="profile-info" style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+      <div style="margin-bottom: 15px;">
+        <label style="color: #4CAF50; font-weight: 600; display: block; margin-bottom: 5px;">
+          <i class="fas fa-user"></i> Пайдаланушы аты:
+        </label>
+        <div style="color: white; font-size: 1.1em;">{{ user.username }}</div>
+      </div>
+
+      {% if user.email %}
+      <div style="margin-bottom: 15px;">
+        <label style="color: #4CAF50; font-weight: 600; display: block; margin-bottom: 5px;">
+          <i class="fas fa-envelope"></i> Email:
+        </label>
+        <div style="color: white; font-size: 1.1em;">{{ user.email }}</div>
+      </div>
+      {% endif %}
+
+      <div style="margin-bottom: 15px;">
+        <label style="color: #4CAF50; font-weight: 600; display: block; margin-bottom: 5px;">
+          <i class="fas fa-calendar"></i> Тіркелген күні:
+        </label>
+        <div style="color: white; font-size: 1.1em;">{{ user.date_joined|date:"d.m.Y" }}</div>
+      </div>
+    </div>
+
+    <div class="links" style="margin-bottom: 30px;">
+      <a href="{% url 'lesson_list' %}" class="btn-primary" style="text-decoration: none; display: inline-block; text-align: center;">
+        <i class="fas fa-arrow-left"></i> Негізгі бетке қайту
+      </a>
+    </div>
+
+    <!-- Account Deletion Section -->
+    <div style="border-top: 2px solid rgba(220, 53, 69, 0.3); padding-top: 30px; margin-top: 30px;">
+      <h2 style="color: #dc3545; margin-bottom: 15px;">
+        <i class="fas fa-exclamation-triangle"></i> Қауіпті аймақ
+      </h2>
+      <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">
+        Аккаунтты жойсаңыз, барлық прогресс пен деректеріңіз толығымен жойылады. Бұл әрекетті қайтару мүмкін емес.
+      </p>
+
+      <!-- Delete Account Form -->
+      <div id="delete-form-container" style="display: none; margin-top: 20px;">
+        <form method="post" id="deleteAccountForm" style="background: rgba(220, 53, 69, 0.1); padding: 20px; border-radius: 10px; border: 2px solid rgba(220, 53, 69, 0.5);">
+          {% csrf_token %}
+
+          <div style="margin-bottom: 15px;">
+            <label style="color: #dc3545; font-weight: 600; display: block; margin-bottom: 5px;">
+              Құпиясөзді енгізіңіз:
+            </label>
+            <input type="password" name="password" class="form-input" placeholder="Құпиясөз" required style="width: 100%; padding: 10px; border-radius: 5px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white;">
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; color: rgba(255,255,255,0.9);">
+              <input type="checkbox" name="confirm" required style="margin-right: 10px; width: 18px; height: 18px;">
+              Аккаунтты жойғым келетініне сенімдімін
+            </label>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fas fa-trash-alt"></i> Аккаунтты жою
+            </button>
+            <button type="button" onclick="hideDeleteForm()" style="background: #6c757d; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fas fa-times"></i> Болдырмау
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <button id="show-delete-btn" onclick="showDeleteForm()" class="btn-primary" style="background: #dc3545; text-decoration: none; display: inline-block; text-align: center; border: none; cursor: pointer;">
+        <i class="fas fa-trash-alt"></i> Аккаунтты жою
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .profile-info i {
+    margin-right: 8px;
+  }
+
+  .btn-primary {
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+</style>
+
+<script>
+  function showDeleteForm() {
+    document.getElementById('delete-form-container').style.display = 'block';
+    document.getElementById('show-delete-btn').style.display = 'none';
+  }
+
+  function hideDeleteForm() {
+    document.getElementById('delete-form-container').style.display = 'none';
+    document.getElementById('show-delete-btn').style.display = 'inline-block';
+  }
+</script>
+{% endblock %}
