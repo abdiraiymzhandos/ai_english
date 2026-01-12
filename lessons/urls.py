@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, advertisement, account_locked, vocabulary_list, register_lead, mint_realtime_token
-from .views import start_quiz, submit_answer, service_worker, pwa_manifest, privacy_policy, profile
+from .views import start_quiz, submit_answer, service_worker, pwa_manifest, privacy_policy, profile, check_translator_access, mint_translator_token
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import reverse_lazy
@@ -30,4 +30,6 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('privacy-policy/', privacy_policy, name='privacy_policy'),
     path('api/realtime/token/<int:lesson_id>/', mint_realtime_token, name='mint_realtime_token'),
+    path('api/translator/check-access/', check_translator_access, name='check_translator_access'),
+    path('api/translator/token/', mint_translator_token, name='mint_translator_token'),
 ]

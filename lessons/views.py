@@ -69,17 +69,25 @@ def register(request):
 
 
 def lesson_list(request):
+    user_profile = None
+    translator_access_active = False
+    translator_access_expires = None
+
     if request.user.is_authenticated:
+        user_profile = getattr(request.user, "profile", None)
         user_id = str(request.user.id)
         passed_lessons = list(
             QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
             .values_list("lesson_id", flat=True)
         )
         # ✅ Ақылы емес қолданушы болса – тек 1–15 сабаққа ғана доступ
-        if not request.user.profile.is_paid:
+        if user_profile and not user_profile.is_paid:
             passed_lessons = [i for i in passed_lessons if i <= 3 or i >= 251]
         if not passed_lessons:
             passed_lessons = [0]
+        if user_profile and user_profile.has_active_translator_access():
+            translator_access_active = True
+            translator_access_expires = user_profile.translator_access_until
     else:
         passed_lessons = request.session.get('passed_lessons', [0])
 
@@ -131,7 +139,11 @@ def lesson_list(request):
     return render(request, "lessons/lesson_list.html", {
         "stages": stages,
         "passed_lessons": unlocked_lessons,
-        "is_guest": not request.user.is_authenticated
+        "is_guest": not request.user.is_authenticated,
+        "translator_access_active": translator_access_active,
+        "translator_access_expires": translator_access_expires,
+        "translator_realtime_model": REALTIME_MODEL,
+        "user_is_authenticated": request.user.is_authenticated,
     })
 
 
@@ -778,3 +790,104 @@ def profile(request):
             return render(request, 'lessons/profile.html')
 
     return render(request, 'lessons/profile.html')
+
+
+def check_translator_access(request):
+    """
+    Check if the user has active translator access.
+    Returns JSON with access status and expiry date.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({"has_access": False, "error": "Жүйеге кіру керек"}, status=401)
+
+    try:
+        profile = request.user.profile
+        has_access = profile.has_active_translator_access()
+
+        response_data = {
+            "has_access": has_access,
+        }
+
+        if has_access and profile.translator_access_until:
+            response_data["expires_at"] = profile.translator_access_until.strftime("%Y-%m-%d")
+
+        return JsonResponse(response_data)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({"has_access": False, "error": "Профиль табылмады"}, status=404)
+
+
+@require_POST
+@login_required
+def mint_translator_token(request):
+    """
+    Mint an ephemeral token for the translator assistant using OpenAI Realtime API.
+    Only accessible to users with active translator access.
+    """
+    # Check if user has translator access
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Жүйеге кіру керек"}, status=401)
+
+    try:
+        profile = request.user.profile
+        if not profile.has_active_translator_access():
+            return JsonResponse({"error": "Аудармашы көмекшісіне қол жеткізу жоқ"}, status=403)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({"error": "Профиль табылмады"}, status=404)
+
+    api_key = os.environ.get("OPENAI_API_KEY") or getattr(settings, "OPENAI_API_KEY", None)
+    if not api_key:
+        return HttpResponseBadRequest("OpenAI API key missing")
+
+    # Instructions for the translator assistant
+    translator_instructions = (
+        "Role: live two-way interpreter. "
+        "Treat the microphone speaker as your primary user (user_lang). Infer the other party (target_lang) from user requests such as “translate to English”. "
+        "When the user speaks, address the other party in the requested target language using short, conversational sentences, then restate the same content back in the user’s language so they understand. "
+        "When the other party replies (detected by hearing the target language), immediately summarize or translate it back into the user’s language and politely ask what they’d like you to say next. "
+        "Stay concise, keep numbers/time/price clear, preserve names, soften profanity, and ask for clarification if audio is unclear. "
+        "If the user explicitly says “translate only”, skip explanations; if they say “explain”, add one brief cultural or linguistic note. "
+        "Speak directly without any markup."
+    )
+
+
+    payload = {
+        "model": REALTIME_MODEL,
+        "modalities": ["audio", "text"],
+        "voice": "cedar",
+        "turn_detection": {"type": "server_vad"},
+        "instructions": translator_instructions,
+    }
+
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/realtime/sessions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "OpenAI-Beta": "realtime=v1",
+            },
+            json=payload,
+            timeout=20,
+        )
+        if response.status_code >= 400:
+            try:
+                err_payload = response.json()
+            except ValueError:
+                err_payload = {"error": response.text}
+            logger.error(
+                "OpenAI realtime session error %s for translator: %s",
+                response.status_code,
+                err_payload,
+            )
+            return JsonResponse({"error": "OpenAI realtime session error", "details": err_payload}, status=502)
+    except requests.RequestException as exc:
+        logger.exception("Failed to mint realtime session token for translator")
+        return JsonResponse({"error": "OpenAI realtime session error", "details": str(exc)}, status=502)
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
+        return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
+
+    return JsonResponse(data)

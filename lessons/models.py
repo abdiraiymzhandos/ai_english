@@ -87,6 +87,8 @@ class UserProfile(models.Model):
     is_paid = models.BooleanField(default=False, verbose_name="Ақылы қолданушы ма?")
     has_voice_access = models.BooleanField(default=False, verbose_name="Дауыс сабағына қол жеткізу")
     voice_access_until = models.DateTimeField(null=True, blank=True, verbose_name="Дауыс сабағы мерзімі")
+    has_translator_access = models.BooleanField(default=False, verbose_name="Аудармашы көмекшісіне қол жеткізу")
+    translator_access_until = models.DateTimeField(null=True, blank=True, verbose_name="Аудармашы мерзімі")
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Телефон нөмірі")
     current_lesson = models.IntegerField(default=1, verbose_name="Қазіргі сабақ")
 
@@ -129,6 +131,26 @@ class UserProfile(models.Model):
         """Дауыс сабағынан қол жеткізуді алып тастайды"""
         self.has_voice_access = False
         self.voice_access_until = None
+        self.save()
+
+    def has_active_translator_access(self):
+        """Аудармашы көмекшісіне қол жеткізу бар ма деп тексереді"""
+        if not self.has_translator_access:
+            return False
+        if self.translator_access_until and timezone.now() > self.translator_access_until:
+            return False
+        return True
+
+    def grant_translator_access(self, days=30):
+        """Аудармашы көмекшісіне қол жеткізу береді"""
+        self.has_translator_access = True
+        self.translator_access_until = timezone.now() + timedelta(days=days)
+        self.save()
+
+    def revoke_translator_access(self):
+        """Аудармашы көмекшісіне қол жеткізуді алып тастайды"""
+        self.has_translator_access = False
+        self.translator_access_until = None
         self.save()
 
     def __str__(self):

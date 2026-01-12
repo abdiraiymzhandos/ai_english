@@ -11,10 +11,10 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone', 'is_paid', 'has_voice_access', 'voice_access_status', 'current_lesson', 'highest_lesson_reached', 'lock_until', 'date_joined')
-    list_filter = ('is_paid', 'has_voice_access')
+    list_display = ('user', 'phone', 'is_paid', 'has_voice_access', 'voice_access_status', 'translator_access_status', 'current_lesson', 'highest_lesson_reached', 'lock_until', 'date_joined')
+    list_filter = ('is_paid', 'has_voice_access', 'has_translator_access')
     search_fields = ('user__username', 'phone')
-    actions = ['unlock_accounts', 'mark_as_paid', 'grant_voice_access_30_days', 'grant_voice_access_90_days', 'revoke_voice_access']
+    actions = ['unlock_accounts', 'mark_as_paid', 'grant_voice_access_30_days', 'grant_voice_access_90_days', 'revoke_voice_access', 'grant_translator_access_30_days', 'grant_translator_access_90_days', 'revoke_translator_access']
 
     def unlock_accounts(self, request, queryset):
         for profile in queryset:
@@ -62,6 +62,42 @@ class UserProfileAdmin(admin.ModelAdmin):
         else:
             return f"⏰ Мерзімі бітті ({obj.voice_access_until.strftime('%d.%m.%Y')})"
     voice_access_status.short_description = "Дауыс сабағы"
+
+    def grant_translator_access_30_days(self, request, queryset):
+        count = 0
+        for profile in queryset:
+            profile.grant_translator_access(days=30)
+            count += 1
+        self.message_user(request, f"{count} қолданушыға 30 күнге аудармашы көмекшісіне қол жеткізу берілді.")
+    grant_translator_access_30_days.short_description = "30 күнге аудармашы көмекшісіне қол жеткізу беру"
+
+    def grant_translator_access_90_days(self, request, queryset):
+        count = 0
+        for profile in queryset:
+            profile.grant_translator_access(days=90)
+            count += 1
+        self.message_user(request, f"{count} қолданушыға 90 күнге аудармашы көмекшісіне қол жеткізу берілді.")
+    grant_translator_access_90_days.short_description = "90 күнге аудармашы көмекшісіне қол жеткізу беру"
+
+    def revoke_translator_access(self, request, queryset):
+        count = 0
+        for profile in queryset:
+            profile.revoke_translator_access()
+            count += 1
+        self.message_user(request, f"{count} қолданушыдан аудармашы көмекшісіне қол жеткізу алынып тасталды.")
+    revoke_translator_access.short_description = "Аудармашы көмекшісіне қол жеткізуді алып тастау"
+
+    def translator_access_status(self, obj):
+        if not obj.has_translator_access:
+            return "❌ Жоқ"
+        if obj.has_active_translator_access():
+            if obj.translator_access_until:
+                return f"✅ Белсенді ({obj.translator_access_until.strftime('%d.%m.%Y')} дейін)"
+            else:
+                return "✅ Белсенді (мерзімсіз)"
+        else:
+            return f"⏰ Мерзімі бітті ({obj.translator_access_until.strftime('%d.%m.%Y')})"
+    translator_access_status.short_description = "Аудармашы көмекшісі"
 
     def highest_lesson_reached(self, obj):
         return obj.get_highest_lesson_reached()
