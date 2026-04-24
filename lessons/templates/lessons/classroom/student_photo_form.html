@@ -1,0 +1,34 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Фото қосу - OQYAI{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card" style="max-width: 600px;">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">{{ student.full_name }}</div>
+    </div>
+
+    <h1>Фото қосу</h1>
+    <p class="subtitle">Face recognition үшін жаңа фото жүктеңіз</p>
+
+    <form method="post" class="register-form" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ photo_form.image.id_for_label }}">{{ photo_form.image.label }}</label>
+        {{ photo_form.image }}
+        {% if photo_form.image.errors %}
+          <div class="error">{{ photo_form.image.errors.0 }}</div>
+        {% endif %}
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 6px;">Бір уақытта 10 фотоға дейін таңдауға болады.</div>
+      </div>
+      <button type="submit" class="btn-primary">Сақтау</button>
+    </form>
+
+    <div class="links">
+      <a href="{% url 'classroom_group_detail' student.group.id %}">Артқа қайту</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

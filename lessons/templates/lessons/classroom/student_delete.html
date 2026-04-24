@@ -1,0 +1,26 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Оқушыны өшіру - OQYAI{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card" style="max-width: 560px;">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">{{ student.full_name }}</div>
+    </div>
+
+    <h1>Оқушыны өшіру</h1>
+    <p class="subtitle">Бұл әрекет қайтарылмайды. Жалғастырамыз ба?</p>
+
+    <form method="post" class="register-form">
+      {% csrf_token %}
+      <button type="submit" class="btn-primary" style="background: #ef4444;">Өшіру</button>
+    </form>
+
+    <div class="links">
+      <a href="{% url 'classroom_group_detail' student.group.id %}">Болдырмау</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

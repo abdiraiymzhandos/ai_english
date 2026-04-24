@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
+import os
 import uuid
 
 
@@ -82,7 +83,12 @@ class Explanation(models.Model):
 
 
 class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ("student", "Оқушы"),
+        ("teacher", "Мұғалім"),
+    ]
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="student", verbose_name="Рөлі")
     lock_until = models.DateTimeField(null=True, blank=True, verbose_name="Құлтаған уақыт")
     is_paid = models.BooleanField(default=False, verbose_name="Ақылы қолданушы ма?")
     has_voice_access = models.BooleanField(default=False, verbose_name="Дауыс сабағына қол жеткізу")
@@ -93,7 +99,19 @@ class UserProfile(models.Model):
     current_lesson = models.IntegerField(default=1, verbose_name="Қазіргі сабақ")
 
     def is_locked(self):
-        return self.lock_until and timezone.now() < self.lock_until
+        return bool(self.lock_until and timezone.now() < self.lock_until)
+
+    def is_teacher(self):
+        return self.role == "teacher"
+
+    def has_paid_lesson_access(self):
+        return bool(self.is_paid)
+
+    def can_use_classroom_teacher_features(self):
+        return self.is_teacher()
+
+    def can_run_classroom_voice_sessions(self):
+        return self.can_use_classroom_teacher_features() and self.has_active_voice_access()
 
     def unlock(self):
         self.lock_until = None
@@ -176,3 +194,57 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"{self.name} – {self.phone}"
+
+
+def student_face_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    safe_ext = ext if ext else ".jpg"
+    return f"classroom_faces/{uuid.uuid4().hex}{safe_ext}"
+
+
+class ClassGroup(models.Model):
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="class_groups")
+    name = models.CharField(max_length=50, verbose_name="Сынып атауы")
+    school_name = models.CharField(max_length=120, blank=True, default="", verbose_name="Мектеп атауы")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Құрылды")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Жаңартылды")
+
+    class Meta:
+        unique_together = ("teacher", "school_name", "name")
+        ordering = ["name"]
+
+    def __str__(self):
+        school_label = f"{self.school_name} · " if self.school_name else ""
+        return f"{school_label}{self.name} ({self.teacher.username})"
+
+
+class ClassStudent(models.Model):
+    group = models.ForeignKey(ClassGroup, on_delete=models.CASCADE, related_name="students")
+    full_name = models.CharField(max_length=120, verbose_name="Оқушы аты-жөні")
+    notes = models.CharField(max_length=255, blank=True, verbose_name="Ескертпе")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="linked_students",
+        verbose_name="Тіркелген қолданушы",
+    )
+    face_embedding = models.JSONField(blank=True, null=True, verbose_name="Face embedding")
+    voice_embeddings = models.JSONField(blank=True, default=list, verbose_name="Voice embeddings")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Құрылды")
+
+    class Meta:
+        ordering = ["full_name"]
+
+    def __str__(self):
+        return f"{self.full_name} ({self.group.name})"
+
+
+class StudentPhoto(models.Model):
+    student = models.ForeignKey(ClassStudent, on_delete=models.CASCADE, related_name="photos")
+    image = models.ImageField(upload_to=student_face_upload_path, verbose_name="Face photo")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Құрылды")
+
+    def __str__(self):
+        return f"{self.student.full_name} photo"

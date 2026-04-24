@@ -5,6 +5,7 @@ import random
 import re
 import uuid
 import glob
+from urllib.parse import quote
 
 import requests
 from openai import OpenAI
@@ -31,6 +32,7 @@ from english_course.utils.realtime_tts import synthesize_audio_realtime_wav
 logger = logging.getLogger(__name__)
 
 REALTIME_MODEL = "gpt-realtime"
+UPSELL_WHATSAPP_NUMBER = "77781029394"
 
 
 def _teacher_instructions(lesson: Lesson) -> str:
@@ -51,14 +53,28 @@ def _teacher_instructions(lesson: Lesson) -> str:
     )
 
 
+def _get_access_state(is_active, enabled_flag=False, expires_at=None):
+    if is_active:
+        return "active"
+    if enabled_flag and expires_at and timezone.now() > expires_at:
+        return "expired"
+    return "inactive"
+
+
+def _build_upgrade_whatsapp_url(feature_name, username):
+    message = f"Сәлем! {username} үшін {feature_name} қол жеткізуін қосқым келеді."
+    return f"https://wa.me/{UPSELL_WHATSAPP_NUMBER}?text={quote(message)}"
+
+
 def register(request):
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             phone = form.cleaned_data.get('phone')
+            role = form.cleaned_data.get('role') or "student"
             # ✅ Профиль жасау кезінде телефон номерін сақтауға болады (егер UserProfile-те сақтағыңыз келсе)
-            UserProfile.objects.create(user=user, phone=phone)
+            UserProfile.objects.create(user=user, phone=phone, role=role)
             login(request, user)
             return redirect('lesson_list')
     else:
@@ -72,6 +88,8 @@ def lesson_list(request):
     user_profile = None
     translator_access_active = False
     translator_access_expires = None
+    is_paid_user = False
+    free_lesson_ids = {1, 2, 3, 251, 252, 253}
 
     if request.user.is_authenticated:
         user_profile = getattr(request.user, "profile", None)
@@ -80,9 +98,13 @@ def lesson_list(request):
             QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
             .values_list("lesson_id", flat=True)
         )
-        # ✅ Ақылы емес қолданушы болса – тек 1–15 сабаққа ғана доступ
-        if user_profile and not user_profile.is_paid:
-            passed_lessons = [i for i in passed_lessons if i <= 3 or i >= 251]
+        is_paid_user = bool(user_profile and user_profile.has_paid_lesson_access())
+        # ✅ Ақылы емес қолданушы болса – тек тегін сабақтарға ғана доступ
+        if not is_paid_user:
+            if user_profile and user_profile.is_teacher():
+                passed_lessons = [i for i in passed_lessons if i in free_lesson_ids]
+            else:
+                passed_lessons = [i for i in passed_lessons if i <= 3 or i >= 251]
         if not passed_lessons:
             passed_lessons = [0]
         if user_profile and user_profile.has_active_translator_access():
@@ -94,18 +116,20 @@ def lesson_list(request):
     if not passed_lessons:
         passed_lessons = [0]
 
-    max_passed = max(passed_lessons)
     base_unlocked = [1, 251]
-    # Екі бөлек максималды өткен сабақтарды табу
-    max_kz = max([x for x in passed_lessons if x < 251], default=0)
-    max_ru = max([x for x in passed_lessons if x >= 251], default=0)
+    if not is_paid_user and user_profile and user_profile.is_teacher():
+        unlocked_lessons = sorted(free_lesson_ids)
+    else:
+        # Екі бөлек максималды өткен сабақтарды табу
+        max_kz = max([x for x in passed_lessons if x < 251], default=0)
+        max_ru = max([x for x in passed_lessons if x >= 251], default=0)
 
-    # Қазақша және орысша unlocked тізімдер
-    unlocked_kz = list(range(1, max_kz + 2)) if max_kz else []
-    unlocked_ru = list(range(251, max_ru + 2)) if max_ru else []
+        # Қазақша және орысша unlocked тізімдер
+        unlocked_kz = list(range(1, max_kz + 2)) if max_kz else []
+        unlocked_ru = list(range(251, max_ru + 2)) if max_ru else []
 
-    # Жалпы unlocked
-    unlocked_lessons = sorted(set(base_unlocked + unlocked_kz + unlocked_ru))
+        # Жалпы unlocked
+        unlocked_lessons = sorted(set(base_unlocked + unlocked_kz + unlocked_ru))
 
     # Сессияға сақтау (гость үшін)
     request.session['passed_lessons'] = unlocked_lessons
@@ -149,6 +173,10 @@ def lesson_list(request):
 
 def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
+    user_profile = getattr(request.user, "profile", None)
+    is_paid_user = bool(user_profile and user_profile.has_paid_lesson_access())
+    voice_access_active = bool(user_profile and user_profile.has_active_voice_access())
+    voice_access_expires = user_profile.voice_access_until if voice_access_active else None
 
     # Free lessons that are available to everyone
     free_lesson_ids = {1, 2, 3, 251, 252, 253}
@@ -162,7 +190,10 @@ def lesson_detail(request, lesson_id):
     if lesson.id not in free_lesson_ids and request.user.is_authenticated:
         passed_lessons = request.session.get('passed_lessons', [])
 
-        if not request.user.profile.is_paid and lesson.id > 3 and lesson.id < 251:
+        if user_profile and user_profile.is_teacher() and not is_paid_user:
+            return redirect('advertisement')
+
+        if not is_paid_user and lesson.id > 3 and lesson.id < 251:
             return redirect('advertisement')
 
         if lesson.id not in passed_lessons:
@@ -178,6 +209,8 @@ def lesson_detail(request, lesson_id):
     return render(request, 'lessons/lesson_detail.html', {
         'lesson': lesson,
         'explanations': explanations,
+        'voice_access_active': voice_access_active,
+        'voice_access_expires': voice_access_expires,
     })
 
 
@@ -199,6 +232,13 @@ def advertisement(request):
 @csrf_exempt
 @require_POST
 def mint_realtime_token(request, lesson_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=403)
+
+    user_profile = getattr(request.user, "profile", None)
+    if not user_profile or not user_profile.has_active_voice_access():
+        return JsonResponse({"error": "Voice access required"}, status=403)
+
     api_key = os.environ.get("OPENAI_API_KEY") or getattr(settings, "OPENAI_API_KEY", None)
     if not api_key:
         return HttpResponseBadRequest("OpenAI API key missing")
@@ -684,7 +724,7 @@ def account_locked(request):
     remaining_time = None
     if request.user.is_authenticated:
         profile = getattr(request.user, 'profile', None)
-        if profile and profile.lock_until:
+        if profile and profile.is_locked():
             lock_until = profile.lock_until
             remaining_time = (lock_until - timezone.now()).days
     context = {
@@ -761,6 +801,221 @@ def profile(request):
     """
     Пайдаланушы профилі беті. Аккаунт ақпараты мен аккаунтты жою мүмкіндігі.
     """
+    user_profile = getattr(request.user, "profile", None)
+    current_lesson = max((user_profile.current_lesson if user_profile else 1), 1)
+    course_access_active = bool(user_profile and user_profile.has_paid_lesson_access())
+    voice_access_active = bool(user_profile and user_profile.has_active_voice_access())
+    translator_access_active = bool(user_profile and user_profile.has_active_translator_access())
+    classroom_access_active = bool(
+        user_profile and user_profile.can_use_classroom_teacher_features()
+    )
+    classroom_live_access_active = bool(
+        user_profile and user_profile.can_run_classroom_voice_sessions()
+    )
+    account_locked = bool(user_profile and user_profile.is_locked())
+    account_lock_until = user_profile.lock_until if account_locked else None
+    voice_access_state = _get_access_state(
+        voice_access_active,
+        enabled_flag=bool(user_profile and user_profile.has_voice_access),
+        expires_at=user_profile.voice_access_until if user_profile else None,
+    )
+    translator_access_state = _get_access_state(
+        translator_access_active,
+        enabled_flag=bool(user_profile and user_profile.has_translator_access),
+        expires_at=user_profile.translator_access_until if user_profile else None,
+    )
+    highest_lesson_reached = user_profile.get_highest_lesson_reached() if user_profile else 0
+    passed_main_lessons = QuizAttempt.objects.filter(
+        user_id=str(request.user.id),
+        is_passed=True,
+        lesson_id__lt=251,
+    ).count()
+    progress_percentage = min(int((passed_main_lessons / 250) * 100), 100) if passed_main_lessons else 0
+    active_access_count = sum(
+        1
+        for is_active in (
+            course_access_active,
+            voice_access_active,
+            translator_access_active,
+            classroom_access_active,
+        )
+        if is_active
+    )
+    voice_upgrade_recommended = course_access_active and not voice_access_active
+    voice_lesson_id = current_lesson if course_access_active else 1
+    access_cards = [
+        {
+            "key": "course",
+            "icon": "fas fa-book-open",
+            "title": "Курсқа қол жеткізу",
+            "status": "active" if course_access_active else "inactive",
+            "status_label": "Белсенді" if course_access_active else "Қосылмаған",
+            "description": "250 негізгі сабақ, тесттер және прогресс бақылауы.",
+            "value_line": (
+                f"{passed_main_lessons} / 250 сабақ өтті"
+                if course_access_active
+                else "Қазір тек тегін сабақтар ашық"
+            ),
+            "expires_at": None,
+            "cta_label": "Сабақтарды ашу" if course_access_active else "Курсты ашу",
+            "cta_url": reverse("lesson_list") if course_access_active else reverse("advertisement"),
+            "cta_external": False,
+            "cta_style": "primary" if course_access_active else "secondary",
+            "featured": not course_access_active,
+        },
+        {
+            "key": "voice",
+            "icon": "fas fa-microphone-lines",
+            "title": "AI дауыс сабағы",
+            "status": voice_access_state,
+            "status_label": {
+                "active": "Белсенді",
+                "expired": "Мерзімі бітті",
+                "inactive": "Қосылмаған",
+            }[voice_access_state],
+            "description": "AI мұғаліммен тікелей сөйлесу, pronunciation feedback және speaking practice.",
+            "value_line": (
+                "Тікелей speaking тәжірибесін бірден бастай аласыз"
+                if voice_access_active
+                else "Курсқа қосымша ең пайдалы premium upgrade"
+            ),
+            "expires_at": user_profile.voice_access_until if user_profile else None,
+            "cta_label": (
+                "Дауыс сабағын ашу"
+                if voice_access_active
+                else ("Жаңарту" if voice_access_state == "expired" else "Қосу")
+            ),
+            "cta_url": (
+                reverse("lesson_detail", args=[voice_lesson_id])
+                if voice_access_active
+                else _build_upgrade_whatsapp_url("AI дауыс сабағы", request.user.username)
+            ),
+            "cta_external": not voice_access_active,
+            "cta_style": "featured" if voice_upgrade_recommended else ("primary" if voice_access_active else "secondary"),
+            "featured": voice_upgrade_recommended,
+        },
+        {
+            "key": "translator",
+            "icon": "fas fa-language",
+            "title": "Аудармашы көмекшісі",
+            "status": translator_access_state,
+            "status_label": {
+                "active": "Белсенді",
+                "expired": "Мерзімі бітті",
+                "inactive": "Қосылмаған",
+            }[translator_access_state],
+            "description": "Тірі speech-to-speech аударма және күнделікті сөйлесуге көмек.",
+            "value_line": (
+                "Көмекші негізгі беттен бірден ашылады"
+                if translator_access_active
+                else "Сапар, жұмыс және күнделікті диалог үшін бөлек premium access"
+            ),
+            "expires_at": user_profile.translator_access_until if user_profile else None,
+            "cta_label": (
+                "Қазір пайдалану"
+                if translator_access_active
+                else ("Жаңарту" if translator_access_state == "expired" else "Қосу")
+            ),
+            "cta_url": (
+                reverse("lesson_list")
+                if translator_access_active
+                else _build_upgrade_whatsapp_url("Аудармашы көмекшісі", request.user.username)
+            ),
+            "cta_external": not translator_access_active,
+            "cta_style": "primary" if translator_access_active else "secondary",
+            "featured": False,
+        },
+    ]
+
+    if classroom_access_active:
+        access_cards.append(
+            {
+                "key": "classroom",
+                "icon": "fas fa-chalkboard-teacher",
+                "title": "Classroom / Teacher access",
+                "status": "active",
+                "status_label": "Белсенді",
+                "description": "Сыныптар, roster, фото/дауыс тіркеу және classroom басқаруы.",
+                "value_line": (
+                    "AI classroom session дайын"
+                    if classroom_live_access_active
+                    else "Live classroom session үшін voice access бөлек керек"
+                ),
+                "expires_at": None,
+                "cta_label": "Classroom ашу",
+                "cta_url": reverse("classroom_dashboard"),
+                "cta_external": False,
+                "cta_style": "primary",
+                "featured": False,
+            }
+        )
+
+    if voice_upgrade_recommended:
+        upgrade_recommendation = {
+            "title": "Келесі ең пайдалы upgrade: AI дауыс сабағы",
+            "description": (
+                "Сізде курс ашық, бірақ speaking practice әлі жабық. "
+                "Дауыс сабағы AI мұғаліммен тікелей сөйлесуге, қателерді бірден түзетуге "
+                "және күнделікті сөйлеуді тезірек дамытуға көмектеседі."
+            ),
+            "cta_label": "AI дауыс сабағын қосу",
+            "cta_url": _build_upgrade_whatsapp_url("AI дауыс сабағы", request.user.username),
+            "cta_external": True,
+        }
+    elif not course_access_active:
+        upgrade_recommendation = {
+            "title": "Толық курсқа өтіңіз",
+            "description": (
+                "Тегін сабақтардан кейін толық 250 сабақтық жолды ашып, "
+                "жүйелі прогреспен жалғастырыңыз."
+            ),
+            "cta_label": "Курсты ашу",
+            "cta_url": reverse("advertisement"),
+            "cta_external": False,
+        }
+    elif not translator_access_active:
+        upgrade_recommendation = {
+            "title": "Күнделікті диалог үшін аудармашы көмекшісін қосыңыз",
+            "description": (
+                "Саяхатта, жұмыста немесе тез аударма керек сәтте "
+                "speech-to-speech көмекші уақытты үнемдейді."
+            ),
+            "cta_label": "Көмекшіні қосу",
+            "cta_url": _build_upgrade_whatsapp_url("Аудармашы көмекшісі", request.user.username),
+            "cta_external": True,
+        }
+    else:
+        upgrade_recommendation = None
+
+    context = {
+        "can_use_classroom_teacher_features": classroom_access_active,
+        "account_locked": account_locked,
+        "account_lock_until": account_lock_until,
+        "access_cards": access_cards,
+        "upgrade_recommendation": upgrade_recommendation,
+        "active_access_count": active_access_count,
+        "tracked_access_count": len(access_cards),
+        "course_access_active": course_access_active,
+        "voice_access_active": voice_access_active,
+        "translator_access_active": translator_access_active,
+        "classroom_access_active": classroom_access_active,
+        "classroom_live_access_active": classroom_live_access_active,
+        "highest_lesson_reached": highest_lesson_reached,
+        "passed_main_lessons": passed_main_lessons,
+        "progress_percentage": progress_percentage,
+        "current_lesson": current_lesson,
+        "profile_phone": user_profile.phone if user_profile else "",
+        "profile_role_label": dict(UserProfile.ROLE_CHOICES).get(
+            user_profile.role if user_profile else "student",
+            "Оқушы",
+        ),
+        "voice_access_expires": user_profile.voice_access_until if user_profile else None,
+        "translator_access_expires": user_profile.translator_access_until if user_profile else None,
+        "course_cta_url": reverse("lesson_list") if course_access_active else reverse("advertisement"),
+        "translator_cta_url": reverse("lesson_list") if translator_access_active else _build_upgrade_whatsapp_url("Аудармашы көмекшісі", request.user.username),
+        "voice_cta_url": reverse("lesson_detail", args=[voice_lesson_id]) if voice_access_active else _build_upgrade_whatsapp_url("AI дауыс сабағы", request.user.username),
+    }
+
     if request.method == 'POST':
         # Handle account deletion directly on profile page
         password = request.POST.get('password')
@@ -769,7 +1024,7 @@ def profile(request):
         # Verify all fields are filled
         if not password or not confirm:
             messages.error(request, 'Барлық өрістерді толтырыңыз!')
-            return render(request, 'lessons/profile.html')
+            return render(request, 'lessons/profile.html', context)
 
         # Authenticate user with current username and provided password
         user = authenticate(request, username=request.user.username, password=password)
@@ -783,13 +1038,13 @@ def profile(request):
                 return redirect('lesson_list')
             except Exception as e:
                 messages.error(request, f'Аккаунтты жою кезінде қате пайда болды: {str(e)}')
-                return render(request, 'lessons/profile.html')
+                return render(request, 'lessons/profile.html', context)
         else:
             # Wrong password
             messages.error(request, 'Құпиясөз қате!')
-            return render(request, 'lessons/profile.html')
+            return render(request, 'lessons/profile.html', context)
 
-    return render(request, 'lessons/profile.html')
+    return render(request, 'lessons/profile.html', context)
 
 
 def check_translator_access(request):

@@ -1,6 +1,10 @@
-from django.urls import re_path
-from . import consumers
+"""
+Historical websocket routing placeholder.
 
-websocket_urlpatterns = [
-    re_path(r"ws/voice-lesson/(?P<lesson_id>\w+)/$", consumers.VoiceLessonConsumer.as_asgi()),
-]
+Interactive realtime voice now uses backend-minted OpenAI session tokens and
+browser WebRTC clients, not Django websocket bridging. Keep this module only as
+an explicit marker that no interactive voice websocket routes should be exposed
+from here.
+"""
+
+websocket_urlpatterns = []

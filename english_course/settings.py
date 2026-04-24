@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-from dotenv import load_dotenv
-import dj_database_url
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 
 
@@ -22,7 +22,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # .env файлын нақты жолымен жүктеу
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv(BASE_DIR / ".env")
 
 # OpenAI API кілтін алу
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -33,11 +33,6 @@ if not OPENAI_API_KEY:
 
 print(f"✅ OpenAI API кілті сәтті жүктелді!")
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -46,7 +41,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv("DEBUG", "1") == "1"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
@@ -75,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'lessons',
+    'whatsapp_agent',
 ]
 
 MIDDLEWARE = [
@@ -122,26 +118,49 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+USE_MYSQL = os.getenv("USE_MYSQL", "0") == "1"
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'abdiraiymzhandos$aienglish',  # өз база атыңды жаз
-        'USER': 'abdiraiymzhandos',                 # өз юзер атың
-        'PASSWORD': 'My2612SQL',          # жаңа MySQL паролі
-        'HOST': 'abdiraiymzhandos.mysql.pythonanywhere-services.com',
-        'PORT': '3306',
+if USE_MYSQL:
+    mysql_database = os.getenv("MYSQL_DATABASE", "").strip()
+    mysql_user = os.getenv("MYSQL_USER", "").strip()
+    mysql_password = os.getenv("MYSQL_PASSWORD", "").strip()
+    mysql_host = os.getenv("MYSQL_HOST", "").strip()
+    mysql_port = os.getenv("MYSQL_PORT", "3306").strip()
+
+    missing_mysql_vars = [
+        name
+        for name, value in (
+            ("MYSQL_DATABASE", mysql_database),
+            ("MYSQL_USER", mysql_user),
+            ("MYSQL_PASSWORD", mysql_password),
+            ("MYSQL_HOST", mysql_host),
+            ("MYSQL_PORT", mysql_port),
+        )
+        if not value
+    ]
+    if missing_mysql_vars:
+        raise ValueError(
+            "USE_MYSQL=1 but missing required MySQL env vars: "
+            + ", ".join(missing_mysql_vars)
+        )
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": mysql_database,
+            "USER": mysql_user,
+            "PASSWORD": mysql_password,
+            "HOST": mysql_host,
+            "PORT": mysql_port,
+        }
     }
-}
-
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -190,16 +209,14 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Статикалық файлдар
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 STATIC_URL = "/static/"
 
 # collectstatic пәрмені арқылы жиналған файлдар сақталатын орын
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Дамыту кезеңінде (development) қолданылатын static файлдар папкасы
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    BASE_DIR / "static",
 ]
 
 
@@ -237,3 +254,16 @@ LOGGING = {
         },
     },
 }
+
+
+WHATSAPP_ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN", "")
+WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
+WHATSAPP_WABA_ID = os.getenv("WHATSAPP_WABA_ID", "")
+WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv("WHATSAPP_WEBHOOK_VERIFY_TOKEN", "")
+WHATSAPP_GRAPH_API_VERSION = os.getenv("WHATSAPP_GRAPH_API_VERSION", "v23.0")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+APP_BASE_URL = os.getenv("APP_BASE_URL", "https://www.oqyai.kz").rstrip("/")
+KASPI_RECEIVER_PHONE = os.getenv("KASPI_RECEIVER_PHONE", "+77472445338")
+KASPI_RECEIVER_NAME = os.getenv("KASPI_RECEIVER_NAME", "Әбдірайым Жақсылық Байсафарұлы")
+COURSE_PRICE_KZT = int(os.getenv("COURSE_PRICE_KZT", "25000"))

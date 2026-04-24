@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ group.name }} — {{ lesson.title }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/voice-lesson.css' %}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+  <style>
+    :root {
+        --primary: #4a6bff;
+        --secondary: #6c5ce7;
+        --accent: #00cec9;
+        --success: #00b894;
+        --warning: #fdcb6e;
+        --error: #d63031;
+        --dark: #0f0f1a;
+        --dark-alt: #0a0a12;
+        --light: #e0e0e0;
+        --gray: #1a1a2e;
+        --text: #e0e0e0;
+        --text-light: #a0a0a0;
+        --bg: linear-gradient(135deg, var(--dark) 0%, var(--dark-alt) 100%);
+        --card-bg: rgba(26, 26, 46, 0.95);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        --hover-bg: rgba(255, 255, 255, 0.05);
+        --active-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="light"] {
+        --primary: #4a6bff;
+        --secondary: #6c5ce7;
+        --accent: #00cec9;
+        --success: #00b894;
+        --warning: #fdcb6e;
+        --error: #d63031;
+        --dark: #f8f9fa;
+        --dark-alt: #e9ecef;
+        --light: #2d3436;
+        --gray: #f8f9fa;
+        --text: #2d3436;
+        --text-light: #636e72;
+        --bg: linear-gradient(135deg, #f0f2f5 0%, #e4e6e9 100%);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --border-color: rgba(0, 0, 0, 0.1);
+        --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        --hover-bg: rgba(0, 0, 0, 0.05);
+        --active-bg: rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+    }
+
+    .theme-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .theme-toggle i {
+        font-size: 1.5rem;
+        color: var(--text);
+        transition: all 0.3s ease;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        line-height: 1.8;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .lesson-title {
+        font-size: 2.8em;
+        color: var(--light);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 12px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        color: var(--text-light);
+        margin: 0 auto 1.75rem;
+        max-width: 900px;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .top-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .top-pill,
+    .system-pill,
+    .sample-pill,
+    .signal-pill,
+    .presence-pill,
+    .mode-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+        box-shadow: var(--shadow);
+        font-size: 0.92rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .top-pill.link-pill:hover {
+        color: var(--text);
+        transform: translateY(-1px);
+    }
+
+    .lesson-sections {
+      margin-bottom: 2rem;
+    }
+
+    .lesson-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 80px;
+    }
+
+    .lesson-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+
+    .lesson-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    .lesson-btn:hover::before {
+      opacity: 1;
+    }
+
+    .lesson-btn.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+    }
+
+    .lesson-btn.active .lesson-btn-title,
+    .lesson-btn.active .lesson-btn-arrow {
+      color: #6366f1;
+    }
+
+    .lesson-btn.active .lesson-btn-arrow {
+      transform: translateX(4px);
+    }
+
+    .lesson-btn-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      z-index: 1;
+      position: relative;
+    }
+
+    .lesson-btn-content {
+      flex: 1;
+      text-align: left;
+      z-index: 1;
+      position: relative;
+    }
+
+    .lesson-btn-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .lesson-btn-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      font-weight: 400;
+    }
+
+    .lesson-btn-arrow {
+      font-size: 1.2rem;
+      color: var(--text-light);
+      transition: all 0.3s ease;
+      z-index: 1;
+      position: relative;
+    }
+
+    .classroom-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        align-items: start;
+    }
+
+    .classroom-grid > main {
+        order: 2;
+    }
+
+    .lesson-content-sections {
+      margin-bottom: 2rem;
+    }
+
+    .lesson-section {
+      display: none;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    .lesson-section.active {
+      display: block;
+    }
+
+    .section-content,
+    .control-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .section-content {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      min-height: 0;
+    }
+
+    .section-content p {
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .section-content strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .vocabulary-row {
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        border-radius: 14px;
+        background: var(--hover-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-state {
+        color: var(--text-light);
+        font-style: italic;
+        margin: 0;
+    }
+
+    .sidebar-stack {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: minmax(0, 1.32fr) minmax(320px, 0.95fr);
+        grid-template-areas:
+            "voice voice"
+            "camera status"
+            "roster roster";
+        align-items: start;
+        order: 1;
+    }
+
+    .voice-stage-card {
+        grid-area: voice;
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 30%),
+            radial-gradient(circle at top right, rgba(0, 206, 201, 0.14), transparent 28%),
+            linear-gradient(145deg, rgba(18, 22, 36, 0.98), rgba(28, 37, 58, 0.94));
+    }
+
+    .voice-stage-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 26%);
+    }
+
+    .voice-stage-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .camera-stage-card {
+        grid-area: camera;
+    }
+
+    .live-stage-status {
+        grid-area: status;
+    }
+
+    .roster-stage-card {
+        grid-area: roster;
+    }
+
+    .control-card h2 {
+        margin: 0;
+        color: var(--light);
+        font-size: 1.2rem;
+    }
+
+    .control-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 1rem;
+    }
+
+    .control-subtitle {
+        color: var(--text-light);
+        font-size: 0.92rem;
+        margin-bottom: 1rem;
+    }
+
+    .live-status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .status-box {
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: var(--hover-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .status-box span {
+        display: block;
+        color: var(--text-light);
+        font-size: 0.82rem;
+        margin-bottom: 6px;
+    }
+
+    .status-box strong {
+        display: block;
+        color: var(--light);
+        font-size: 1rem;
+        line-height: 1.35;
+    }
+
+    .system-status-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .system-pill {
+        justify-content: flex-start;
+        background: var(--hover-bg);
+        box-shadow: none;
+        font-size: 0.84rem;
+    }
+
+    .system-pill.active,
+    .presence-pill.present,
+    .sample-pill.ready,
+    .signal-pill.active {
+        background: rgba(0, 184, 148, 0.14);
+        color: #58e6c1;
+        border-color: rgba(0, 184, 148, 0.25);
+    }
+
+    .system-pill.warn,
+    .sample-pill.missing,
+    .signal-pill.warn {
+        background: rgba(253, 203, 110, 0.14);
+        color: #ffd980;
+        border-color: rgba(253, 203, 110, 0.28);
+    }
+
+    .system-pill.error {
+        background: rgba(214, 48, 49, 0.14);
+        color: #ff8485;
+        border-color: rgba(214, 48, 49, 0.28);
+    }
+
+    .mode-pill {
+        min-height: 36px;
+        padding: 0 14px;
+        background: var(--hover-bg);
+        box-shadow: none;
+        font-size: 0.82rem;
+    }
+
+    .live-btn,
+    .roster-actions button {
+        border: 1px solid rgba(99, 102, 241, 0.35);
+        background: rgba(99, 102, 241, 0.12);
+        color: var(--light);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    .live-btn:hover,
+    .roster-actions button:hover {
+        transform: translateY(-1px);
+        background: rgba(99, 102, 241, 0.2);
+    }
+
+    .secondary-btn {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--border-color);
+    }
+
+    .camera-stage {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--border-color);
+        min-height: 360px;
+    }
+
+    .classroom-camera video,
+    .classroom-camera canvas {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: block;
+        object-fit: cover;
+    }
+
+    .classroom-camera canvas {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .camera-controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 1rem;
+    }
+
+    .camera-note {
+        color: var(--text-light);
+        font-size: 0.88rem;
+        margin-top: 0.85rem;
+    }
+
+    .voice-status-box {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .voice-status-box strong {
+        display: block;
+        color: var(--light);
+        margin-bottom: 4px;
+    }
+
+    .voice-status-box p {
+        margin: 0;
+        color: var(--text-light);
+    }
+
+    .roster-list {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .roster-item {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--hover-bg);
+        border: 1px solid var(--border-color);
+        transition: all 0.25s ease;
+    }
+
+    .roster-actions {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+    }
+
+    .roster-item.active {
+        border-color: rgba(0, 184, 148, 0.35);
+        box-shadow: 0 8px 20px rgba(0, 184, 148, 0.12);
+    }
+
+    .roster-item.warn {
+        border-color: rgba(253, 203, 110, 0.35);
+    }
+
+    .roster-item img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .roster-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+    }
+
+    .roster-title h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--light);
+    }
+
+    .roster-meta {
+        color: var(--text-light);
+        font-size: 0.88rem;
+        margin-bottom: 8px;
+    }
+
+    .roster-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .sample-pill,
+    .signal-pill,
+    .presence-pill {
+        min-height: 30px;
+        padding: 0 12px;
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: none;
+        font-size: 0.8rem;
+    }
+
+    #voice-lesson-container {
+        width: 100%;
+    }
+
+    .classroom-session-page .voice-lesson-card.premium {
+        background: linear-gradient(145deg, rgba(19,25,34,0.95), rgba(43,54,72,0.9)) !important;
+        border-radius: 20px !important;
+        padding: 20px !important;
+        color: #f5f7fb !important;
+        box-shadow: 0 18px 45px rgba(9, 14, 26, 0.35) !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column;
+        margin: 0 !important;
+    }
+
+    .classroom-session-page .voice-lesson-header,
+    .classroom-session-page .voice-controls {
+        background: transparent !important;
+    }
+
+    .classroom-session-page .voice-lesson-header {
+        gap: 20px !important;
+        align-items: flex-start !important;
+        margin-bottom: 4px;
+    }
+
+    .classroom-session-page .status-text,
+    .classroom-session-page .voice-title p,
+    .classroom-session-page .voice-footer,
+    .classroom-session-page .volume-meter.premium span {
+        color: #f5f7fb !important;
+        text-shadow: none !important;
+    }
+
+    .classroom-session-page .voice-title {
+        gap: 18px !important;
+    }
+
+    .classroom-session-page .voice-title h3 {
+        font-size: clamp(1.5rem, 2vw, 1.9rem) !important;
+        margin-bottom: 6px !important;
+    }
+
+    .classroom-session-page .voice-title p {
+        display: block !important;
+        color: rgba(245,247,251,0.65) !important;
+        font-size: 0.9rem !important;
+    }
+
+    .classroom-session-page .voice-icon {
+        padding: 14px 16px !important;
+        border-radius: 18px !important;
+        font-size: 1.55rem !important;
+        box-shadow: 0 12px 26px rgba(74, 107, 255, 0.28);
+    }
+
+    .classroom-session-page .voice-meta {
+        gap: 12px !important;
+    }
+
+    .classroom-session-page .lesson-timer {
+        font-size: 1.35rem !important;
+        padding: 10px 18px !important;
+        background: rgba(255,255,255,0.08) !important;
+        color: #f5f7fb !important;
+    }
+
+    .classroom-session-page .voice-lesson-content {
+        margin-top: 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        min-height: 0 !important;
+    }
+
+    .classroom-session-page .connection-status {
+        display: inline-flex !important;
+    }
+
+    .classroom-session-page .conversation-box {
+        flex: 0 0 auto !important;
+        min-height: clamp(380px, 48vh, 600px) !important;
+        height: clamp(380px, 48vh, 600px) !important;
+        max-height: clamp(380px, 48vh, 600px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+        padding: 14px 12px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        background: rgba(0,0,0,0.4) !important;
+        box-shadow: inset 0 2px 12px rgba(0,0,0,0.3) !important;
+        overflow-y: auto !important;
+        color: #f5f7fb !important;
+    }
+
+    .classroom-session-page .conversation-box.reader-placeholder-mode {
+        justify-content: flex-start !important;
+    }
+
+    .classroom-session-page .conversation-box::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .classroom-session-page .conversation-box::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 999px;
+    }
+
+    .classroom-session-page .conversation-box::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .classroom-session-page .message {
+        display: flex !important;
+        gap: 12px !important;
+        align-items: flex-start !important;
+        padding: 14px 16px !important;
+        border-radius: 16px !important;
+        background: rgba(255,255,255,0.06) !important;
+        max-width: 90% !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    .classroom-session-page .message:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    .classroom-session-page .message.ai-message {
+        align-self: flex-start !important;
+        background: linear-gradient(135deg, rgba(90,198,255,0.25), rgba(125,93,255,0.25)) !important;
+        border-left: 3px solid rgba(125,93,255,0.6) !important;
+    }
+
+    .classroom-session-page .message.user-message {
+        align-self: flex-end !important;
+        background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(200,220,255,0.12)) !important;
+        border-right: 3px solid rgba(90,198,255,0.5) !important;
+    }
+
+    .classroom-session-page .message.active {
+        border: 1px solid rgba(125,93,255,0.6) !important;
+        box-shadow: 0 0 16px rgba(125,93,255,0.4), 0 4px 12px rgba(0,0,0,0.2) !important;
+    }
+
+    .classroom-session-page .message-icon {
+        display: block !important;
+        font-size: 1.2rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .classroom-session-page .message-text {
+        display: block !important;
+        width: auto !important;
+        flex: 1 !important;
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+        white-space: pre-wrap !important;
+    }
+
+    .classroom-session-page .message.ai-message .message-text {
+        font-size: clamp(1.12rem, 1.45vw, 1.34rem) !important;
+        line-height: 1.68 !important;
+        font-weight: 400 !important;
+    }
+
+    .classroom-session-page .message.user-message .message-text {
+        font-size: 1rem !important;
+        line-height: 1.62 !important;
+        font-weight: 400 !important;
+    }
+
+    .classroom-session-page .message.reader-current,
+    .classroom-session-page .message.reader-history,
+    .classroom-session-page .message.reader-user-history {
+        display: flex !important;
+    }
+
+    .classroom-session-page .message.reader-current.reader-placeholder .message-text,
+    .classroom-session-page .message.ai-message[data-reader-placeholder="true"] .message-text {
+        font-size: 1.05rem !important;
+        line-height: 1.62 !important;
+        color: rgba(245,247,251,0.72) !important;
+    }
+
+    .classroom-session-page .message.reader-ready-hidden {
+        display: none !important;
+    }
+
+    .classroom-session-page .voice-controls {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding-top: 4px !important;
+    }
+
+    .classroom-session-page .visualizer-wrap {
+        display: none !important;
+    }
+
+    .classroom-session-page .lesson-controls {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        flex-wrap: wrap;
+        margin: 0 !important;
+    }
+
+    .classroom-session-page .btn-voice-primary,
+    .classroom-session-page .btn-voice-secondary {
+        align-items: center !important;
+        gap: 10px !important;
+        min-width: 170px !important;
+        min-height: 0 !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        border-radius: 999px !important;
+        flex: 0 0 auto !important;
+        justify-content: center !important;
+        padding: 12px 20px !important;
+        box-shadow: 0 10px 25px rgba(9, 14, 26, 0.25) !important;
+        border: none !important;
+    }
+
+    .classroom-session-page .btn-voice-primary {
+        background: linear-gradient(135deg, #5cc6ff, #7d5dff) !important;
+        color: #0d1221 !important;
+        box-shadow: 0 10px 25px rgba(80, 145, 255, 0.35) !important;
+    }
+
+    .classroom-session-page .btn-voice-secondary {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+        color: #ffffff !important;
+    }
+
+    .classroom-session-page .connection-info {
+        display: inline-flex !important;
+        align-items: center !important;
+        width: auto !important;
+        min-height: 44px !important;
+        padding: 0 14px !important;
+        border-radius: 999px !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        background: rgba(255,255,255,0.08) !important;
+        box-shadow: none !important;
+    }
+
+    .classroom-session-page .connection-info[data-state="recording"] {
+        background: rgba(40, 167, 69, 0.14) !important;
+        border-color: rgba(40, 167, 69, 0.24) !important;
+    }
+
+    .classroom-session-page .connection-info[data-state="ai_talking"] {
+        background: rgba(90, 198, 255, 0.14) !important;
+        border-color: rgba(90, 198, 255, 0.24) !important;
+    }
+
+    .classroom-session-page .connection-info[data-state="connecting"] {
+        background: rgba(255, 193, 7, 0.14) !important;
+        border-color: rgba(255, 193, 7, 0.24) !important;
+    }
+
+    .classroom-session-page .connection-info[data-state="stopped"] {
+        background: rgba(255,255,255,0.08) !important;
+        border-color: rgba(255,255,255,0.12) !important;
+    }
+
+    .classroom-session-page #audio-status-text {
+        font-size: 0.9rem !important;
+        color: rgba(245,247,251,0.92) !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.01em;
+    }
+
+    .classroom-session-page .voice-footer {
+        display: none !important;
+    }
+
+    .classroom-session-page .voice-status-box {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        clip-path: inset(50%) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
+
+    [data-theme="light"] .lesson-btn {
+        background: rgba(255, 255, 255, 0.6);
+        border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    [data-theme="light"] .lesson-btn::before {
+        background: linear-gradient(135deg, rgba(74, 107, 255, 0.05) 0%, rgba(108, 92, 231, 0.05) 100%);
+    }
+
+    [data-theme="light"] .lesson-btn.active {
+        background: linear-gradient(135deg, rgba(74, 107, 255, 0.1) 0%, rgba(108, 92, 231, 0.1) 100%);
+    }
+
+    [data-theme="light"] .section-content,
+    [data-theme="light"] .control-card,
+    [data-theme="light"] .top-pill,
+    [data-theme="light"] .system-pill,
+    [data-theme="light"] .sample-pill,
+    [data-theme="light"] .signal-pill,
+    [data-theme="light"] .presence-pill,
+    [data-theme="light"] .mode-pill {
+        background: var(--card-bg);
+    }
+
+    [data-theme="light"] .status-box,
+    [data-theme="light"] .vocabulary-row,
+    [data-theme="light"] .roster-item,
+    [data-theme="light"] .camera-stage,
+    [data-theme="light"] .classroom-session-page .conversation-box {
+        background: rgba(0, 0, 0, 0.03) !important;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1199px) {
+        .sidebar-stack {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "voice"
+                "camera"
+                "status"
+                "roster";
+        }
+    }
+
+    @media (max-width: 767px) {
+        .lesson-title {
+            font-size: 2.1rem;
+        }
+
+        .live-status-grid,
+        .system-status-grid,
+        .camera-controls {
+            grid-template-columns: 1fr;
+        }
+
+        .classroom-session-page .voice-controls {
+            align-items: stretch !important;
+        }
+
+        .roster-item {
+            grid-template-columns: auto minmax(0, 1fr);
+        }
+    }
+  </style>
+</head>
+<body class="container py-4 classroom-session-page">
+  <button class="theme-toggle" id="themeToggle">
+      <i class="fas fa-moon"></i>
+  </button>
+
+  <h1 class="lesson-title text-center">{{ lesson.title }}</h1>
+  <p class="page-subtitle">
+    {{ group.name }}{% if group.school_name %} · {{ group.school_name }}{% endif %}
+  </p>
+
+  <div class="top-strip">
+    <span class="top-pill">{{ session_summary.total_students }} оқушы</span>
+    <span class="top-pill">{{ session_summary.photo_ready_count }} фото</span>
+    <span class="top-pill">{{ session_summary.voice_ready_count }} дауыс</span>
+    <a href="{% url 'classroom_group_detail' group.id %}" class="top-pill link-pill">Сынып</a>
+    <a href="{% url 'classroom_dashboard' %}" class="top-pill link-pill">Панель</a>
+  </div>
+
+  <div class="classroom-grid">
+    <main>
+      <div class="lesson-sections mb-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <button class="lesson-btn active" data-section="vocabulary">
+              <div class="lesson-btn-icon">📖</div>
+              <div class="lesson-btn-content">
+                <div class="lesson-btn-title">Сөздік</div>
+                <div class="lesson-btn-subtitle">Жаңа сөздер</div>
+              </div>
+              <div class="lesson-btn-arrow">→</div>
+            </button>
+          </div>
+
+          <div class="col-md-6">
+            <button class="lesson-btn" data-section="content">
+              <div class="lesson-btn-icon">📘</div>
+              <div class="lesson-btn-content">
+                <div class="lesson-btn-title">Сабақ мазмұны</div>
+                <div class="lesson-btn-subtitle">Негізгі материал</div>
+              </div>
+              <div class="lesson-btn-arrow">→</div>
+            </button>
+          </div>
+
+          <div class="col-md-6">
+            <button class="lesson-btn" data-section="grammar">
+              <div class="lesson-btn-icon">📚</div>
+              <div class="lesson-btn-content">
+                <div class="lesson-btn-title">Грамматика</div>
+                <div class="lesson-btn-subtitle">Ереже</div>
+              </div>
+              <div class="lesson-btn-arrow">→</div>
+            </button>
+          </div>
+
+          <div class="col-md-6">
+            <button class="lesson-btn" data-section="dialogue">
+              <div class="lesson-btn-icon">💬</div>
+              <div class="lesson-btn-content">
+                <div class="lesson-btn-title">Диалог</div>
+                <div class="lesson-btn-subtitle">Сөйлесу</div>
+              </div>
+              <div class="lesson-btn-arrow">→</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-content-sections">
+        <div class="lesson-section active" id="vocabulary-section">
+          <div class="section-content">
+            {% for word in lesson.vocabulary.splitlines %}
+              {% if word %}
+                <div class="vocabulary-row"><strong>{{ word }}</strong></div>
+              {% endif %}
+            {% empty %}
+              <p class="empty-state">Материал жоқ.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="lesson-section" id="content-section">
+          <div class="section-content" id="lesson-content">
+            {% if lesson.content %}
+              {{ lesson.content|linebreaksbr }}
+            {% else %}
+              <p class="empty-state">Материал жоқ.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="lesson-section" id="grammar-section">
+          <div class="section-content" id="lesson-grammar">
+            {% if lesson.grammar %}
+              {{ lesson.grammar|linebreaksbr }}
+            {% else %}
+              <p class="empty-state">Материал жоқ.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="lesson-section" id="dialogue-section">
+          <div class="section-content" id="lesson-dialogue">
+            {% if lesson.dialogue %}
+              {{ lesson.dialogue|linebreaksbr }}
+            {% else %}
+              <p class="empty-state">Материал жоқ.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="sidebar-stack">
+      <section class="control-card live-stage-status">
+        <div class="control-head">
+          <h2>Сабақ барысы</h2>
+          <span class="mode-pill" id="classroom-recognition-mode">Тану: дайындық</span>
+        </div>
+        <div class="live-status-grid">
+          <div class="status-box">
+            <span>Күй</span>
+            <strong id="classroom-status">Бастауға дайын</strong>
+          </div>
+          <div class="status-box">
+            <span>Сөйлеп тұрған</span>
+            <strong id="classroom-current-speaker">Әзірге жоқ</strong>
+          </div>
+        </div>
+        <div class="system-status-grid">
+          <div class="system-pill" id="classroom-system-ai">AI: өшірулі</div>
+          <div class="system-pill" id="classroom-system-camera">Камера: өшірулі</div>
+          <div class="system-pill" id="classroom-system-detection">Тану: күту</div>
+          <div class="system-pill" id="classroom-system-voice">Дауыс: күту</div>
+        </div>
+      </section>
+
+      <section class="control-card voice-stage-card">
+        <div class="control-head">
+          <h2>AI мұғалім</h2>
+          <button id="classroom-roll-call" class="live-btn secondary-btn" type="button">Атын сұрау</button>
+        </div>
+        <div id="voice-lesson-container"></div>
+        <div class="voice-status-box">
+          <strong>Дауыс</strong>
+          <p id="classroom-voice-status">Күту</p>
+        </div>
+      </section>
+
+      <section class="control-card camera-stage-card">
+        <div class="control-head">
+          <h2>Камера</h2>
+        </div>
+        <div class="classroom-camera">
+          <div class="camera-stage">
+            <video id="classroom-camera" playsinline muted></video>
+            <canvas id="classroom-overlay"></canvas>
+          </div>
+        </div>
+        <div class="camera-controls">
+          <button id="classroom-start-camera" class="live-btn" type="button">Камераны қосу</button>
+          <button id="classroom-stop-camera" class="live-btn secondary-btn" type="button">Камераны тоқтату</button>
+          <button id="classroom-start-detection" class="live-btn" type="button">Тануды қосу</button>
+          <button id="classroom-stop-detection" class="live-btn secondary-btn" type="button">Тануды тоқтату</button>
+        </div>
+        <div class="camera-note">Камераны оқушыларға қаратыңыз.</div>
+      </section>
+
+      <section class="control-card roster-stage-card">
+        <div class="control-head">
+          <h2>Оқушылар</h2>
+          <span class="mode-pill">{{ session_summary.demo_ready_count }} дайын</span>
+        </div>
+        <div class="roster-list">
+          {% for student in roster %}
+            <article class="roster-item" data-roster-card="{{ student.id }}">
+              {% if student.photo_url %}
+                <img src="{{ student.photo_url }}" alt="{{ student.name }}">
+              {% else %}
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="{{ student.name }}">
+              {% endif %}
+              <div class="roster-main">
+                <div class="roster-title">
+                  <h3>{{ student.name }}</h3>
+                  <span class="presence-pill" data-presence-id="{{ student.id }}">Күтілуде</span>
+                </div>
+                <div class="roster-meta">
+                  Фото: {{ student.photo_count }} · Дауыс: <span data-voice-count="{{ student.id }}">{{ student.voice_count }}</span>
+                </div>
+                <div class="roster-badges">
+                  <span class="sample-pill {% if student.photo_count %}ready{% else %}missing{% endif %}">
+                    {% if student.photo_count %}Фото дайын{% else %}Фото керек{% endif %}
+                  </span>
+                  <span class="sample-pill {% if student.voice_count %}ready{% else %}missing{% endif %}">
+                    {% if student.voice_count %}Дауыс дайын{% else %}Дауыс керек{% endif %}
+                  </span>
+                  <span class="signal-pill" data-live-status="{{ student.id }}">Күту</span>
+                </div>
+              </div>
+              <div class="roster-actions">
+                <button type="button" data-hand-raise data-student-name="{{ student.name }}">Шақыру</button>
+              </div>
+            </article>
+          {% empty %}
+            <p class="empty-state">Оқушы жоқ.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  {{ roster|json_script:"classroomRoster" }}
+
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/ort.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meyda@5.6.2/dist/web/meyda.min.js" crossorigin="anonymous"></script>
+  <script>
+    window.CLASSROOM_FACE_MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@v0.22.2/weights';
+    window.CLASSROOM_HANDS_ASSET_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands';
+    window.CLASSROOM_USE_ARCFACE = true;
+    window.CLASSROOM_ARCFACE_MODEL_URL = 'https://huggingface.co/onnx-community/arcface-onnx/resolve/main/arcface.onnx';
+    window.CLASSROOM_ARCFACE_MODEL_TIMEOUT_MS = 6000;
+    window.CLASSROOM_ARCFACE_FACES_PER_CYCLE = 4;
+    window.CLASSROOM_ORT_WASM_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.1/dist/';
+    window.CLASSROOM_FACE_DETECTOR_ASSET_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection';
+    window.CLASSROOM_FACE_DETECTOR_MODEL = 'full';
+    window.CLASSROOM_FACE_DETECTOR_MIN_CONF = 0.46;
+    window.CLASSROOM_ARCFACE_THRESHOLD = 0.43;
+    window.CLASSROOM_ARCFACE_COLOR_ORDER = 'rgb';
+    window.CLASSROOM_MIN_FACE_SIZE = 38;
+    window.CLASSROOM_MAX_FACES = 8;
+    window.CLASSROOM_MAX_REFERENCE_PHOTOS = 4;
+    window.CLASSROOM_DETECTION_INTERVAL_MS = 320;
+    window.CLASSROOM_ARCFACE_INTERVAL_MS = 520;
+    window.CLASSROOM_FACE_MATCH_THRESHOLD = 0.56;
+    window.CLASSROOM_VOICE_EMBEDDING_SIZE = 13;
+    window.CLASSROOM_VOICE_MATCH_THRESHOLD = 0.72;
+    window.CLASSROOM_VOICE_DISPLAY_THRESHOLD = 0.62;
+    window.CLASSROOM_VOICE_MIN_RMS = 0.002;
+    window.CLASSROOM_VOICE_ENROLL_SECONDS = 3;
+    window.CLASSROOM_VOICE_COOLDOWN_MS = 9000;
+    window.CLASSROOM_VOICE_FRESH_WINDOW_MS = 16000;
+    window.CLASSROOM_VOICE_MIN_FRAMES = 18;
+    window.CLASSROOM_ATTENDANCE_WINDOW_MS = 120000;
+    window.CLASSROOM_ATTENDANCE_INTERVAL_MS = 30000;
+    window.CLASSROOM_FUSION_THRESHOLD = 0.58;
+    window.CLASSROOM_FUSION_FACE_WEIGHT = 0.55;
+    window.CLASSROOM_FUSION_VOICE_WEIGHT = 0.25;
+    window.CLASSROOM_FUSION_HAND_WEIGHT = 0.20;
+    window.CLASSROOM_HAND_RAISE_MARGIN = 0.18;
+  </script>
+  <script src="{% static 'js/voice-lesson.js' %}"></script>
+  <script src="{% static 'js/classroom-lesson.js' %}"></script>
+  <script>
+    function highlightEnglishText(element) {
+      if (!element) return;
+      const regex = /(\b[a-zA-Z']+\b)(?![^<>]*>)/g;
+      element.innerHTML = element.innerHTML.replace(regex, '<strong>$1</strong>');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = themeToggle.querySelector('i');
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+
+      themeToggle.addEventListener('click', function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+      });
+
+      function updateThemeIcon(theme) {
+        themeIcon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+      }
+
+      highlightEnglishText(document.getElementById('lesson-content'));
+      highlightEnglishText(document.getElementById('lesson-grammar'));
+      highlightEnglishText(document.getElementById('lesson-dialogue'));
+
+      const lessonButtons = document.querySelectorAll('.lesson-btn');
+      const lessonSections = document.querySelectorAll('.lesson-section');
+
+      lessonButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const targetSection = this.dataset.section;
+          lessonButtons.forEach(btn => btn.classList.remove('active'));
+          lessonSections.forEach(section => section.classList.remove('active'));
+          this.classList.add('active');
+          const targetSectionElement = document.getElementById(targetSection + '-section');
+          if (targetSectionElement) {
+            targetSectionElement.classList.add('active');
+          }
+        });
+      });
+
+      const roster = JSON.parse(document.getElementById('classroomRoster').textContent || '[]');
+      window.classroomLessonManager = new ClassroomLessonManager({
+        lessonId: {{ lesson.id }},
+        groupId: {{ group.id }},
+        roster: roster
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}{{ group.name }} - OQYAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  body {
+    background:
+      radial-gradient(circle at top right, rgba(37, 99, 235, 0.11), transparent 28%),
+      linear-gradient(180deg, #eef4fb 0%, #f8fbff 58%, #eef3f8 100%);
+    color: #102033;
+  }
+
+  .register-container {
+    align-items: flex-start;
+    padding: 32px 24px 48px;
+  }
+
+  .register-container::before {
+    background:
+      radial-gradient(circle at 12% 10%, rgba(14, 165, 233, 0.1), transparent 24%),
+      radial-gradient(circle at 88% 0%, rgba(37, 99, 235, 0.12), transparent 26%);
+  }
+
+  .register-card.group-page {
+    max-width: 1160px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    padding: 34px;
+  }
+
+  .brand {
+    text-align: left;
+    margin-bottom: 16px;
+  }
+
+  .logo {
+    background: linear-gradient(135deg, #0f172a, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .tagline {
+    color: #4b5563;
+  }
+
+  .group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+
+  .group-header h1 {
+    margin: 0 0 10px;
+    text-align: left;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    color: #0f172a;
+  }
+
+  .group-header p {
+    margin: 0 0 10px;
+    color: #475569;
+    max-width: 640px;
+  }
+
+  .page-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .toolbar-btn.primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .toolbar-btn.secondary {
+    background: #0f766e;
+    color: #ffffff;
+  }
+
+  .toolbar-btn.neutral {
+    background: #ffffff;
+    color: #334155;
+    border-color: rgba(148, 163, 184, 0.5);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .summary-card {
+    background: #ffffff;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  }
+
+  .summary-card strong {
+    display: block;
+    font-size: 1.5rem;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .summary-card span {
+    display: block;
+    color: #64748b;
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+  }
+
+  .summary-card p {
+    color: #475569;
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  .hint-panel {
+    background: linear-gradient(180deg, #eff6ff, #f8fbff);
+    border: 1px solid rgba(191, 219, 254, 0.95);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 22px;
+  }
+
+  .hint-panel strong {
+    display: block;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+
+  .hint-panel p,
+  .hint-panel ul {
+    margin: 0;
+    color: #475569;
+    font-size: 0.94rem;
+  }
+
+  .hint-panel ul {
+    padding-left: 18px;
+    margin-top: 10px;
+  }
+
+  .student-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .student-card {
+    background: #ffffff;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 20px;
+    padding: 18px;
+    display: grid;
+    gap: 16px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  }
+
+  .student-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .student-header h2 {
+    margin: 0 0 6px;
+    font-size: 1.18rem;
+    color: #0f172a;
+  }
+
+  .student-meta {
+    color: #475569;
+    font-size: 0.94rem;
+  }
+
+  .status-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .status-pill {
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .status-pill.ready {
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+  }
+
+  .status-pill.missing {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+  }
+
+  .student-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .student-actions a,
+  .student-actions button {
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .student-actions .photo-btn {
+    background: #ecfdf5;
+    color: #047857;
+  }
+
+  .student-actions .voice-btn {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .student-actions .delete-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .empty-state {
+    border-radius: 24px;
+    border: 1px dashed rgba(148, 163, 184, 0.8);
+    padding: 42px 24px;
+    text-align: center;
+    color: #475569;
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  .empty-state strong {
+    display: block;
+    color: #0f172a;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+  }
+
+  .modal-shell {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.56);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 18px;
+  }
+
+  .modal-card {
+    width: min(560px, 100%);
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    padding: 24px;
+    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .modal-header h3 {
+    margin: 0 0 6px;
+    color: #0f172a;
+  }
+
+  .status-text {
+    color: #64748b;
+    font-size: 0.92rem;
+  }
+
+  .modal-hint {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #f8fbff;
+    border: 1px solid rgba(219, 234, 254, 0.9);
+    color: #475569;
+    font-size: 0.92rem;
+  }
+
+  .recording-panel {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    background: #f8fafc;
+  }
+
+  .timer {
+    margin-top: 8px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .progress-bar {
+    margin-top: 10px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.24);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #2563eb, #10b981);
+  }
+
+  .modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .modal-actions button {
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .modal-actions .start {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .modal-actions .stop {
+    background: #e2e8f0;
+    color: #334155;
+  }
+
+  .modal-actions .retry {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  .modal-actions .save {
+    background: #dcfce7;
+    color: #047857;
+  }
+
+  .close-btn {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #ffffff;
+    color: #334155;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .register-container {
+      padding: 18px 14px 28px;
+    }
+
+    .register-card.group-page {
+      padding: 22px 18px;
+    }
+
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-actions,
+    .student-actions,
+    .modal-actions {
+      width: 100%;
+    }
+
+    .toolbar-btn,
+    .student-actions a,
+    .student-actions button,
+    .modal-actions button {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card group-page">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">{{ group.name }}</div>
+    </div>
+
+    <div class="group-header">
+      <div>
+        <h1>{{ group.name }} сыныбы</h1>
+        <p>{% if group.school_name %}{{ group.school_name }}. {% endif %}Оқушыларды, фото үлгілерін және дауыс үлгілерін бір жерден дайындаңыз.</p>
+        <p id="voice-enroll-status">Дауыс үлгісін жазғанда оқушы аты-жөнін, сыныбын және бір қысқа ағылшын сөйлемін айтуы жақсы нәтиже береді.</p>
+      </div>
+      <div class="page-actions">
+        <a class="toolbar-btn primary" href="{% url 'classroom_student_create' group.id %}">+ Оқушы қосу</a>
+        <a class="toolbar-btn secondary" href="{% url 'classroom_session_select' %}?group_id={{ group.id }}">Сабақ бастау</a>
+        <a class="toolbar-btn neutral" href="{% url 'classroom_group_edit' group.id %}">Мектеп атауын өзгерту</a>
+        <a class="toolbar-btn neutral" href="{% url 'classroom_dashboard' %}">Сыныптар</a>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <span>Оқушы</span>
+        <strong>{{ group_summary.student_count }}</strong>
+        <p>Осы сыныпқа тіркелген оқушылар саны.</p>
+      </div>
+      <div class="summary-card">
+        <span>Фото дайын</span>
+        <strong>{{ group_summary.photo_ready_count }}</strong>
+        <p>Бет тануға жарамды фото үлгілері бар оқушылар.</p>
+      </div>
+      <div class="summary-card">
+        <span>Дауыс дайын</span>
+        <strong>{{ group_summary.voice_ready_count }}</strong>
+        <p>Сөйлеуші тануға кемінде бір үлгісі бар оқушылар.</p>
+      </div>
+      <div class="summary-card">
+        <span>Демоға толық дайын</span>
+        <strong>{{ group_summary.demo_ready_count }}</strong>
+        <p>Фото мен дауыс үлгісі қатар дайын оқушылар.</p>
+      </div>
+    </div>
+
+    <div class="hint-panel">
+      <strong>Демоға дейінгі ең тиімді дайындық</strong>
+      <p>Әр оқушыға 3-5 фото және 1-3 таза дауыс үлгісі жеткілікті. Дауыс жазғанда оқушы микрофонға анық қарап, 8-10 секунд ішінде жай және анық сөйлесін.</p>
+      <ul>
+        <li>Фотода жарық жеткілікті болсын.</li>
+        <li>Дауыс үлгісінде артық шу аз болсын.</li>
+        <li>Бүгін көрсететін оқушыларға алдымен үлгі жинап алыңыз.</li>
+      </ul>
+    </div>
+
+    {% if student_cards %}
+      <div class="student-grid">
+        {% for card in student_cards %}
+          <article class="student-card">
+            <div class="student-header">
+              <div>
+                <h2>{{ card.student.full_name }}</h2>
+                <div class="student-meta">
+                  Фото: {{ card.photo_count }} · Дауыс: <span data-voice-count="{{ card.student.id }}">{{ card.voice_count }}</span>
+                  {% if card.student.notes %} · {{ card.student.notes }}{% endif %}
+                </div>
+                <div class="status-pills">
+                  <span class="status-pill {% if card.has_photo %}ready{% else %}missing{% endif %}">
+                    {% if card.has_photo %}Фото дайын{% else %}Фото керек{% endif %}
+                  </span>
+                  <span class="status-pill {% if card.has_voice %}ready{% else %}missing{% endif %}">
+                    {% if card.has_voice %}<span data-voice-badge="{{ card.student.id }}">Дауыс дайын</span>{% else %}<span data-voice-badge="{{ card.student.id }}">Дауыс керек</span>{% endif %}
+                  </span>
+                </div>
+              </div>
+              <div class="student-actions">
+                <a class="photo-btn" href="{% url 'classroom_student_add_photo' card.student.id %}">Фото қосу</a>
+                <button type="button" class="voice-btn" data-voice-enroll data-student-id="{{ card.student.id }}" data-student-name="{{ card.student.full_name }}">Дауыс үлгісі</button>
+                <form method="post" action="{% url 'classroom_student_delete' card.student.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="delete-btn">Өшіру</button>
+                </form>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <strong>Оқушылар әлі қосылмаған.</strong>
+        Алдымен оқушы енгізіп, кейін фото мен дауыс үлгілерін дайындаңыз. Сонда live session кезінде бет пен дауыс тану бірден жұмыс істейді.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="voice-enroll-modal" class="modal-shell">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <h3 id="voice-enroll-modal-title">Дауыс үлгісі</h3>
+        <div id="voice-enroll-modal-subtitle" class="status-text"></div>
+      </div>
+      <button id="voice-enroll-close" class="close-btn" type="button">Жабу</button>
+    </div>
+
+    <div class="modal-hint">
+      Оқушыға былай айту ыңғайлы: <strong>«Менің атым ... . I am ready for English.»</strong>
+      Үлгі толып қалса, жаңа жазба ең ескі үлгінің орнына сақталады.
+    </div>
+
+    <div class="recording-panel">
+      <div id="voice-enroll-modal-status" class="status-text">Жазуды бастау үшін батырманы басыңыз.</div>
+      <div id="voice-enroll-timer" class="timer">00:00 / 00:10</div>
+      <div class="progress-bar">
+        <div id="voice-enroll-progress" class="progress-fill"></div>
+      </div>
+      <audio id="voice-enroll-preview" controls style="width: 100%; margin-top: 14px; display: none;"></audio>
+    </div>
+
+    <div class="modal-actions">
+      <button id="voice-enroll-start" class="start" type="button">Жазуды бастау</button>
+      <button id="voice-enroll-stop" class="stop" type="button">Тоқтату</button>
+      <button id="voice-enroll-rerecord" class="retry" type="button">Қайта жазу</button>
+      <button id="voice-enroll-send" class="save" type="button">Сақтау</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  <script src="https://cdn.jsdelivr.net/npm/meyda@5.6.2/dist/web/meyda.min.js" crossorigin="anonymous"></script>
+  <script src="{% static 'js/classroom-voice-enroll.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      window.classroomVoiceEnrollment = new window.ClassroomVoiceEnrollment({
+        recordSeconds: 10,
+        minRms: 0.001,
+        embeddingSize: 13,
+        maxSamples: 5,
+        minFrames: 20,
+        bufferSize: 512,
+        statusEl: document.getElementById('voice-enroll-status')
+      });
+    });
+  </script>
+{% endblock %}

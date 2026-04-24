@@ -1,5 +1,15 @@
 # 🎙️ AI Voice Lesson Feature
 
+> STALE / HISTORICAL NOTE
+>
+> This document still contains older websocket/channels guidance.
+> The active interactive voice lesson architecture in the current codebase is:
+> 1. Backend OpenAI realtime session minting in `lessons/views.py::mint_realtime_token`
+> 2. Browser WebRTC session setup in `static/js/voice-lesson.js`
+>
+> The old Django websocket consumer path is historical reference code and is no
+> longer routed by the current ASGI configuration.
+
 ## Overview
 This feature integrates OpenAI's GPT-4 Realtime API to provide a natural conversation system where Kazakh students can practice English with an AI teacher.
 

@@ -1,0 +1,412 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Сабақ бастау - OQYAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(14, 165, 233, 0.11), transparent 28%),
+      linear-gradient(180deg, #eef4fb 0%, #f8fbff 58%, #eef3f8 100%);
+    color: #102033;
+  }
+
+  .register-container {
+    align-items: flex-start;
+    padding: 32px 24px 48px;
+  }
+
+  .register-container::before {
+    background:
+      radial-gradient(circle at 85% 0%, rgba(37, 99, 235, 0.14), transparent 25%),
+      radial-gradient(circle at 10% 18%, rgba(15, 118, 110, 0.1), transparent 22%);
+  }
+
+  .register-card.session-select-page {
+    max-width: 1120px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(148, 163, 184, 0.26);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    padding: 34px;
+  }
+
+  .brand {
+    text-align: left;
+    margin-bottom: 16px;
+  }
+
+  .logo {
+    background: linear-gradient(135deg, #0f172a, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .tagline {
+    color: #4b5563;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .page-header h1 {
+    margin: 0 0 10px;
+    text-align: left;
+    font-size: clamp(2rem, 4vw, 2.45rem);
+    color: #0f172a;
+  }
+
+  .page-header p {
+    margin: 0;
+    color: #475569;
+    font-size: 1rem;
+    max-width: 620px;
+  }
+
+  .header-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: #ffffff;
+    color: #334155;
+  }
+
+  .page-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.9fr);
+    gap: 18px;
+  }
+
+  .surface {
+    background: #ffffff;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .surface h2 {
+    margin: 0 0 8px;
+    font-size: 1.35rem;
+    color: #0f172a;
+  }
+
+  .surface p {
+    margin: 0;
+    color: #475569;
+  }
+
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px 0 22px;
+  }
+
+  .summary-tile {
+    border-radius: 18px;
+    background: #f8fbff;
+    border: 1px solid rgba(219, 234, 254, 0.9);
+    padding: 16px;
+  }
+
+  .summary-tile strong {
+    display: block;
+    font-size: 1.4rem;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .summary-tile span {
+    color: #64748b;
+    font-size: 0.88rem;
+  }
+
+  .register-form {
+    margin: 0;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  label {
+    color: #334155;
+    font-weight: 700;
+  }
+
+  .form-input {
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+  }
+
+  .form-input:focus {
+    background: #ffffff;
+  }
+
+  .form-help {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 0.92rem;
+  }
+
+  .primary-action {
+    width: 100%;
+    min-height: 54px;
+    border-radius: 16px;
+    border: none;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
+  }
+
+  .info-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .info-item {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+
+  .info-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+  }
+
+  .info-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #0f172a;
+  }
+
+  .class-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .class-item {
+    border-radius: 18px;
+    background: #f8fbff;
+    border: 1px solid rgba(219, 234, 254, 0.9);
+    padding: 16px;
+  }
+
+  .class-item.selected {
+    border-color: rgba(37, 99, 235, 0.55);
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.22);
+  }
+
+  .class-item strong {
+    display: block;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .class-item p {
+    font-size: 0.92rem;
+  }
+
+  .class-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .meta-pill {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+  }
+
+  .links {
+    margin-top: 18px;
+    text-align: left;
+  }
+
+  .links a {
+    display: inline-flex;
+    margin: 0;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  @media (max-width: 920px) {
+    .page-layout,
+    .summary-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .register-container {
+      padding: 18px 14px 28px;
+    }
+
+    .register-card.session-select-page {
+      padding: 22px 18px;
+    }
+
+    .header-links,
+    .back-link {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card session-select-page">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">Classroom</div>
+    </div>
+
+    <div class="page-header">
+      <div>
+        <h1>Сабақ сессиясын ашу</h1>
+        <p>Сыныпты және бүгін өтетін сабақты таңдаңыз. Төмендегі бет бірден мұғалімге арналған тірі сессияны ашады.</p>
+      </div>
+      <div class="header-links">
+        <a class="back-link" href="{% url 'classroom_dashboard' %}">Сыныптарға қайту</a>
+      </div>
+    </div>
+
+    <div class="page-layout">
+      <section class="surface">
+        <h2>Бастау параметрлері</h2>
+        <p>Дұрыс сыныпты таңдаңыз. Егер дауыс үлгілері мен фото дайын болса, келесі бетте бірден демонстрацияны бастауға болады.</p>
+
+        <div class="summary-row">
+          <div class="summary-tile">
+            <strong>{{ groups_count }}</strong>
+            <span>Қолжетімді сынып</span>
+          </div>
+          <div class="summary-tile">
+            <strong>{{ lessons_count }}</strong>
+            <span>Сабақ нөмірі</span>
+          </div>
+          <div class="summary-tile">
+            <strong>3</strong>
+            <span>Қадам: AI, камера, тану</span>
+          </div>
+        </div>
+
+        <form method="post" class="register-form" novalidate>
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="{{ form.group.id_for_label }}">{{ form.group.label }}</label>
+            {{ form.group }}
+            <div class="form-help">Мектеп пен сынып бір жолда көрсетіледі.</div>
+            {% if form.group.errors %}
+              <div class="error">{{ form.group.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.lesson.id_for_label }}">{{ form.lesson.label }}</label>
+            {{ form.lesson }}
+            <div class="form-help">Сабақ нөмірі мен атауын қарап таңдаңыз.</div>
+            {% if form.lesson.errors %}
+              <div class="error">{{ form.lesson.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="primary-action">Тікелей сессияны ашу</button>
+        </form>
+
+        <div class="links">
+          <a href="{% url 'classroom_dashboard' %}">Сыныптар панеліне оралу</a>
+        </div>
+      </section>
+
+      <aside class="surface">
+        <h2>Мұғалімге жылдам нұсқаулық</h2>
+        <p>Демо кезінде осы ретті ұстансаңыз, мұғалім интерфейсі анық көрінеді және артық шатасу болмайды.</p>
+
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-number">1</span>
+            <div>
+              <strong>Алдымен AI дауыс сессиясын қосыңыз</strong>
+              Сонда микрофон бірден рұқсат сұрайды және тірі сабақ арнасы ашылады.
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-number">2</span>
+            <div>
+              <strong>Камераны қосыңыз</strong>
+              Камера ашылғаннан кейін ғана бет пен қол тану батырмасын басыңыз.
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-number">3</span>
+            <div>
+              <strong>Дауыс/фото дайын сыныпты таңдаңыз</strong>
+              Фото мен дауыс толық болса, бет пен сөйлеуші тану демонстрациясы бірден түсінікті болады.
+            </div>
+          </div>
+        </div>
+
+        <div class="class-list">
+          {% for card in group_cards %}
+            <div class="class-item {% if selected_group_id and selected_group_id == card.group.id %}selected{% endif %}">
+              <strong>{{ card.group.name }} · {{ card.group.school_name|default:"Мектеп атауы жоқ" }}</strong>
+              <p>Сыныптағы оқушылар саны: {{ card.student_count }}. Демоға дайын оқушылар: {{ card.demo_ready_count }}.</p>
+              <div class="class-meta">
+                <span class="meta-pill">Фото {{ card.photo_ready_count }}</span>
+                <span class="meta-pill">Дауыс {{ card.voice_ready_count }}</span>
+              </div>
+            </div>
+          {% empty %}
+            <div class="class-item">
+              <strong>Сынып табылмады</strong>
+              <p>Алдымен сынып құрып, оқушыларды енгізіңіз.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

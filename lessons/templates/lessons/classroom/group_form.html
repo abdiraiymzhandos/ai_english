@@ -1,0 +1,53 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Сынып қосу - OQYAI{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">Classroom</div>
+    </div>
+
+    <h1>{% if is_edit %}Мектеп атауын өзгерту{% else %}Сынып қосу{% endif %}</h1>
+    <p class="subtitle">
+      {% if is_edit %}
+        Сынып атауын өзгертпей, мектепті толтырыңыз
+      {% else %}
+        Мысалы: 7A, 10Б
+      {% endif %}
+    </p>
+
+    <form method="post" class="register-form" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{ form.school_name.id_for_label }}">{{ form.school_name.label }}</label>
+        {{ form.school_name }}
+        {% if form.school_name.errors %}
+          <div class="error">{{ form.school_name.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        {{ form.name }}
+        {% if form.name.errors %}
+          <div class="error">{{ form.name.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn-primary">Сақтау</button>
+    </form>
+
+    <div class="links">
+      {% if is_edit %}
+        <a href="{% url 'classroom_group_detail' group.id %}">Артқа қайту</a>
+      {% else %}
+        <a href="{% url 'classroom_dashboard' %}">Артқа қайту</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

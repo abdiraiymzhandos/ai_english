@@ -2,125 +2,639 @@
 
 {% block title %}Профиль - OQYAI{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+  .register-card.profile-dashboard {
+    max-width: 980px;
+    padding: 28px;
+    background:
+      radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 26%),
+      rgba(255, 255, 255, 0.03);
+  }
+
+  .profile-stack {
+    display: grid;
+    gap: 14px;
+  }
+
+  .compact-alert,
+  .section-card,
+  .access-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+  }
+
+  .compact-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    color: #fef3c7;
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.16);
+    font-size: 13px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 6px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .page-subtitle {
+    color: #9ca3af;
+    font-size: 13px;
+  }
+
+  .summary-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .summary-chip {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    color: #d1d5db;
+    white-space: nowrap;
+  }
+
+  .summary-chip strong {
+    color: #fff;
+    margin-right: 4px;
+  }
+
+  .section-card {
+    padding: 16px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .section-head h2 {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .section-note {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+
+  .access-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .access-card {
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .access-card.featured {
+    border-color: rgba(236, 72, 153, 0.28);
+    background:
+      radial-gradient(circle at top right, rgba(236, 72, 153, 0.1), transparent 30%),
+      rgba(255, 255, 255, 0.05);
+  }
+
+  .access-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .access-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .access-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    color: #c4b5fd;
+    flex-shrink: 0;
+  }
+
+  .access-label h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 3px;
+  }
+
+  .access-line {
+    color: #9ca3af;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .status-badge.active {
+    background: rgba(34, 197, 94, 0.14);
+    color: #86efac;
+  }
+
+  .status-badge.inactive {
+    background: rgba(148, 163, 184, 0.14);
+    color: #cbd5e1;
+  }
+
+  .status-badge.expired {
+    background: rgba(248, 113, 113, 0.16);
+    color: #fca5a5;
+  }
+
+  .access-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .expiry {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+
+  .mini-btn,
+  .quick-link,
+  .danger-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 11px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    cursor: pointer;
+  }
+
+  .mini-btn:hover,
+  .quick-link:hover,
+  .danger-toggle:hover {
+    transform: translateY(-1px);
+  }
+
+  .mini-btn.primary,
+  .quick-link.primary {
+    background: #6366f1;
+    color: #fff;
+  }
+
+  .mini-btn.secondary,
+  .quick-link.secondary,
+  .danger-toggle {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .mini-btn.featured {
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #fff;
+  }
+
+  .mini-note {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .mini-note strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .mini-note span {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+
+  .lower-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 12px;
+  }
+
+  .progress-row {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .progress-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: #d1d5db;
+  }
+
+  .progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6366f1, #22d3ee);
+  }
+
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .account-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .account-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 12px;
+  }
+
+  .account-row span {
+    color: #9ca3af;
+  }
+
+  .account-row strong {
+    color: #fff;
+    font-size: 13px;
+    text-align: right;
+  }
+
+  .danger-card {
+    padding: 14px 16px;
+    background: rgba(220, 38, 38, 0.07);
+    border-color: rgba(248, 113, 113, 0.18);
+  }
+
+  .danger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .danger-row strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .danger-row span {
+    color: #fca5a5;
+    font-size: 12px;
+  }
+
+  #delete-form-container {
+    display: none;
+    margin-top: 12px;
+  }
+
+  #deleteAccountForm {
+    display: grid;
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  #deleteAccountForm label {
+    font-size: 12px;
+  }
+
+  .delete-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 900px) {
+    .register-card.profile-dashboard {
+      padding: 22px;
+    }
+
+    .page-header,
+    .mini-note,
+    .danger-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .summary-chips {
+      justify-content: flex-start;
+    }
+
+    .access-grid,
+    .lower-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .register-card.profile-dashboard {
+      padding: 18px;
+    }
+
+    .access-top,
+    .account-row,
+    .progress-row-header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="register-container">
-  <div class="register-card">
+  <div class="register-card profile-dashboard">
     <div class="brand">
       <div class="logo">OQYAI</div>
       <div class="tagline">English</div>
     </div>
 
-    <h1>Менің профилім</h1>
-    <p class="subtitle">Аккаунт ақпараты және баптаулар</p>
-
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    {% endif %}
-
-    <div class="profile-info" style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-      <div style="margin-bottom: 15px;">
-        <label style="color: #4CAF50; font-weight: 600; display: block; margin-bottom: 5px;">
-          <i class="fas fa-user"></i> Пайдаланушы аты:
-        </label>
-        <div style="color: white; font-size: 1.1em;">{{ user.username }}</div>
-      </div>
-
-      {% if user.email %}
-      <div style="margin-bottom: 15px;">
-        <label style="color: #4CAF50; font-weight: 600; display: block; margin-bottom: 5px;">
-          <i class="fas fa-envelope"></i> Email:
-        </label>
-        <div style="color: white; font-size: 1.1em;">{{ user.email }}</div>
-      </div>
+    <div class="profile-stack">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="compact-alert">
+            <i class="fas fa-circle-info"></i>
+            <div>{{ message }}</div>
+          </div>
+        {% endfor %}
       {% endif %}
 
-      <div style="margin-bottom: 15px;">
-        <label style="color: #4CAF50; font-weight: 600; display: block; margin-bottom: 5px;">
-          <i class="fas fa-calendar"></i> Тіркелген күні:
-        </label>
-        <div style="color: white; font-size: 1.1em;">{{ user.date_joined|date:"d.m.Y" }}</div>
+      {% if account_locked %}
+        <div class="compact-alert">
+          <i class="fas fa-lock"></i>
+          <div>
+            <strong>Аккаунт құлыпталған.</strong>
+            {% if account_lock_until %}
+              {{ account_lock_until|date:"d.m.Y H:i" }} дейін
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      <header class="page-header">
+        <div>
+          <div class="page-title">Account</div>
+          <div class="page-subtitle">Қол жеткізу, жоспар және негізгі баптаулар</div>
+        </div>
+
+        <div class="summary-chips">
+          <div class="summary-chip"><strong>{{ active_access_count }}/{{ tracked_access_count }}</strong>access</div>
+          <div class="summary-chip"><strong>{{ current_lesson }}</strong>lesson</div>
+          <div class="summary-chip"><strong>{{ passed_main_lessons }}</strong>passed</div>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <div class="section-head">
+          <h2>Access</h2>
+          <div class="section-note">Әр access бөлек көрсетіледі</div>
+        </div>
+
+        <div class="access-grid">
+          {% for card in access_cards %}
+            <article class="access-card{% if card.featured %} featured{% endif %}">
+              <div class="access-top">
+                <div class="access-title">
+                  <span class="access-icon"><i class="{{ card.icon }}"></i></span>
+                  <div class="access-label">
+                    <h3>{{ card.title }}</h3>
+                    {% if card.value_line %}
+                      <div class="access-line">{{ card.value_line }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <span class="status-badge {{ card.status }}">
+                  {% if card.status == "active" %}Active{% elif card.status == "expired" %}Expired{% else %}Inactive{% endif %}
+                </span>
+              </div>
+
+              <div class="access-meta">
+                <div class="expiry">
+                  {% if card.expires_at %}
+                    {{ card.expires_at|date:"d.m.Y" }} дейін
+                  {% elif card.key == "classroom" and not classroom_live_access_active %}
+                    Voice керек
+                  {% else %}
+                    &nbsp;
+                  {% endif %}
+                </div>
+
+                <a
+                  href="{{ card.cta_url }}"
+                  class="mini-btn {% if card.featured %}featured{% elif card.status == 'active' %}primary{% else %}secondary{% endif %}"
+                  {% if card.cta_external %}target="_blank" rel="noopener"{% endif %}
+                >
+                  {% if card.key == "classroom" and card.status == "active" %}
+                    Manage
+                  {% elif card.status == "active" %}
+                    Open
+                  {% elif card.status == "expired" %}
+                    Renew
+                  {% else %}
+                    Buy
+                  {% endif %}
+                </a>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      {% if course_access_active and not voice_access_active %}
+        <div class="mini-note">
+          <div>
+            <strong>Suggested: Voice access</strong>
+            <span>Speaking practice қазір бөлек жабық.</span>
+          </div>
+          <a href="{{ voice_cta_url }}" class="mini-btn featured" target="_blank" rel="noopener">Buy</a>
+        </div>
+      {% elif not course_access_active %}
+        <div class="mini-note">
+          <div>
+            <strong>Suggested: Full course</strong>
+            <span>Толық 250 сабақтық жолды ашу.</span>
+          </div>
+          <a href="{{ course_cta_url }}" class="mini-btn secondary">Buy</a>
+        </div>
+      {% elif not translator_access_active %}
+        <div class="mini-note">
+          <div>
+            <strong>Suggested: Translator</strong>
+            <span>Speech-to-speech көмекші бөлек ашылады.</span>
+          </div>
+          <a href="{{ translator_cta_url }}" class="mini-btn secondary" target="_blank" rel="noopener">Buy</a>
+        </div>
+      {% endif %}
+
+      <div class="lower-grid">
+        <section class="section-card">
+          <div class="section-head">
+            <h2>Quick Actions</h2>
+            <div class="section-note">Қысқа жолдар</div>
+          </div>
+
+          <div class="progress-row">
+            <div class="progress-row-header">
+              <span>{{ passed_main_lessons }}/250 сабақ</span>
+              <span>{{ progress_percentage }}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
+            </div>
+          </div>
+
+          <div class="quick-links">
+            <a href="{{ course_cta_url }}" class="quick-link primary">Lessons</a>
+            <a href="{{ voice_cta_url }}" class="quick-link secondary" {% if not voice_access_active %}target="_blank" rel="noopener"{% endif %}>Voice</a>
+            <a href="{{ translator_cta_url }}" class="quick-link secondary" {% if not translator_access_active %}target="_blank" rel="noopener"{% endif %}>Translator</a>
+            {% if can_use_classroom_teacher_features %}
+              <a href="{% url 'classroom_dashboard' %}" class="quick-link secondary">Classroom</a>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="section-card">
+          <div class="section-head">
+            <h2>Account</h2>
+            <div class="section-note">Негізгі ақпарат</div>
+          </div>
+
+          <div class="account-list">
+            <div class="account-row">
+              <span>Username</span>
+              <strong>{{ user.username }}</strong>
+            </div>
+            <div class="account-row">
+              <span>Role</span>
+              <strong>{{ profile_role_label }}</strong>
+            </div>
+            <div class="account-row">
+              <span>Phone</span>
+              <strong>{% if profile_phone %}{{ profile_phone }}{% else %}Көрсетілмеген{% endif %}</strong>
+            </div>
+            <div class="account-row">
+              <span>Email</span>
+              <strong>{% if user.email %}{{ user.email }}{% else %}Көрсетілмеген{% endif %}</strong>
+            </div>
+            <div class="account-row">
+              <span>Joined</span>
+              <strong>{{ user.date_joined|date:"d.m.Y" }}</strong>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
 
-    <div class="links" style="margin-bottom: 30px;">
-      <a href="{% url 'lesson_list' %}" class="btn-primary" style="text-decoration: none; display: inline-block; text-align: center;">
-        <i class="fas fa-arrow-left"></i> Негізгі бетке қайту
-      </a>
-    </div>
-
-    <!-- Account Deletion Section -->
-    <div style="border-top: 2px solid rgba(220, 53, 69, 0.3); padding-top: 30px; margin-top: 30px;">
-      <h2 style="color: #dc3545; margin-bottom: 15px;">
-        <i class="fas fa-exclamation-triangle"></i> Қауіпті аймақ
-      </h2>
-      <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">
-        Аккаунтты жойсаңыз, барлық прогресс пен деректеріңіз толығымен жойылады. Бұл әрекетті қайтару мүмкін емес.
-      </p>
-
-      <!-- Delete Account Form -->
-      <div id="delete-form-container" style="display: none; margin-top: 20px;">
-        <form method="post" id="deleteAccountForm" style="background: rgba(220, 53, 69, 0.1); padding: 20px; border-radius: 10px; border: 2px solid rgba(220, 53, 69, 0.5);">
-          {% csrf_token %}
-
-          <div style="margin-bottom: 15px;">
-            <label style="color: #dc3545; font-weight: 600; display: block; margin-bottom: 5px;">
-              Құпиясөзді енгізіңіз:
-            </label>
-            <input type="password" name="password" class="form-input" placeholder="Құпиясөз" required style="width: 100%; padding: 10px; border-radius: 5px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white;">
+      <section class="section-card danger-card">
+        <div class="danger-row">
+          <div>
+            <strong>Danger Zone</strong>
+            <span>Аккаунтты толық жою</span>
           </div>
 
-          <div style="margin-bottom: 20px;">
-            <label style="display: flex; align-items: center; color: rgba(255,255,255,0.9);">
-              <input type="checkbox" name="confirm" required style="margin-right: 10px; width: 18px; height: 18px;">
-              Аккаунтты жойғым келетініне сенімдімін
-            </label>
-          </div>
+          <button id="show-delete-btn" onclick="showDeleteForm()" class="danger-toggle" type="button">
+            Delete
+          </button>
+        </div>
 
-          <div style="display: flex; gap: 10px;">
-            <button type="submit" style="background: #dc3545; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-              <i class="fas fa-trash-alt"></i> Аккаунтты жою
-            </button>
-            <button type="button" onclick="hideDeleteForm()" style="background: #6c757d; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-              <i class="fas fa-times"></i> Болдырмау
-            </button>
-          </div>
-        </form>
-      </div>
+        <div id="delete-form-container">
+          <form method="post" id="deleteAccountForm">
+            {% csrf_token %}
 
-      <button id="show-delete-btn" onclick="showDeleteForm()" class="btn-primary" style="background: #dc3545; text-decoration: none; display: inline-block; text-align: center; border: none; cursor: pointer;">
-        <i class="fas fa-trash-alt"></i> Аккаунтты жою
-      </button>
+            <div>
+              <label>Құпиясөз</label>
+              <input type="password" name="password" class="form-input" placeholder="Құпиясөз" required>
+            </div>
+
+            <div>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="confirm" required>
+                Аккаунтты жоюға келісемін
+              </label>
+            </div>
+
+            <div class="delete-actions">
+              <button type="submit" class="mini-btn secondary" style="background: #dc2626; color: #fff; border-color: transparent;">Delete</button>
+              <button type="button" onclick="hideDeleteForm()" class="mini-btn secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   </div>
 </div>
+{% endblock %}
 
-<style>
-  .profile-info i {
-    margin-right: 8px;
-  }
-
-  .btn-primary {
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
-
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  }
-</style>
-
+{% block extra_js %}
 <script>
   function showDeleteForm() {
     document.getElementById('delete-form-container').style.display = 'block';
@@ -129,7 +643,7 @@
 
   function hideDeleteForm() {
     document.getElementById('delete-form-container').style.display = 'none';
-    document.getElementById('show-delete-btn').style.display = 'inline-block';
+    document.getElementById('show-delete-btn').style.display = 'inline-flex';
   }
 </script>
 {% endblock %}

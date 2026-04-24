@@ -937,16 +937,16 @@
 
   <!-- Voice Lesson Feature Section -->
   <div id="voice-lesson-section">
-    {% if user.is_authenticated and user.profile.has_active_voice_access %}
+    {% if voice_access_active %}
       <!-- Active Voice Access - Show Voice Lesson Interface -->
       <div class="voice-lesson-active">
         <div class="premium-voice-feature">
           <h3>🎙️ AI Дауыс Мұғалімі - Белсенді</h3>
 
-          {% if user.profile.voice_access_until %}
+          {% if voice_access_expires %}
             <p class="access-info">
               <i class="fas fa-calendar"></i>
-              Мерзімі: {{ user.profile.voice_access_until|date:"d.m.Y" }}
+              Мерзімі: {{ voice_access_expires|date:"d.m.Y" }}
             </p>
           {% endif %}
         </div>
@@ -955,7 +955,7 @@
   </div>
 
   <!-- Voice Lesson Container (only for users with voice access) -->
-  {% if user.is_authenticated and user.profile.has_active_voice_access %}
+  {% if voice_access_active %}
     <div id="voice-lesson-container"></div>
   {% endif %}
 
@@ -1384,7 +1384,7 @@
 
   <!-- Voice Lesson JavaScript -->
   <script src="{% static 'js/voice-lesson.js' %}"></script>
-  {% if user.is_authenticated and user.profile.has_active_voice_access %}
+  {% if voice_access_active %}
   <script>
     // Initialize Voice Lesson Manager when page loads
     document.addEventListener('DOMContentLoaded', function() {

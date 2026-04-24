@@ -1,0 +1,53 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Оқушы қосу - OQYAI{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card" style="max-width: 640px;">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">{{ group.name }}</div>
+    </div>
+
+    <h1>Оқушы қосу</h1>
+    <p class="subtitle">Оқушының аты және фотосын енгізіңіз</p>
+
+    <form method="post" class="register-form" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{ student_form.full_name.id_for_label }}">{{ student_form.full_name.label }}</label>
+        {{ student_form.full_name }}
+        {% if student_form.full_name.errors %}
+          <div class="error">{{ student_form.full_name.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ student_form.notes.id_for_label }}">{{ student_form.notes.label }}</label>
+        {{ student_form.notes }}
+        {% if student_form.notes.errors %}
+          <div class="error">{{ student_form.notes.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ photo_form.image.id_for_label }}">{{ photo_form.image.label }}</label>
+        {{ photo_form.image }}
+        {% if photo_form.image.errors %}
+          <div class="error">{{ photo_form.image.errors.0 }}</div>
+        {% endif %}
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 6px;">Бір уақытта 10 фотоға дейін таңдауға болады.</div>
+        <div style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Фотолар жергілікті сақталады. Қалаған кезде өшіруге болады.</div>
+      </div>
+
+      <button type="submit" class="btn-primary">Сақтау</button>
+    </form>
+
+    <div class="links">
+      <a href="{% url 'classroom_group_detail' group.id %}">Артқа қайту</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

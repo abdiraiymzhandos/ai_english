@@ -9,6 +9,16 @@ phone_validator = RegexValidator(
 )
 
 class CustomRegisterForm(UserCreationForm):
+    ROLE_CHOICES = [
+        ("student", "Мен оқушымын"),
+        ("teacher", "Мен мұғаліммін"),
+    ]
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        required=True,
+        label='Рөлі',
+        widget=forms.RadioSelect(attrs={'class': 'form-radio'})
+    )
     phone = forms.CharField(
         max_length=12,
         required=True,
@@ -22,7 +32,7 @@ class CustomRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'phone', 'password1', 'password2']
+        fields = ['username', 'phone', 'role', 'password1', 'password2']
         labels = {
             'username': 'Пайдаланушы аты',
             'password1': 'Құпиясөз',

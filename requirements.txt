@@ -31,6 +31,8 @@ whitenoise
 
 openai>=1.101.0,<2
 openai[realtime]>=1.101.0,<2
+Pillow>=10.0.0,<11
 websockets>=12
 pydub==0.25.1
 ffmpeg-python==0.2.0
+pypdf>=5.1.0,<6

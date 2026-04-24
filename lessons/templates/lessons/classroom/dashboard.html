@@ -1,0 +1,414 @@
+{% extends "lessons/auth_base.html" %}
+
+{% block title %}Сыныптар - OQYAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  body {
+    background:
+      radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+      linear-gradient(180deg, #eef4fb 0%, #f8fbff 52%, #eef3f8 100%);
+    color: #102033;
+  }
+
+  .register-container {
+    align-items: flex-start;
+    padding: 32px 24px 48px;
+  }
+
+  .register-container::before {
+    background:
+      radial-gradient(circle at 15% 12%, rgba(14, 165, 233, 0.12), transparent 24%),
+      radial-gradient(circle at 82% 0%, rgba(37, 99, 235, 0.14), transparent 26%);
+  }
+
+  .register-card.classroom-dashboard {
+    max-width: 1180px;
+    background: rgba(255, 255, 255, 0.93);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    padding: 34px;
+  }
+
+  .brand {
+    text-align: left;
+    margin-bottom: 18px;
+  }
+
+  .logo {
+    background: linear-gradient(135deg, #0f172a, #2563eb);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .tagline {
+    color: #4b5563;
+  }
+
+  .page-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .page-heading h1 {
+    margin: 0 0 10px;
+    text-align: left;
+    font-size: clamp(2rem, 4vw, 2.6rem);
+    color: #0f172a;
+  }
+
+  .page-heading p {
+    margin: 0;
+    color: #475569;
+    font-size: 1rem;
+    max-width: 640px;
+  }
+
+  .page-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  .toolbar-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .toolbar-btn.primary {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+  }
+
+  .toolbar-btn.secondary {
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(15, 118, 110, 0.16);
+  }
+
+  .toolbar-btn.neutral {
+    background: #ffffff;
+    color: #334155;
+    border-color: rgba(148, 163, 184, 0.5);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .summary-card {
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    border: 1px solid rgba(191, 219, 254, 0.9);
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .summary-label {
+    display: block;
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .summary-value {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+
+  .summary-note {
+    color: #475569;
+    font-size: 0.92rem;
+  }
+
+  .group-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .group-card {
+    background: #ffffff;
+    border: 1px solid rgba(203, 213, 225, 0.95);
+    border-radius: 20px;
+    padding: 22px;
+    display: grid;
+    gap: 18px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .group-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .group-card-header h2 {
+    margin: 0 0 6px;
+    font-size: 1.35rem;
+    color: #0f172a;
+  }
+
+  .group-school {
+    color: #475569;
+    font-size: 0.95rem;
+  }
+
+  .group-state {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .group-state.ready {
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+  }
+
+  .group-state.partial {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+  }
+
+  .group-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .metric-tile {
+    border-radius: 16px;
+    background: #f8fbff;
+    border: 1px solid rgba(219, 234, 254, 0.9);
+    padding: 14px;
+  }
+
+  .metric-tile strong {
+    display: block;
+    font-size: 1.35rem;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .metric-tile span {
+    color: #64748b;
+    font-size: 0.88rem;
+  }
+
+  .group-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .group-note {
+    color: #475569;
+    font-size: 0.95rem;
+    max-width: 240px;
+  }
+
+  .group-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .group-actions a {
+    text-decoration: none;
+  }
+
+  .mini-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .mini-btn.primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .mini-btn.ghost {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .empty-state {
+    border-radius: 24px;
+    border: 1px dashed rgba(148, 163, 184, 0.8);
+    padding: 42px 26px;
+    text-align: center;
+    color: #475569;
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  .empty-state strong {
+    display: block;
+    color: #0f172a;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .register-container {
+      padding: 18px 14px 28px;
+    }
+
+    .register-card.classroom-dashboard {
+      padding: 22px 18px;
+    }
+
+    .summary-grid,
+    .group-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .page-actions,
+    .group-actions {
+      width: 100%;
+    }
+
+    .toolbar-btn,
+    .mini-btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card classroom-dashboard">
+    <div class="brand">
+      <div class="logo">OQYAI</div>
+      <div class="tagline">Classroom</div>
+    </div>
+
+    <div class="page-heading">
+      <div>
+        <h1>Сыныптарды басқару</h1>
+        <p>Мұғалімге арналған қысқа панель: сыныпты ашу, дайындықты көру және бірден сабақ сессиясын бастау.</p>
+      </div>
+      <div class="page-actions">
+        <a class="toolbar-btn primary" href="{% url 'classroom_group_create' %}">+ Жаңа сынып</a>
+        <a class="toolbar-btn secondary" href="{% url 'classroom_session_select' %}">Сабақ бастау</a>
+        <a class="toolbar-btn neutral" href="{% url 'lesson_list' %}">Негізгі бет</a>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <span class="summary-label">Сынып саны</span>
+        <div class="summary-value">{{ summary.groups_count }}</div>
+        <div class="summary-note">Бүгінгі демонстрацияға дайын сыныптар тізімі.</div>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Оқушы саны</span>
+        <div class="summary-value">{{ summary.students_count }}</div>
+        <div class="summary-note">Барлық тіркелген оқушы осы жерден көрінеді.</div>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Фото дайын</span>
+        <div class="summary-value">{{ summary.photo_ready_count }}</div>
+        <div class="summary-note">Бет тануға жеткілікті фото жүктелген оқушылар.</div>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Демоға дайын</span>
+        <div class="summary-value">{{ summary.demo_ready_count }}</div>
+        <div class="summary-note">Фото мен дауыс үлгісі бар оқушылар саны.</div>
+      </div>
+    </div>
+
+    {% if group_cards %}
+      <div class="group-grid">
+        {% for card in group_cards %}
+          <article class="group-card">
+            <div class="group-card-header">
+              <div>
+                <h2>{{ card.group.name }}</h2>
+                <div class="group-school">{{ card.group.school_name|default:"Мектеп атауы көрсетілмеген" }}</div>
+              </div>
+              <span class="group-state {% if card.demo_ready_count and card.demo_ready_count == card.student_count %}ready{% else %}partial{% endif %}">
+                {% if card.demo_ready_count and card.demo_ready_count == card.student_count %}
+                  Дайын
+                {% else %}
+                  Дайындау керек
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="group-metrics">
+              <div class="metric-tile">
+                <strong>{{ card.student_count }}</strong>
+                <span>Оқушы</span>
+              </div>
+              <div class="metric-tile">
+                <strong>{{ card.photo_ready_count }}</strong>
+                <span>Фото дайын</span>
+              </div>
+              <div class="metric-tile">
+                <strong>{{ card.voice_ready_count }}</strong>
+                <span>Дауыс дайын</span>
+              </div>
+            </div>
+
+            <div class="group-footer">
+              <div class="group-note">
+                Демоға толық дайын: <strong>{{ card.demo_ready_count }}/{{ card.student_count }}</strong>
+              </div>
+              <div class="group-actions">
+                <a class="mini-btn ghost" href="{% url 'classroom_group_detail' card.group.id %}">Сыныпты ашу</a>
+                <a class="mini-btn primary" href="{% url 'classroom_session_select' %}?group_id={{ card.group.id }}">Сессия ашу</a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <strong>Әзірге сыныптар жоқ.</strong>
+        Алдымен сынып қосып, 3-5 оқушы енгізіңіз. Фото мен дауыс үлгілері дайын болса, осы жерден бірден сабақ бастай аласыз.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

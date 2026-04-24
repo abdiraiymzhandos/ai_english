@@ -6,9 +6,16 @@ resulting in DOUBLE COSTS ($1/minute instead of $0.25/minute).
 
 The voice lesson now uses WebRTC ONLY via voice-lesson.js.
 
-THIS FILE IS KEPT FOR REFERENCE ONLY - IT IS NOT ACTIVE IN ROUTING.
+This file is kept for historical reference only. It is NO LONGER ROUTED by
+`lessons/routing.py` or exposed from `english_course/asgi.py`.
 
-If you see high API costs, check if this consumer is active in routing.py!
+Do not use this consumer for the active voice lesson architecture. The current
+interactive path is:
+1. Backend token minting in `lessons.views.mint_realtime_token`
+2. Browser WebRTC session setup in `static/js/voice-lesson.js`
+
+If you see websocket voice traffic or duplicate OpenAI session usage, verify
+that this historical consumer has not been reintroduced into routing.
 """
 
 import os

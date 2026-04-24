@@ -8,23 +8,12 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 """
 
 import os
-import django
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'english_course.settings')
 
-# Initialize Django ASGI application early to ensure the AppRegistry
-# is populated before importing code that may import ORM models.
-django_asgi_app = get_asgi_application()
-
-# Now import channels components
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-import lessons.routing
-
-application = ProtocolTypeRouter({
-    "http": django_asgi_app,
-    "websocket": AuthMiddlewareStack(
-        URLRouter(lessons.routing.websocket_urlpatterns)
-    ),
-})
+# Interactive realtime voice now uses backend-minted OpenAI session tokens and
+# browser WebRTC, so this ASGI app does not expose the old Django websocket
+# bridge. Keep ASGI explicit and HTTP-only unless a new websocket architecture is
+# intentionally introduced.
+application = get_asgi_application()
