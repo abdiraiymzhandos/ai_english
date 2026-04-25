@@ -40,6 +40,12 @@ Use this with `PROJECT_CONTEXT.md`. This file is only for environment and deploy
 | `KASPI_RECEIVER_NAME` | Receipt validation + payment instructions | Defaults to the current Kaspi receiver name in code |
 | `COURSE_PRICE_KZT` | Receipt validation + payment instructions | Defaults to `25000` in code |
 
+WhatsApp sandbox note:
+- No extra env var controls the sandbox recipient fallback.
+- Outbound replies try the inbound `wa_id` first.
+- Only Meta error code `131030` triggers a one-time retry to the derived sandbox/test-recipient format, such as `77781029394` -> `787781029394`.
+- Other send failures still fail normally and are logged without retry.
+
 ## Configurable Vs Hard-Coded
 
 | Setting Area | Current Shape | Notes |
@@ -101,6 +107,7 @@ Use this with `PROJECT_CONTEXT.md`. This file is only for environment and deploy
 - Confirm whether `collectstatic` output includes `sw.js` and `manifest.json`.
 - Confirm whether `OPENAI_API_KEY` is present before changing any startup behavior.
 - Confirm whether the new WhatsApp webhook URL is reachable at `https://www.oqyai.kz/api/whatsapp/webhook/`.
+- For Meta sandbox testing, confirm whether live replies succeed directly to the inbound `wa_id` or require the logged `whatsapp_send_retry_fallback` path.
 - Confirm whether the Cloud API phone number is registered before switching live traffic to the new sales number.
 - Confirm whether any change to `ALLOWED_HOSTS` or `CSRF_TRUSTED_ORIGINS` matches the actual domain setup.
 - Confirm whether a config change is safe for both local development and production.

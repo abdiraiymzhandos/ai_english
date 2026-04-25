@@ -324,6 +324,13 @@ class WhatsAppRegisterPhoneCommandTests(TestCase):
     OPENAI_API_KEY="test-openai-key",
 )
 class WhatsAppSendTests(TestCase):
+    def _mock_meta_response(self, status_code, body, parsed_json):
+        response = MagicMock()
+        response.status_code = status_code
+        response.text = body
+        response.json.return_value = parsed_json
+        return response
+
     @patch("whatsapp_agent.services.requests.post")
     def test_send_whatsapp_text_keeps_safe_normalization_for_real_numbers(self, mock_post):
         mock_post.return_value.status_code = 200
@@ -334,6 +341,137 @@ class WhatsAppSendTests(TestCase):
 
         self.assertEqual(response["messages"][0]["id"], "wamid-text")
         self.assertEqual(mock_post.call_args.kwargs["json"]["to"], "77011234567")
+
+    @patch("whatsapp_agent.services.requests.post")
+    def test_send_whatsapp_text_retries_131030_with_sandbox_recipient(self, mock_post):
+        lead = WhatsAppLead.objects.create(
+            phone_number="+77781029394",
+            metadata={
+                "last_inbound_wa_id": "77781029394",
+                "sandbox_test_recipient": "787781029394",
+            },
+        )
+        mock_post.side_effect = [
+            self._mock_meta_response(
+                400,
+                '{"error":{"message":"(#131030) Recipient phone number not in allowed list","code":131030}}',
+                {
+                    "error": {
+                        "message": "(#131030) Recipient phone number not in allowed list",
+                        "code": 131030,
+                    }
+                },
+            ),
+            self._mock_meta_response(
+                200,
+                '{"messages":[{"id":"wamid-fallback"}]}',
+                {"messages": [{"id": "wamid-fallback"}]},
+            ),
+        ]
+
+        response = send_whatsapp_text("77781029394", "Salem", lead=lead)
+
+        self.assertEqual(response["messages"][0]["id"], "wamid-fallback")
+        self.assertEqual(mock_post.call_count, 2)
+        self.assertEqual(mock_post.call_args_list[0].kwargs["json"]["to"], "77781029394")
+        self.assertEqual(mock_post.call_args_list[1].kwargs["json"]["to"], "787781029394")
+
+        outbound = WhatsAppMessage.objects.get(meta_message_id="wamid-fallback")
+        self.assertEqual(outbound.direction, "outbound")
+        self.assertFalse(outbound.failed)
+        self.assertEqual(outbound.raw_payload["request"]["to"], "787781029394")
+        self.assertEqual(outbound.raw_payload["retry"]["original_recipient"], "77781029394")
+        self.assertEqual(outbound.raw_payload["retry"]["fallback_recipient"], "787781029394")
+
+        retry_events = list(
+            WhatsAppAgentEvent.objects.filter(event_type="whatsapp_send_retry_fallback").order_by("created_at", "id")
+        )
+        self.assertEqual([event.payload["status"] for event in retry_events], ["attempting", "succeeded"])
+        success_event = WhatsAppAgentEvent.objects.get(event_type="whatsapp_send_success")
+        self.assertEqual(success_event.payload["to"], "787781029394")
+        self.assertEqual(success_event.payload["retry"]["first_error"]["status_code"], 400)
+
+    @patch("whatsapp_agent.services.requests.post")
+    def test_send_whatsapp_text_does_not_retry_non_131030(self, mock_post):
+        lead = WhatsAppLead.objects.create(
+            phone_number="+77781029394",
+            metadata={
+                "last_inbound_wa_id": "77781029394",
+                "sandbox_test_recipient": "787781029394",
+            },
+        )
+        mock_post.return_value = self._mock_meta_response(
+            400,
+            '{"error":{"message":"Outside 24-hour window","code":131047}}',
+            {
+                "error": {
+                    "message": "Outside 24-hour window",
+                    "code": 131047,
+                }
+            },
+        )
+
+        with self.assertRaises(WhatsAppAPIError):
+            send_whatsapp_text("77781029394", "Salem", lead=lead)
+
+        self.assertEqual(mock_post.call_count, 1)
+        self.assertFalse(WhatsAppAgentEvent.objects.filter(event_type="whatsapp_send_retry_fallback").exists())
+        failed_outbound = WhatsAppMessage.objects.get(direction="outbound")
+        self.assertTrue(failed_outbound.failed)
+        self.assertEqual(failed_outbound.raw_payload["request"]["to"], "77781029394")
+        self.assertEqual(failed_outbound.raw_payload["parsed_json_error"]["code"], 131047)
+
+    @patch("whatsapp_agent.services.requests.post")
+    def test_send_whatsapp_text_records_final_failure_when_sandbox_retry_fails(self, mock_post):
+        lead = WhatsAppLead.objects.create(
+            phone_number="+77781029394",
+            metadata={"last_inbound_wa_id": "77781029394"},
+        )
+        mock_post.side_effect = [
+            self._mock_meta_response(
+                400,
+                '{"error":{"message":"(#131030) Recipient phone number not in allowed list","code":131030}}',
+                {
+                    "error": {
+                        "message": "(#131030) Recipient phone number not in allowed list",
+                        "code": 131030,
+                    }
+                },
+            ),
+            self._mock_meta_response(
+                400,
+                '{"error":{"message":"Fallback recipient also rejected","code":131030}}',
+                {
+                    "error": {
+                        "message": "Fallback recipient also rejected",
+                        "code": 131030,
+                    }
+                },
+            ),
+        ]
+
+        with self.assertRaises(WhatsAppAPIError):
+            send_whatsapp_text("77781029394", "Salem", lead=lead)
+
+        self.assertEqual(mock_post.call_count, 2)
+        self.assertEqual(mock_post.call_args_list[1].kwargs["json"]["to"], "787781029394")
+        failed_outbound = WhatsAppMessage.objects.get(direction="outbound")
+        self.assertTrue(failed_outbound.failed)
+        self.assertEqual(failed_outbound.raw_payload["request"]["to"], "787781029394")
+        self.assertEqual(failed_outbound.raw_payload["retry"]["original_recipient"], "77781029394")
+        self.assertEqual(failed_outbound.raw_payload["parsed_json_error"]["message"], "Fallback recipient also rejected")
+
+        retry_statuses = [
+            event.payload["status"]
+            for event in WhatsAppAgentEvent.objects.filter(event_type="whatsapp_send_retry_fallback").order_by(
+                "created_at",
+                "id",
+            )
+        ]
+        self.assertEqual(retry_statuses, ["attempting", "failed"])
+        failure_event = WhatsAppAgentEvent.objects.get(event_type="whatsapp_send_failed")
+        self.assertEqual(failure_event.payload["to"], "787781029394")
+        self.assertEqual(failure_event.payload["retry"]["first_error"]["parsed_json_error"]["code"], 131030)
 
     @patch("whatsapp_agent.services.requests.post")
     def test_send_whatsapp_template_uses_raw_meta_test_recipient_input(self, mock_post):

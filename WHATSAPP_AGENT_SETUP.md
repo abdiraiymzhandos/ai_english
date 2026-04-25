@@ -95,8 +95,20 @@ Project config note:
 - Important:
   - do not replace the Meta test-recipient input with the shorter `wa_id` when running the template smoke test
   - the app preserves the exact Meta test-recipient input for template test sends
-  - inbound webhook replies are different: they should answer the active chat using the inbound `wa_id` / lead phone (`77781029394` or normalized `+77781029394` in the DB), not the raw Meta API Setup input
+  - inbound webhook replies first answer the active chat using the inbound `wa_id` / lead phone (`77781029394` or normalized `+77781029394` in the DB)
+  - Meta sandbox can still reject the `wa_id` with `(#131030) Recipient phone number not in allowed list`; in that exact case, the app retries once with the sandbox/test-recipient format such as `787781029394`
 - This is separate from the business production number `+77471095715`, which may still require Meta review/registration before real outbound production sending works
+
+## Sandbox Recipient Fallback
+- The normal outbound recipient remains the inbound `wa_id`.
+- When Meta returns error code `131030`, the send path retries once using a sandbox-compatible recipient.
+- For Kazakhstan test numbers, the app can derive the sandbox form:
+  - inbound `wa_id`: `77781029394`
+  - sandbox/test-recipient retry: `787781029394`
+- The derived value is stored on the lead metadata as `sandbox_test_recipient` when inbound webhook messages are processed.
+- If that metadata exists, it is preferred for the retry; otherwise the app derives the fallback from the current outbound recipient.
+- The retry is not used for other Meta errors such as a closed 24-hour customer-service window.
+- Retry diagnostics are recorded in `WhatsAppAgentEvent` with event type `whatsapp_send_retry_fallback`.
 
 ## Inbound Reply Flow
 - Manual template smoke test:
@@ -107,6 +119,7 @@ Project config note:
   - the app stores/updates `WhatsAppLead` and `WhatsAppMessage`
   - the app calls OpenAI using the existing project `OPENAI_API_KEY`
   - the app sends a normal WhatsApp text reply back to the inbound `wa_id` inside the 24-hour customer service window
+  - if Meta sandbox rejects that `wa_id` with error code `131030`, the app retries once with the sandbox/test-recipient format
   - the app records outbound success or failure in `WhatsAppMessage` and `WhatsAppAgentEvent`
 - Main behavior is now OpenAI-first for normal inbound text messages.
 - The short hardcoded reply is only a fallback if OpenAI fails.
@@ -187,8 +200,9 @@ Expected next step:
    - `WhatsAppLead` and `WhatsAppMessage` rows are created
    - OpenAI generates the normal reply for text messages
    - payment-intent alert reaches Telegram when applicable
-   - reply is sent back through WhatsApp to the inbound `wa_id`
+   - reply is sent back through WhatsApp to the inbound `wa_id`, or retried once with sandbox recipient `787781029394` if Meta returns `131030`
    - outbound success/failure is logged in `WhatsAppAgentEvent`
+   - sandbox retry attempts are logged as `whatsapp_send_retry_fallback`
 8. Send a receipt image or PDF.
 9. Verify:
    - `WhatsAppReceipt` is stored
@@ -225,5 +239,6 @@ No code changes are required for token rotation.
 - The new agent is ready behind the webhook/API integration and can be switched into the public flows later without architectural changes.
 - Keep the distinction clear:
   - Meta template testing currently works through the test setup input `787781029394`
-  - real inbound-reply traffic should answer the active sender `wa_id` such as `77781029394`
+  - real inbound-reply traffic first answers the active sender `wa_id` such as `77781029394`
+  - Meta sandbox may require a one-time retry to the raw test-recipient style `787781029394`
   - the separate OqyAI production number is still `+77471095715` and may still need Meta review/registration work before broader rollout

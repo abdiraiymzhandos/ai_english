@@ -217,6 +217,7 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
   - Meta verifies `GET /api/whatsapp/webhook/`.
   - Meta posts inbound payloads to `POST /api/whatsapp/webhook/`.
   - The app creates/updates `WhatsAppLead` + `WhatsAppMessage`, detects language and intent, calls OpenAI for the normal sales reply path, and sends outbound WhatsApp text replies back to the inbound `wa_id` / lead phone.
+  - If Meta sandbox rejects the `wa_id` with error code `131030`, the app retries that outbound send once with the derived sandbox/test-recipient format, for example `77781029394` -> `787781029394`.
   - Local ops can also send WhatsApp templates through `whatsapp_test_send`; the Meta API Setup test-recipient `input` value can differ from the resolved `wa_id`, so template smoke tests should use the exact Meta-shown input.
   - Receipt media is downloaded from WhatsApp Cloud API, stored in Django media, extracted with OCR/PDF text parsing, scored, and either auto-provisions `UserProfile.is_paid` or escalates to Telegram.
 - Dependencies
@@ -230,6 +231,7 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
 - Fragile points
   - There is no job queue; webhook processing is synchronous and relies on bounded external request timeouts.
   - Manual Meta template testing and inbound customer-service replies intentionally use different recipient values.
+  - Meta sandbox may reject the inbound `wa_id` even when the raw test-recipient input is allowed; retry is intentionally limited to exact Meta error code `131030`.
   - Receipt validation is intentionally conservative: low-confidence cases alert Telegram instead of auto-granting access.
   - Meta test-recipient `input` values can differ from the eventual `wa_id`; using the wrong one causes confusing `(#131030) Recipient phone number not in allowed list` failures.
   - Existing site templates still contain older hard-coded WhatsApp CTAs; they were left untouched until the production Cloud API number is fully registered.

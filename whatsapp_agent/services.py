@@ -25,6 +25,7 @@ from .utils import (
     generate_password,
     normalize_phone_number,
     parse_meta_timestamp,
+    raw_whatsapp_recipient,
     resolve_outbound_whatsapp_recipient,
 )
 
@@ -33,6 +34,8 @@ logger = logging.getLogger(__name__)
 
 APPLE_APP_URL = "https://apps.apple.com/us/app/oqyai/id6754454949"
 ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.oqyai.app"
+META_RECIPIENT_NOT_ALLOWED_CODE = 131030
+SANDBOX_TEST_RECIPIENT_METADATA_KEY = "sandbox_test_recipient"
 
 
 class WhatsAppAPIError(RuntimeError):
@@ -164,35 +167,105 @@ def _parse_response_json(response):
         return None
 
 
-def _raise_whatsapp_api_error(response, *, action, lead=None, event_type, payload=None):
+def _extract_meta_error(response_json):
+    if not isinstance(response_json, dict):
+        return response_json
+    return response_json.get("error")
+
+
+def _extract_meta_error_code(response_json):
+    parsed_error = _extract_meta_error(response_json)
+    if not isinstance(parsed_error, dict):
+        return None
+    try:
+        return int(parsed_error.get("code"))
+    except (TypeError, ValueError):
+        return None
+
+
+def _response_error_payload(response):
     response_json = _parse_response_json(response)
     response_text = (response.text or "").strip()
-    parsed_error = response_json.get("error") if isinstance(response_json, dict) else response_json
+    return {
+        "status_code": response.status_code,
+        "response_text": response_text,
+        "response_json": response_json,
+        "parsed_json_error": _extract_meta_error(response_json),
+    }
+
+
+def _raise_whatsapp_api_error(response, *, action, lead=None, event_type, payload=None):
+    error_payload = _response_error_payload(response)
 
     logger.error(
         "%s failed with HTTP %s. response.text=%s parsed_json_error=%s",
         action,
-        response.status_code,
-        clip_text(response_text or "<empty>", 1000),
-        parsed_error,
+        error_payload["status_code"],
+        clip_text(error_payload["response_text"] or "<empty>", 1000),
+        error_payload["parsed_json_error"],
     )
     log_agent_event(
         event_type,
         lead=lead,
         payload={
             **_safe_payload(payload),
-            "status_code": response.status_code,
-            "response_text": response_text,
-            "response_json": response_json,
-            "parsed_json_error": parsed_error,
+            **error_payload,
         },
     )
     raise WhatsAppAPIError(
         action=action,
-        status_code=response.status_code,
-        response_text=response_text,
-        response_json=response_json,
+        status_code=error_payload["status_code"],
+        response_text=error_payload["response_text"],
+        response_json=error_payload["response_json"],
     )
+
+
+def _resolve_whatsapp_send_recipient(to_phone, *, prefer_exact_input=False):
+    return resolve_outbound_whatsapp_recipient(to_phone, prefer_exact_input=prefer_exact_input)
+
+
+def _build_whatsapp_send_payload(to_phone, *, message_type, body, prefer_exact_input=False):
+    return {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": _resolve_whatsapp_send_recipient(to_phone, prefer_exact_input=prefer_exact_input),
+        "type": message_type,
+        message_type: body,
+    }
+
+
+def _derive_sandbox_test_recipient(value):
+    digits = raw_whatsapp_recipient(value)
+    if len(digits) == 11 and digits.startswith("7"):
+        return f"78{digits[1:]}"
+    return ""
+
+
+def _lead_sandbox_test_recipient(lead):
+    metadata = lead.metadata if lead else {}
+    if not isinstance(metadata, dict):
+        return ""
+
+    explicit_recipient = metadata.get(SANDBOX_TEST_RECIPIENT_METADATA_KEY)
+    if explicit_recipient:
+        return _resolve_whatsapp_send_recipient(explicit_recipient, prefer_exact_input=True)
+
+    if not lead:
+        return ""
+    return _derive_sandbox_test_recipient(metadata.get("last_inbound_wa_id") or lead.phone_number)
+
+
+def _fallback_recipient_for_131030(*, lead, to_phone, request_payload):
+    fallback_recipient = _lead_sandbox_test_recipient(lead)
+    if not fallback_recipient:
+        fallback_recipient = _derive_sandbox_test_recipient(request_payload.get("to") or to_phone)
+    if fallback_recipient and fallback_recipient != request_payload.get("to"):
+        return fallback_recipient
+    return ""
+
+
+def _should_retry_with_sandbox_recipient(response):
+    return _extract_meta_error_code(_parse_response_json(response)) == META_RECIPIENT_NOT_ALLOWED_CODE
 
 
 def _send_whatsapp_payload(
@@ -212,30 +285,36 @@ def _send_whatsapp_payload(
         raise RuntimeError("WhatsApp Cloud API settings are missing")
 
     request_url = _whatsapp_api_url(f"{phone_number_id}/messages")
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    first_request_payload = _safe_payload(request_payload)
+    final_request_payload = first_request_payload
+    retry_context = None
+
     try:
         response = requests.post(
             request_url,
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json",
-            },
-            json=request_payload,
+            headers=headers,
+            json=first_request_payload,
             timeout=20,
         )
     except requests.RequestException as exc:
         logger.exception("Failed to send WhatsApp message to %s", to_phone)
+        raw_payload = {
+            "request_url": request_url,
+            "request": first_request_payload,
+            "error": {
+                "type": type(exc).__name__,
+                "message": str(exc),
+            },
+        }
         _record_outbound_message(
             lead,
             message_type=outbound_message_type,
             text_content=message_text,
-            raw_payload={
-                "request_url": request_url,
-                "request": request_payload,
-                "error": {
-                    "type": type(exc).__name__,
-                    "message": str(exc),
-                },
-            },
+            raw_payload=raw_payload,
             failed=True,
         )
         log_agent_event(
@@ -244,39 +323,123 @@ def _send_whatsapp_payload(
             payload={
                 "to": to_phone,
                 "request_url": request_url,
-                "request_payload": request_payload,
+                "request_payload": first_request_payload,
                 "error": str(exc),
                 "error_type": type(exc).__name__,
             },
         )
         raise
 
+    if not 200 <= response.status_code < 300 and _should_retry_with_sandbox_recipient(response):
+        first_error_payload = _response_error_payload(response)
+        fallback_recipient = _fallback_recipient_for_131030(
+            lead=lead,
+            to_phone=to_phone,
+            request_payload=first_request_payload,
+        )
+        if fallback_recipient:
+            retry_request_payload = _safe_payload({**first_request_payload, "to": fallback_recipient})
+            retry_context = {
+                "original_recipient": first_request_payload.get("to"),
+                "fallback_recipient": fallback_recipient,
+                "first_error": first_error_payload,
+            }
+            log_agent_event(
+                "whatsapp_send_retry_fallback",
+                lead=lead,
+                payload={
+                    **retry_context,
+                    "status": "attempting",
+                    "request_url": request_url,
+                },
+            )
+            final_request_payload = retry_request_payload
+            try:
+                response = requests.post(
+                    request_url,
+                    headers=headers,
+                    json=retry_request_payload,
+                    timeout=20,
+                )
+            except requests.RequestException as exc:
+                logger.exception("Failed to retry WhatsApp message to %s", fallback_recipient)
+                raw_payload = {
+                    "request_url": request_url,
+                    "request": retry_request_payload,
+                    "retry": retry_context,
+                    "error": {
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    },
+                }
+                _record_outbound_message(
+                    lead,
+                    message_type=outbound_message_type,
+                    text_content=message_text,
+                    raw_payload=raw_payload,
+                    failed=True,
+                )
+                log_agent_event(
+                    "whatsapp_send_retry_fallback",
+                    lead=lead,
+                    payload={
+                        **retry_context,
+                        "status": "failed",
+                        "request_url": request_url,
+                        "error": str(exc),
+                        "error_type": type(exc).__name__,
+                    },
+                )
+                log_agent_event(
+                    failure_event_type,
+                    lead=lead,
+                    payload={
+                        "to": fallback_recipient,
+                        "request_url": request_url,
+                        "request_payload": retry_request_payload,
+                        "retry": retry_context,
+                        "error": str(exc),
+                        "error_type": type(exc).__name__,
+                    },
+                )
+                raise
+
     if not 200 <= response.status_code < 300:
-        response_json = _parse_response_json(response)
-        response_text = (response.text or "").strip()
-        parsed_error = response_json.get("error") if isinstance(response_json, dict) else response_json
+        final_error_payload = _response_error_payload(response)
+        raw_payload = {
+            "request_url": request_url,
+            "request": final_request_payload,
+            **final_error_payload,
+        }
+        if retry_context:
+            raw_payload["retry"] = retry_context
+            log_agent_event(
+                "whatsapp_send_retry_fallback",
+                lead=lead,
+                payload={
+                    **retry_context,
+                    "status": "failed",
+                    "request_url": request_url,
+                    "fallback_error": final_error_payload,
+                },
+            )
         _record_outbound_message(
             lead,
             message_type=outbound_message_type,
             text_content=message_text,
-            raw_payload={
-                "request_url": request_url,
-                "request": request_payload,
-                "response_text": response_text,
-                "response_json": response_json,
-                "parsed_json_error": parsed_error,
-            },
+            raw_payload=raw_payload,
             failed=True,
         )
         _raise_whatsapp_api_error(
             response,
-            action=f"WhatsApp {request_payload.get('type') or 'message'} send to {to_phone}",
+            action=f"WhatsApp {final_request_payload.get('type') or 'message'} send to {final_request_payload.get('to') or to_phone}",
             lead=lead,
             event_type=failure_event_type,
             payload={
-                "to": to_phone,
+                "to": final_request_payload.get("to") or to_phone,
                 "request_url": request_url,
-                "request_payload": request_payload,
+                "request_payload": final_request_payload,
+                "retry": retry_context,
             },
         )
 
@@ -290,17 +453,34 @@ def _send_whatsapp_payload(
                 message_type=outbound_message_type,
                 text_content=message_text,
                 meta_message_id=message_id,
-                raw_payload={"request": request_payload, "response": data},
+                raw_payload={
+                    "request": final_request_payload,
+                    "response": data,
+                    **({"retry": retry_context} if retry_context else {}),
+                },
             )
         lead.last_bot_message_at = timezone.now()
         lead.save(update_fields=["last_bot_message_at", "updated_at"])
+
+    if retry_context:
+        log_agent_event(
+            "whatsapp_send_retry_fallback",
+            lead=lead,
+            payload={
+                **retry_context,
+                "status": "succeeded",
+                "request_url": request_url,
+                "message_id": message_id,
+            },
+        )
 
     log_agent_event(
         success_event_type,
         lead=lead,
         payload={
-            "to": to_phone,
+            "to": final_request_payload.get("to") or to_phone,
             "message_id": message_id,
+            **({"retry": retry_context} if retry_context else {}),
             **_safe_payload(success_payload),
         },
     )
@@ -308,16 +488,14 @@ def _send_whatsapp_payload(
 
 
 def send_whatsapp_text(to_phone, text, lead=None):
-    request_payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        "to": resolve_outbound_whatsapp_recipient(to_phone),
-        "type": "text",
-        "text": {
+    request_payload = _build_whatsapp_send_payload(
+        to_phone,
+        message_type="text",
+        body={
             "preview_url": False,
             "body": (text or "").strip()[:4096],
         },
-    }
+    )
     return _send_whatsapp_payload(
         to_phone=to_phone,
         request_payload=request_payload,
@@ -332,18 +510,17 @@ def send_whatsapp_text(to_phone, text, lead=None):
 def send_whatsapp_template(to_phone, template_name="hello_world", language_code="en_US", lead=None):
     template_name = (template_name or "hello_world").strip()
     language_code = (language_code or "en_US").strip()
-    request_payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        "to": resolve_outbound_whatsapp_recipient(to_phone, prefer_exact_input=True),
-        "type": "template",
-        "template": {
+    request_payload = _build_whatsapp_send_payload(
+        to_phone,
+        message_type="template",
+        prefer_exact_input=True,
+        body={
             "name": template_name,
             "language": {
                 "code": language_code,
             },
         },
-    }
+    )
     return _send_whatsapp_payload(
         to_phone=to_phone,
         request_payload=request_payload,
@@ -888,6 +1065,9 @@ def _upsert_lead(message_payload, contacts_map):
         metadata["profile_name"] = profile_name
     if inbound_wa_id:
         metadata["last_inbound_wa_id"] = inbound_wa_id
+        sandbox_test_recipient = _derive_sandbox_test_recipient(inbound_wa_id)
+        if sandbox_test_recipient:
+            metadata[SANDBOX_TEST_RECIPIENT_METADATA_KEY] = sandbox_test_recipient
     if lead.metadata != metadata:
         lead.metadata = metadata
         updates.append("metadata")
