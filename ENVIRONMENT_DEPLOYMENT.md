@@ -32,6 +32,7 @@ Use this with `PROJECT_CONTEXT.md`. This file is only for environment and deploy
 | `WHATSAPP_PHONE_NUMBER_ID` | WhatsApp Cloud API send target | Required for outbound sends |
 | `WHATSAPP_WABA_ID` | WhatsApp Business Account reference | Stored for deployment/config parity |
 | `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | Meta webhook verification | Must match the Meta webhook configuration |
+| `WHATSAPP_AGENT_OPENAI_MODEL` | Optional WhatsApp sales-agent text model override | Read directly by `whatsapp_agent/services.py`; defaults to `gpt-5` |
 | `TELEGRAM_BOT_TOKEN` | Telegram admin alerts | Required for Telegram alert delivery |
 | `TELEGRAM_CHAT_ID` | Telegram admin chat target | Required for Telegram alert delivery |
 | `APP_BASE_URL` | Login link and app handoff messaging | Defaults to `https://www.oqyai.kz` in code if missing |

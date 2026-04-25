@@ -18,6 +18,7 @@ This repo was reviewed against these root docs before implementation:
 - Meta webhook endpoint: `GET/POST /api/whatsapp/webhook/`
 - Models for WhatsApp leads, messages, events, and receipts
 - Telegram admin alerts with deduplication
+- OpenAI-driven WhatsApp sales replies for inbound text messages
 - WhatsApp outbound text + template sending via Cloud API
 - Receipt download + OCR/PDF parsing + conservative confidence scoring
 - Automatic paid-course provisioning through the existing `lessons.UserProfile.is_paid` path
@@ -61,6 +62,7 @@ Optional:
 
 ```bash
 WHATSAPP_GRAPH_API_VERSION=v23.0
+WHATSAPP_AGENT_OPENAI_MODEL=gpt-5
 DEBUG=0
 USE_MYSQL=1
 MYSQL_DATABASE=...
@@ -92,8 +94,22 @@ Project config note:
   - Working template send: `python3 manage.py whatsapp_test_send --to 787781029394 --template hello_world`
 - Important:
   - do not replace the Meta test-recipient input with the shorter `wa_id` when running the template smoke test
-  - the app now preserves the exact Meta test-recipient input for template test sends while still keeping normal phone normalization for regular production/customer messaging where that is safe
+  - the app preserves the exact Meta test-recipient input for template test sends
+  - inbound webhook replies are different: they should answer the active chat using the inbound `wa_id` / lead phone (`77781029394` or normalized `+77781029394` in the DB), not the raw Meta API Setup input
 - This is separate from the business production number `+77471095715`, which may still require Meta review/registration before real outbound production sending works
+
+## Inbound Reply Flow
+- Manual template smoke test:
+  - use the raw Meta API Setup recipient input exactly as shown in Meta
+  - current working example: `python3 manage.py whatsapp_test_send --to 787781029394 --template hello_world`
+- Real webhook conversation reply:
+  - Meta sends an inbound message webhook with the actual sender `wa_id`
+  - the app stores/updates `WhatsAppLead` and `WhatsAppMessage`
+  - the app calls OpenAI using the existing project `OPENAI_API_KEY`
+  - the app sends a normal WhatsApp text reply back to the inbound `wa_id` inside the 24-hour customer service window
+  - the app records outbound success or failure in `WhatsAppMessage` and `WhatsAppAgentEvent`
+- Main behavior is now OpenAI-first for normal inbound text messages.
+- The short hardcoded reply is only a fallback if OpenAI fails.
 
 ## Production Number Registration
 - Current state:
@@ -169,8 +185,10 @@ Expected next step:
    `Қалай сатып аламын?`
 7. Verify:
    - `WhatsAppLead` and `WhatsAppMessage` rows are created
-   - payment-intent alert reaches Telegram
-   - reply is sent back through WhatsApp
+   - OpenAI generates the normal reply for text messages
+   - payment-intent alert reaches Telegram when applicable
+   - reply is sent back through WhatsApp to the inbound `wa_id`
+   - outbound success/failure is logged in `WhatsAppAgentEvent`
 8. Send a receipt image or PDF.
 9. Verify:
    - `WhatsAppReceipt` is stored
@@ -183,7 +201,7 @@ Useful local commands:
 python3 manage.py test whatsapp_agent
 python3 manage.py check
 python3 manage.py whatsapp_test_send --to 787781029394 --template hello_world
-python3 manage.py whatsapp_debug_lead --phone +77471095715
+python3 manage.py whatsapp_debug_lead --phone 77781029394
 python3 manage.py whatsapp_register_phone --pin 123456
 ```
 
@@ -205,3 +223,7 @@ No code changes are required for token rotation.
 - Existing website templates still contain older hard-coded WhatsApp CTA links.
 - Those public CTA links were not changed in this task because the new production Cloud API number is not fully registered yet.
 - The new agent is ready behind the webhook/API integration and can be switched into the public flows later without architectural changes.
+- Keep the distinction clear:
+  - Meta template testing currently works through the test setup input `787781029394`
+  - real inbound-reply traffic should answer the active sender `wa_id` such as `77781029394`
+  - the separate OqyAI production number is still `+77471095715` and may still need Meta review/registration work before broader rollout

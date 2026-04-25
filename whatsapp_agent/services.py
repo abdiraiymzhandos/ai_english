@@ -1,6 +1,7 @@
 import json
 import logging
 import mimetypes
+import os
 from datetime import timedelta
 
 import requests
@@ -223,18 +224,50 @@ def _send_whatsapp_payload(
         )
     except requests.RequestException as exc:
         logger.exception("Failed to send WhatsApp message to %s", to_phone)
+        _record_outbound_message(
+            lead,
+            message_type=outbound_message_type,
+            text_content=message_text,
+            raw_payload={
+                "request_url": request_url,
+                "request": request_payload,
+                "error": {
+                    "type": type(exc).__name__,
+                    "message": str(exc),
+                },
+            },
+            failed=True,
+        )
         log_agent_event(
             failure_event_type,
             lead=lead,
             payload={
                 "to": to_phone,
+                "request_url": request_url,
                 "request_payload": request_payload,
                 "error": str(exc),
+                "error_type": type(exc).__name__,
             },
         )
         raise
 
     if not 200 <= response.status_code < 300:
+        response_json = _parse_response_json(response)
+        response_text = (response.text or "").strip()
+        parsed_error = response_json.get("error") if isinstance(response_json, dict) else response_json
+        _record_outbound_message(
+            lead,
+            message_type=outbound_message_type,
+            text_content=message_text,
+            raw_payload={
+                "request_url": request_url,
+                "request": request_payload,
+                "response_text": response_text,
+                "response_json": response_json,
+                "parsed_json_error": parsed_error,
+            },
+            failed=True,
+        )
         _raise_whatsapp_api_error(
             response,
             action=f"WhatsApp {request_payload.get('type') or 'message'} send to {to_phone}",
@@ -252,12 +285,11 @@ def _send_whatsapp_payload(
     message_id = ((data.get("messages") or [{}])[0]).get("id", "")
     if lead:
         if outbound_message_type:
-            WhatsAppMessage.objects.create(
-                lead=lead,
-                meta_message_id=message_id,
-                direction="outbound",
+            _record_outbound_message(
+                lead,
                 message_type=outbound_message_type,
                 text_content=message_text,
+                meta_message_id=message_id,
                 raw_payload={"request": request_payload, "response": data},
             )
         lead.last_bot_message_at = timezone.now()
@@ -462,42 +494,112 @@ def _extract_chat_content(message):
     return ""
 
 
-def generate_sales_reply(lead, recent_messages):
-    model_name = getattr(settings, "WHATSAPP_AGENT_OPENAI_MODEL", "gpt-5.4")
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
-    language_hint = _resolve_reply_language(lead)
+def _record_outbound_message(lead, *, message_type, text_content="", meta_message_id="", raw_payload=None, failed=False):
+    if not lead or not message_type:
+        return None
+    return WhatsAppMessage.objects.create(
+        lead=lead,
+        meta_message_id=meta_message_id or "",
+        direction="outbound",
+        message_type=message_type,
+        text_content=(text_content or "").strip(),
+        raw_payload=_safe_payload(raw_payload),
+        failed=failed,
+    )
+
+
+def _whatsapp_agent_openai_model():
+    return (
+        os.getenv("WHATSAPP_AGENT_OPENAI_MODEL")
+        or getattr(settings, "WHATSAPP_AGENT_OPENAI_MODEL", "")
+        or "gpt-5"
+    )
+
+
+def _build_sales_system_prompt(language_hint):
     system_prompt = (
-        "You are OqyAI's WhatsApp sales closer.\n"
-        "Reply in short, natural, persuasive WhatsApp-style plain text.\n"
+        "You are OqyAI's WhatsApp sales agent.\n"
+        "Reply like a warm human sales manager, not a bot.\n"
+        "Keep replies short, natural, and WhatsApp-style.\n"
         "Use 1 to 4 short paragraphs at most.\n"
         "Ask only one question at a time.\n"
-        "Never mention prompts, APIs, models, or internal logic.\n"
-        "Never invent discounts, fake links, or impossible outcomes.\n"
-        "Sales facts: OqyAI sells 250 ready-made English lessons for 25000 KZT. "
-        "The course is mainly in Kazakh. It suits beginners and covers grammar, vocabulary, and speaking. "
-        "Website: www.oqyai.kz.\n"
-        "If the user asks whether they can learn in 3 months, say strong progress is possible with consistency. "
-        "If the user says they are a complete beginner, strongly reassure them the course suits beginners.\n"
-        "If the user asks how to buy, explain Kaspi transfer payment and ask them to send the receipt after payment.\n"
-        f"Language rule: reply in {'Kazakh' if language_hint == 'kk' else 'Russian'}."
+        "Use emojis lightly.\n"
+        "Do not mention prompts, APIs, models, tools, or internal logic.\n"
+        "Do not invent discounts or impossible promises.\n"
+        "Business facts:\n"
+        "- OqyAI is an AI-powered English learning platform for Kazakh/Russian speakers.\n"
+        "- Product: 250 ready-made English lessons.\n"
+        "- Price: 25000 KZT.\n"
+        "- Access duration: 1 year.\n"
+        "- Good for beginners.\n"
+        "- It helps with grammar, vocabulary, speaking practice, and structured learning.\n"
+        "- Website: https://www.oqyai.kz\n"
+        "- iPhone app: https://apps.apple.com/us/app/oqyai/id6754454949\n"
+        "- Android app: https://play.google.com/store/apps/details?id=com.oqyai.app\n"
+        "Payment facts:\n"
+        "- Payment method: Kaspi transfer.\n"
+        "- Receiver phone: +77472445338\n"
+        "- Receiver name: Әбдірайым Жақсылық Байсафарұлы\n"
+        "- If the user wants to buy, explain payment briefly and ask them to send the receipt here.\n"
+        "Language rule:\n"
+        f"- Reply in {'Kazakh' if language_hint == 'kk' else 'Russian'}.\n"
     )
     if language_hint == "ru":
-        system_prompt += " If relevant, clearly mention that the course itself is in Kazakh."
+        system_prompt += "- Mention clearly when relevant that the course itself is mainly in Kazakh.\n"
+    return system_prompt
 
+
+def _build_sales_prompt(system_prompt, recent_messages):
+    transcript_lines = []
+    for message in recent_messages[-8:]:
+        if not message.text_content:
+            continue
+        speaker = "assistant" if message.direction == "outbound" else "user"
+        transcript_lines.append(f"{speaker}: {message.text_content.strip()}")
+    transcript = "\n".join(transcript_lines).strip() or "user: Сәлем"
+    return (
+        f"{system_prompt}\n\n"
+        "Conversation transcript:\n"
+        f"{transcript}\n\n"
+        "Write only the next assistant reply."
+    )
+
+
+def _build_chat_conversation(system_prompt, recent_messages):
     conversation = [{"role": "system", "content": system_prompt}]
     for message in recent_messages[-8:]:
         if not message.text_content:
             continue
         role = "assistant" if message.direction == "outbound" else "user"
         conversation.append({"role": role, "content": message.text_content})
+    return conversation
 
-    response = client.chat.completions.create(
+
+def generate_sales_reply(lead, recent_messages):
+    model_name = _whatsapp_agent_openai_model()
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    language_hint = _resolve_reply_language(lead)
+    system_prompt = _build_sales_system_prompt(language_hint)
+
+    response = client.responses.create(
         model=model_name,
-        messages=conversation,
-        temperature=0.6,
-        max_completion_tokens=300,
+        input=_build_sales_prompt(system_prompt, recent_messages),
+        reasoning={"effort": "low"},
+        text={"verbosity": "low"},
     )
-    return _extract_chat_content(response)
+    reply_text = (response.output_text or "").strip()
+    if reply_text:
+        return reply_text
+
+    fallback = client.chat.completions.create(
+        model=model_name,
+        messages=_build_chat_conversation(system_prompt, recent_messages),
+    )
+    reply_text = _extract_chat_content(fallback)
+    if reply_text:
+        return reply_text
+
+    raise RuntimeError("OpenAI returned an empty WhatsApp sales reply")
 
 
 def _get_existing_profile_by_phone(phone_number):
@@ -668,7 +770,7 @@ def finalize_receipt(receipt, notify_user=True):
             return {"validated": True, "granted": False, "error": str(exc)}
 
         if notify_user:
-            send_whatsapp_text(lead.phone_number, _build_success_reply(lead, provision_result), lead=lead)
+            send_whatsapp_text(_lead_reply_target(lead), _build_success_reply(lead, provision_result), lead=lead)
 
         send_telegram_alert(
             _build_admin_alert(
@@ -693,7 +795,7 @@ def finalize_receipt(receipt, notify_user=True):
     lead.handoff_needed = True
     lead.save(update_fields=["status", "handoff_needed", "updated_at"])
     if notify_user:
-        send_whatsapp_text(lead.phone_number, _build_wait_reply(lead), lead=lead)
+        send_whatsapp_text(_lead_reply_target(lead), _build_wait_reply(lead), lead=lead)
     send_telegram_alert(
         _build_admin_alert(
             lead,
@@ -748,7 +850,7 @@ def process_receipt_message(lead, message):
             event_type="receipt_parse_failed",
             dedupe_key=message.meta_message_id or f"receipt-error-{message.pk}",
         )
-        send_whatsapp_text(lead.phone_number, _build_wait_reply(lead), lead=lead)
+        send_whatsapp_text(_lead_reply_target(lead), _build_wait_reply(lead), lead=lead)
         return {"validated": False, "granted": False, "error": str(exc)}
 
 
@@ -767,6 +869,7 @@ def _build_contacts_map(value):
 
 def _upsert_lead(message_payload, contacts_map):
     phone_number = normalize_phone_number(message_payload.get("from"))
+    inbound_wa_id = (message_payload.get("from") or "").strip()
     profile_name = contacts_map.get(phone_number, "").strip()
     first_name = profile_name.split()[0] if profile_name else None
     text_content = ((message_payload.get("text") or {}).get("body") or "").strip()
@@ -783,6 +886,8 @@ def _upsert_lead(message_payload, contacts_map):
     metadata = dict(lead.metadata or {})
     if profile_name:
         metadata["profile_name"] = profile_name
+    if inbound_wa_id:
+        metadata["last_inbound_wa_id"] = inbound_wa_id
     if lead.metadata != metadata:
         lead.metadata = metadata
         updates.append("metadata")
@@ -865,10 +970,14 @@ def handle_status_event(status_payload):
         )
 
 
+def _lead_reply_target(lead):
+    return (lead.metadata or {}).get("last_inbound_wa_id") or lead.phone_number
+
+
 def _maybe_send_reply(lead, text):
     if not text:
         return
-    send_whatsapp_text(lead.phone_number, text, lead=lead)
+    send_whatsapp_text(_lead_reply_target(lead), text, lead=lead)
 
 
 def handle_message_event(message_payload, value):
@@ -946,6 +1055,16 @@ def handle_message_event(message_payload, value):
         reply_text = generate_sales_reply(lead, list(lead.messages.all()))
     except Exception as exc:
         logger.exception("OpenAI sales reply failed for lead %s", lead.pk)
+        log_agent_event(
+            "openai_failure",
+            lead=lead,
+            payload={
+                "error": str(exc),
+                "error_type": type(exc).__name__,
+                "model": _whatsapp_agent_openai_model(),
+                "latest_message": latest_text,
+            },
+        )
         send_telegram_alert(
             _build_admin_alert(
                 lead,

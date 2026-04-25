@@ -216,7 +216,7 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
 - Request/data flow
   - Meta verifies `GET /api/whatsapp/webhook/`.
   - Meta posts inbound payloads to `POST /api/whatsapp/webhook/`.
-  - The app creates/updates `WhatsAppLead` + `WhatsAppMessage`, detects language and intent, optionally calls OpenAI for sales replies, and sends outbound WhatsApp text replies.
+  - The app creates/updates `WhatsAppLead` + `WhatsAppMessage`, detects language and intent, calls OpenAI for the normal sales reply path, and sends outbound WhatsApp text replies back to the inbound `wa_id` / lead phone.
   - Local ops can also send WhatsApp templates through `whatsapp_test_send`; the Meta API Setup test-recipient `input` value can differ from the resolved `wa_id`, so template smoke tests should use the exact Meta-shown input.
   - Receipt media is downloaded from WhatsApp Cloud API, stored in Django media, extracted with OCR/PDF text parsing, scored, and either auto-provisions `UserProfile.is_paid` or escalates to Telegram.
 - Dependencies
@@ -229,6 +229,7 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
   - No new billing backend was introduced.
 - Fragile points
   - There is no job queue; webhook processing is synchronous and relies on bounded external request timeouts.
+  - Manual Meta template testing and inbound customer-service replies intentionally use different recipient values.
   - Receipt validation is intentionally conservative: low-confidence cases alert Telegram instead of auto-granting access.
   - Meta test-recipient `input` values can differ from the eventual `wa_id`; using the wrong one causes confusing `(#131030) Recipient phone number not in allowed list` failures.
   - Existing site templates still contain older hard-coded WhatsApp CTAs; they were left untouched until the production Cloud API number is fully registered.

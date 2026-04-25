@@ -1,6 +1,6 @@
 import json
 from io import StringIO
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -31,6 +31,35 @@ from whatsapp_agent.services import (
     OPENAI_API_KEY="test-openai-key",
 )
 class WhatsAppWebhookTests(TestCase):
+    def _build_text_payload(self, body, *, message_id="wamid-1", from_wa_id="77781029394", profile_name="Aruzhan"):
+        return {
+            "entry": [
+                {
+                    "changes": [
+                        {
+                            "value": {
+                                "contacts": [
+                                    {
+                                        "wa_id": from_wa_id,
+                                        "profile": {"name": profile_name},
+                                    }
+                                ],
+                                "messages": [
+                                    {
+                                        "id": message_id,
+                                        "from": from_wa_id,
+                                        "timestamp": "1710000000",
+                                        "type": "text",
+                                        "text": {"body": body},
+                                    }
+                                ],
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+
     def test_webhook_verification_succeeds(self):
         response = self.client.get(
             reverse("whatsapp_webhook"),
@@ -57,33 +86,10 @@ class WhatsAppWebhookTests(TestCase):
     @patch("whatsapp_agent.services.send_telegram_alert")
     @patch("whatsapp_agent.services.send_whatsapp_text")
     def test_buying_intent_message_creates_lead_and_replies(self, mock_send_whatsapp, mock_send_telegram):
-        payload = {
-            "entry": [
-                {
-                    "changes": [
-                        {
-                            "value": {
-                                "contacts": [
-                                    {
-                                        "wa_id": "77471095715",
-                                        "profile": {"name": "Aruzhan"},
-                                    }
-                                ],
-                                "messages": [
-                                    {
-                                        "id": "wamid-1",
-                                        "from": "77471095715",
-                                        "timestamp": "1710000000",
-                                        "type": "text",
-                                        "text": {"body": "Қалай сатып аламын?"},
-                                    }
-                                ],
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
+        payload = self._build_text_payload(
+            "Қалай сатып аламын?",
+            from_wa_id="77471095715",
+        )
 
         response = self.client.post(
             reverse("whatsapp_webhook"),
@@ -98,6 +104,126 @@ class WhatsAppWebhookTests(TestCase):
         self.assertEqual(lead.last_intent, "buying_intent")
         self.assertTrue(WhatsAppMessage.objects.filter(meta_message_id="wamid-1").exists())
         mock_send_whatsapp.assert_called_once()
+        mock_send_telegram.assert_called_once()
+
+    @patch("whatsapp_agent.services.requests.post")
+    @patch("whatsapp_agent.services.OpenAI")
+    def test_general_inbound_text_calls_openai_sends_reply_and_records_outbound(self, mock_openai, mock_post):
+        mock_openai.return_value.responses.create.return_value = MagicMock(
+            output_text=(
+                "Сәлеметсіз бе 😊 OqyAI-де 250 дайын ағылшын сабағы бар.\n\n"
+                "Қай деңгейден бастағыңыз келеді?"
+            )
+        )
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.text = '{"messages":[{"id":"wamid-out-1"}]}'
+        mock_post.return_value.json.return_value = {"messages": [{"id": "wamid-out-1"}]}
+
+        response = self.client.post(
+            reverse("whatsapp_webhook"),
+            data=json.dumps(self._build_text_payload("Сәлем", message_id="wamid-in-1")),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        lead = WhatsAppLead.objects.get(phone_number="+77781029394")
+        self.assertEqual(lead.status, "engaged")
+        self.assertEqual(lead.last_intent, "general")
+        self.assertEqual(lead.metadata["last_inbound_wa_id"], "77781029394")
+        self.assertEqual(lead.message_count, 1)
+
+        inbound = WhatsAppMessage.objects.get(meta_message_id="wamid-in-1")
+        self.assertEqual(inbound.direction, "inbound")
+        self.assertEqual(inbound.text_content, "Сәлем")
+
+        outbound = WhatsAppMessage.objects.get(meta_message_id="wamid-out-1")
+        self.assertEqual(outbound.direction, "outbound")
+        self.assertEqual(outbound.message_type, "text")
+        self.assertFalse(outbound.failed)
+        self.assertIn("Қай деңгейден бастағыңыз келеді?", outbound.text_content)
+        self.assertEqual(outbound.raw_payload["request"]["to"], "77781029394")
+
+        self.assertEqual(mock_post.call_count, 1)
+        self.assertEqual(mock_post.call_args.kwargs["json"]["to"], "77781029394")
+        self.assertEqual(
+            mock_openai.return_value.responses.create.call_args.kwargs["model"],
+            "gpt-5",
+        )
+        self.assertIn(
+            "user: Сәлем",
+            mock_openai.return_value.responses.create.call_args.kwargs["input"],
+        )
+
+        event = WhatsAppAgentEvent.objects.get(event_type="whatsapp_send_success")
+        self.assertEqual(event.payload["message_id"], "wamid-out-1")
+        self.assertEqual(event.payload["to"], "77781029394")
+
+    @patch("whatsapp_agent.services.send_telegram_alert")
+    @patch("whatsapp_agent.services.requests.post")
+    @patch("whatsapp_agent.services.OpenAI")
+    def test_openai_failure_uses_fallback_and_logs_error_event(
+        self,
+        mock_openai,
+        mock_post,
+        mock_send_telegram,
+    ):
+        mock_openai.return_value.responses.create.side_effect = RuntimeError("OpenAI boom")
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.text = '{"messages":[{"id":"wamid-out-2"}]}'
+        mock_post.return_value.json.return_value = {"messages": [{"id": "wamid-out-2"}]}
+
+        response = self.client.post(
+            reverse("whatsapp_webhook"),
+            data=json.dumps(self._build_text_payload("Бағасы қанша?", message_id="wamid-in-2")),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        outbound = WhatsAppMessage.objects.get(meta_message_id="wamid-out-2")
+        self.assertTrue(outbound.text_content.startswith("Көмектесемін."))
+        mock_send_telegram.assert_called_once()
+
+        event = WhatsAppAgentEvent.objects.get(event_type="openai_failure")
+        self.assertIn("OpenAI boom", event.payload["error"])
+        self.assertEqual(event.payload["model"], "gpt-5")
+
+    @patch("whatsapp_agent.services.send_telegram_alert")
+    @patch("whatsapp_agent.services.requests.post")
+    @patch("whatsapp_agent.services.OpenAI")
+    def test_whatsapp_send_failure_logs_full_meta_error_and_records_failed_outbound(
+        self,
+        mock_openai,
+        mock_post,
+        mock_send_telegram,
+    ):
+        mock_openai.return_value.responses.create.return_value = MagicMock(output_text="Сәлем! 😊")
+        mock_post.return_value.status_code = 400
+        mock_post.return_value.text = '{"error":{"message":"Outside 24-hour window","code":131047}}'
+        mock_post.return_value.json.return_value = {
+            "error": {
+                "message": "Outside 24-hour window",
+                "code": 131047,
+            }
+        }
+
+        response = self.client.post(
+            reverse("whatsapp_webhook"),
+            data=json.dumps(self._build_text_payload("Сәлем", message_id="wamid-in-3")),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        failed_outbound = WhatsAppMessage.objects.get(direction="outbound")
+        self.assertTrue(failed_outbound.failed)
+        self.assertEqual(failed_outbound.text_content, "Сәлем! 😊")
+        self.assertEqual(failed_outbound.raw_payload["parsed_json_error"]["code"], 131047)
+        self.assertIn("Outside 24-hour window", failed_outbound.raw_payload["response_text"])
+
+        event = WhatsAppAgentEvent.objects.get(event_type="whatsapp_send_failed")
+        self.assertEqual(event.payload["status_code"], 400)
+        self.assertIn("Outside 24-hour window", event.payload["response_text"])
+        self.assertEqual(event.payload["parsed_json_error"]["code"], 131047)
+        self.assertTrue(WhatsAppAgentEvent.objects.filter(event_type="webhook_message_failed").exists())
         mock_send_telegram.assert_called_once()
 
 
