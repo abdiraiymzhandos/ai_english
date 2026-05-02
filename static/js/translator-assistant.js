@@ -8,7 +8,7 @@ class TranslatorAssistant {
         this.config = Object.assign({
             checkAccessUrl: '/api/translator/check-access/',
             tokenUrl: '/api/translator/token/',
-            realtimeModel: 'gpt-realtime',
+            realtimeModel: 'gpt-realtime-1.5',
             csrfCookieName: 'csrftoken'
         }, config || {});
 
@@ -564,7 +564,7 @@ class TranslatorAssistant {
         await pc.setLocalDescription(offer);
         await this.waitForIceGatheringComplete(pc);
 
-        const realtimeModel = encodeURIComponent(this.config.realtimeModel || 'gpt-realtime');
+        const realtimeModel = encodeURIComponent(this.config.realtimeModel || 'gpt-realtime-1.5');
         const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${realtimeModel}`, {
             method: 'POST',
             headers: {

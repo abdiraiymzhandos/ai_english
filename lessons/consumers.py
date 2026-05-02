@@ -128,7 +128,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
             logger.info("🔑 Connecting to OpenAI with headers...")
 
             self.openai_ws = await websockets.connect(
-                "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview",
+                "wss://api.openai.com/v1/realtime?model=gpt-realtime-1.5",
                 additional_headers=headers,
             )
             logger.info("✅ OpenAI WebSocket connection established!")

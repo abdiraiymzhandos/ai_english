@@ -31,25 +31,65 @@ from english_course.utils.realtime_tts import synthesize_audio_realtime_wav
 
 logger = logging.getLogger(__name__)
 
-REALTIME_MODEL = "gpt-realtime"
+REALTIME_MODEL = "gpt-realtime-1.5"
 UPSELL_WHATSAPP_NUMBER = "77781029394"
 
 
 def _teacher_instructions(lesson: Lesson) -> str:
     # ✅ Concise instructions to save tokens (~70% reduction)
     lessons_data = (
-        f"Lesson {lesson.id}: {lesson.title}\n"
-        f"Vocab: {lesson.vocabulary}\n"
-        f"Content: {lesson.content}\n"
-        f"Grammar: {lesson.grammar}\n"
-        f"Dialog: {lesson.dialogue}\n"
+        f"Title: {lesson.title}\n\n"
+        f"Vocabulary:\n{lesson.vocabulary}\n\n"
+        f"Content:\n{lesson.content}\n\n"
+        f"Grammar:\n{lesson.grammar}\n\n"
+        f"Dialogue:\n{lesson.dialogue}"
     )
     return (
-        "Kazakh English teacher. Speak Kazakh + English examples. "
-        "Espanyol lessons: Russian only. "
-        "Ask short questions, wait for answers, correct gently.\n\n"
-        + lessons_data + "\n\n"
-        "Rules: short audio-friendly sentences, conversational, pause after questions."
+        "You are a real human-like American English teacher for Kazakh-speaking students (age 12+).\n"
+        "You are teaching a ONE-TO-ONE voice lesson using strict structure. Your name is Жандос\n\n"
+
+        "CRITICAL RULE: You MUST follow lesson structure step-by-step. Never skip or mix sections.\n\n"
+
+        "LESSON FLOW:\n"
+        "1. Vocabulary (teach and make student repeat mentally)\n"
+        "2. Text (read + translate + explain)\n"
+        "3. Grammar (simple explanation + examples + mistakes)\n"
+        "4. Dialogue (practice speaking naturally)\n\n"
+
+        "TEACHING STYLE:\n"
+        "- Speak like a real teacher, not a textbook.\n"
+        "- Short, natural sentences.\n"
+        "- English first, then simple Kazakh explanation.\n"
+        "- Do NOT use numbering or formatting.\n"
+        "- Keep it audio-friendly for TTS (clear pauses, short phrases).\n\n"
+
+        "INTERACTION RULES:\n"
+        "- Ask short guiding questions sometimes (e.g. 'Do you understand?')\n"
+        "- Encourage student lightly (not too often).\n"
+        "- Wait for natural flow, do not rush.\n\n"
+
+        "VOCABULARY FORMAT:\n"
+        "- word → meaning → short explanation → example → translation\n\n"
+
+        "TEXT FORMAT:\n"
+        "- sentence by sentence translation and meaning\n\n"
+
+        "GRAMMAR FORMAT:\n"
+        "- explain simply\n"
+        "- give 2-3 examples\n"
+        "- mention common mistakes\n"
+        "- end with 1 practice sentence\n\n"
+
+        "DIALOGUE FORMAT:\n"
+        "- read sentence\n"
+        "- translate\n"
+        "- explain key phrase\n\n"
+
+        "GOAL:\n"
+        "Student must understand AND be able to use English in real conversation.\n\n"
+
+        "LESSON DATA:\n"
+        + lessons_data
     )
 
 
@@ -400,7 +440,7 @@ Always end by inviting the student to try one short sentence using the rule."""
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
             resp = client.responses.create(
-                model="gpt-5",
+                model="gpt-5.5",
                 input=prompt,                      # сіз құрастырған prompt
                 reasoning={"effort": "low"},       # жылдамырақ жауап үшін
                 text={"verbosity": "low"},         # аудиоға ыңғайлы қысқа стиль
@@ -463,7 +503,7 @@ Always end by inviting the student to try one short sentence using the rule."""
                 wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
                     tts_input,
                     api_key=settings.OPENAI_API_KEY,
-                    model="gpt-realtime",
+                    model="gpt-realtime-1.5",
                     voice="cedar",
                     system_instructions=system_instructions,
                 )
@@ -472,7 +512,7 @@ Always end by inviting the student to try one short sentence using the rule."""
                 wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
                     tts_input,
                     api_key=settings.OPENAI_API_KEY,
-                    model="gpt-realtime",
+                    model="gpt-realtime-1.5",
                     voice="alloy",
                     system_instructions=system_instructions,
                 )
@@ -557,7 +597,7 @@ def motivational_message(request):
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-5",  # Use your preferred model.
+                model="gpt-5.5",  # Use your preferred model.
                 messages=[{"role": "user", "content": prompt}],
                 temperature=1,
             )

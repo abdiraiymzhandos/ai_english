@@ -17,7 +17,7 @@ from .models import ClassGroup, ClassStudent, StudentPhoto, Lesson
 
 logger = logging.getLogger(__name__)
 
-REALTIME_MODEL = "gpt-realtime"
+REALTIME_MODEL = "gpt-realtime-1.5"
 VOICE_EMBEDDING_SIZE = 13
 VOICE_EMBEDDING_LIMIT = 5
 

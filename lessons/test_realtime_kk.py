@@ -20,7 +20,7 @@ async def synthesize(voice_try: str):
     client = AsyncOpenAI(api_key=api_key)
 
     pcm = bytearray()
-    async with client.beta.realtime.connect(model="gpt-realtime") as conn:
+    async with client.beta.realtime.connect(model="gpt-realtime-1.5") as conn:
         # Нұсқаулар: қазақша сөйлеу + сандарды сөзбен айту
         await conn.session.update(session={
             "modalities": ["text", "audio"],

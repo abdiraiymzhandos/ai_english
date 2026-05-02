@@ -584,7 +584,7 @@ class VoiceLessonManager {
         await pc.setLocalDescription(offer);
         await this.waitForIceGatheringComplete(pc);
 
-        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=gpt-realtime`, {
+        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=gpt-realtime-1.5`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${clientSecret}`,

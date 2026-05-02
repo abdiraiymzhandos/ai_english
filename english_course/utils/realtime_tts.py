@@ -33,7 +33,7 @@ async def synthesize_audio_realtime_wav(
     text: str,
     *,
     api_key: str,
-    model: str = "gpt-realtime",
+    model: str = "gpt-realtime-1.5",
     voice: str = "cedar",                 # қол жетпесе, views.py ішінде alloy-ға ауысамыз
     sample_rate: int = SAMPLE_RATE,
     system_instructions: Optional[str] = None,
