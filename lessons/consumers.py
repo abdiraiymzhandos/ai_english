@@ -26,6 +26,7 @@ import base64
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.conf import settings
+from english_course.realtime_config import REALTIME_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +129,7 @@ class VoiceLessonConsumer(AsyncWebsocketConsumer):
             logger.info("🔑 Connecting to OpenAI with headers...")
 
             self.openai_ws = await websockets.connect(
-                "wss://api.openai.com/v1/realtime?model=gpt-realtime-1.5",
+                f"wss://api.openai.com/v1/realtime?model={REALTIME_MODEL}",
                 additional_headers=headers,
             )
             logger.info("✅ OpenAI WebSocket connection established!")

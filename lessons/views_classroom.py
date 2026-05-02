@@ -12,12 +12,13 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from english_course.realtime_config import REALTIME_MODEL
+
 from .forms_classroom import ClassGroupForm, ClassStudentForm, StudentPhotoForm, ClassroomSessionSelectForm
 from .models import ClassGroup, ClassStudent, StudentPhoto, Lesson
 
 logger = logging.getLogger(__name__)
 
-REALTIME_MODEL = "gpt-realtime-1.5"
 VOICE_EMBEDDING_SIZE = 13
 VOICE_EMBEDDING_LIMIT = 5
 
@@ -518,4 +519,5 @@ def mint_realtime_classroom_token(request, lesson_id, group_id):
         logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
         return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
 
+    data["realtime_model"] = REALTIME_MODEL
     return JsonResponse(data)

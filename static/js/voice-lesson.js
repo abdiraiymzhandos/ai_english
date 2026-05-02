@@ -452,6 +452,10 @@ class VoiceLessonManager {
             throw new Error('OpenAI-тен дұрыс емес жауап алынды');
         }
         this.clientSecret = clientSecret;
+        const realtimeModel = tokenPayload?.realtime_model || tokenPayload?.model;
+        if (!realtimeModel) {
+            throw new Error('OpenAI realtime model missing from token response');
+        }
 
         const pc = new RTCPeerConnection({
             iceServers: [
@@ -584,7 +588,8 @@ class VoiceLessonManager {
         await pc.setLocalDescription(offer);
         await this.waitForIceGatheringComplete(pc);
 
-        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=gpt-realtime-1.5`, {
+        const encodedRealtimeModel = encodeURIComponent(realtimeModel);
+        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${encodedRealtimeModel}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${clientSecret}`,

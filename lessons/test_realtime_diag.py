@@ -2,6 +2,7 @@
 import os, asyncio, base64, wave
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
+from english_course.realtime_config import REALTIME_MODEL
 
 load_dotenv()
 OUT = "realtime_diag.wav"
@@ -29,7 +30,7 @@ async def main():
     text_chunks = 0
 
     print("=== Realtime test ===")
-    async with client.beta.realtime.connect(model="gpt-realtime-1.5") as conn:
+    async with client.beta.realtime.connect(model=REALTIME_MODEL) as conn:
         print("Connected. Sending session.update ...")
 
         # НАЗАР: output_audio_format — string!

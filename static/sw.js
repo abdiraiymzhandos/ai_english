@@ -1,5 +1,5 @@
 // Service Worker for English Course PWA
-const CACHE_NAME = 'english-course-v1';
+const CACHE_NAME = 'english-course-v2';
 const urlsToCache = [
   '/',
   '/static/css/guide-modal.css',
@@ -46,6 +46,19 @@ self.addEventListener('activate', event => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  const isRealtimePath =
+    url.pathname.startsWith('/api/realtime/') ||
+    url.pathname.startsWith('/api/translator/') ||
+    url.pathname === '/static/js/voice-lesson.js' ||
+    url.pathname === '/static/js/translator-assistant.js' ||
+    url.pathname === '/static/js/classroom-lesson.js';
+
+  if (event.request.method !== 'GET' || isRealtimePath) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {

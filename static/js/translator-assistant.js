@@ -8,7 +8,6 @@ class TranslatorAssistant {
         this.config = Object.assign({
             checkAccessUrl: '/api/translator/check-access/',
             tokenUrl: '/api/translator/token/',
-            realtimeModel: 'gpt-realtime-1.5',
             csrfCookieName: 'csrftoken'
         }, config || {});
 
@@ -441,6 +440,10 @@ class TranslatorAssistant {
             throw new Error('OpenAI-тен дұрыс емес жауап алынды');
         }
         this.clientSecret = clientSecret;
+        const realtimeModel = tokenPayload?.realtime_model || tokenPayload?.model || this.config.realtimeModel;
+        if (!realtimeModel) {
+            throw new Error('OpenAI realtime model missing from token response');
+        }
 
         const pc = new RTCPeerConnection({
             iceServers: [
@@ -564,8 +567,8 @@ class TranslatorAssistant {
         await pc.setLocalDescription(offer);
         await this.waitForIceGatheringComplete(pc);
 
-        const realtimeModel = encodeURIComponent(this.config.realtimeModel || 'gpt-realtime-1.5');
-        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${realtimeModel}`, {
+        const encodedRealtimeModel = encodeURIComponent(realtimeModel);
+        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${encodedRealtimeModel}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${clientSecret}`,

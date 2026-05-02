@@ -1,6 +1,7 @@
 import os, asyncio, base64, wave
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
+from english_course.realtime_config import REALTIME_MODEL
 
 load_dotenv()
 OUT = "realtime_kk.wav"
@@ -20,7 +21,7 @@ async def synthesize(voice_try: str):
     client = AsyncOpenAI(api_key=api_key)
 
     pcm = bytearray()
-    async with client.beta.realtime.connect(model="gpt-realtime-1.5") as conn:
+    async with client.beta.realtime.connect(model=REALTIME_MODEL) as conn:
         # Нұсқаулар: қазақша сөйлеу + сандарды сөзбен айту
         await conn.session.update(session={
             "modalities": ["text", "audio"],

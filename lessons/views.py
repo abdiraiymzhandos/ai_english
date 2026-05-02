@@ -26,12 +26,12 @@ from .models import UserProfile
 from django.contrib.auth import login
 
 from asgiref.sync import async_to_sync
+from english_course.realtime_config import REALTIME_MODEL
 from english_course.utils.realtime_tts import synthesize_audio_realtime_wav
 
 
 logger = logging.getLogger(__name__)
 
-REALTIME_MODEL = "gpt-realtime-1.5"
 UPSELL_WHATSAPP_NUMBER = "77781029394"
 
 
@@ -328,6 +328,7 @@ def mint_realtime_token(request, lesson_id):
         logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
         return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
 
+    data["realtime_model"] = REALTIME_MODEL
     return JsonResponse(data)
 
 
@@ -459,7 +460,7 @@ Always end by inviting the student to try one short sentence using the rule."""
 
 
         # Generate audio explanation.
-        # Generate audio explanation (gpt-realtime -> WAV)
+        # Generate audio explanation via the configured Realtime model.
         audio_url = None
         if explanation_text:
             media_dir = settings.MEDIA_ROOT
@@ -503,7 +504,7 @@ Always end by inviting the student to try one short sentence using the rule."""
                 wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
                     tts_input,
                     api_key=settings.OPENAI_API_KEY,
-                    model="gpt-realtime-1.5",
+                    model=REALTIME_MODEL,
                     voice="cedar",
                     system_instructions=system_instructions,
                 )
@@ -512,7 +513,7 @@ Always end by inviting the student to try one short sentence using the rule."""
                 wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
                     tts_input,
                     api_key=settings.OPENAI_API_KEY,
-                    model="gpt-realtime-1.5",
+                    model=REALTIME_MODEL,
                     voice="alloy",
                     system_instructions=system_instructions,
                 )
@@ -1185,4 +1186,5 @@ def mint_translator_token(request):
         logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
         return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
 
+    data["realtime_model"] = REALTIME_MODEL
     return JsonResponse(data)

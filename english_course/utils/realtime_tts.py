@@ -3,6 +3,8 @@ import base64, wave
 from typing import Optional
 from openai import AsyncOpenAI
 
+from english_course.realtime_config import REALTIME_MODEL
+
 from pydub import AudioSegment
 from io import BytesIO
 
@@ -33,13 +35,13 @@ async def synthesize_audio_realtime_wav(
     text: str,
     *,
     api_key: str,
-    model: str = "gpt-realtime-1.5",
+    model: str = REALTIME_MODEL,
     voice: str = "cedar",                 # қол жетпесе, views.py ішінде alloy-ға ауысамыз
     sample_rate: int = SAMPLE_RATE,
     system_instructions: Optional[str] = None,
 ) -> bytes:
     """
-    gpt-realtime арқылы text -> PCM16 stream -> WAV bytes
+    Realtime API арқылы text -> PCM16 stream -> WAV bytes
     """
     client = AsyncOpenAI(api_key=api_key)
 
