@@ -1,6 +1,6 @@
 # FEATURES_MAP.md
 
-Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real features to code, not intended architecture.
+Use this after `AGENTS.md`, `PROJECT_CONTEXT.md`, and `FILE_MAP.md`. This file maps real features to code, not intended architecture.
 
 ## Lessons / Course Flow
 - Feature goal
@@ -14,7 +14,7 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
 - Request/data flow
   - `/` -> `lesson_list()` computes unlocked lessons from `QuizAttempt`, session, and `UserProfile`.
   - `/lesson/<id>/` -> `lesson_detail()` enforces access and loads `Explanation`.
-  - Quiz APIs mutate `QuizAttempt` and update session/profile progression.
+  - Quiz APIs store `QuizAnswer` rows, derive attempt score/mistakes, and update session/profile progression only on a real pass.
 - Dependencies
   - `Lesson`, `QuizAttempt`, `Explanation`, session storage.
 - Admin/config dependencies
@@ -72,14 +72,15 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
 - Main files
   - `lessons/views.py`
   - `static/js/voice-lesson.js`
+  - `english_course/realtime.py`
   - `lessons/templates/lessons/lesson_detail.html`
   - `english_course/utils/realtime_tts.py`
   - `english_course/settings.py`
 - Request/data flow
   - Lesson detail page mounts the voice UI if the user has active voice access.
   - Frontend requests `/api/realtime/token/<lesson_id>/`.
-  - Backend builds lesson-specific instructions and mints an OpenAI Realtime session.
-  - Browser talks directly to OpenAI via WebRTC.
+  - Backend builds lesson-specific instructions and mints an OpenAI Realtime GA client secret.
+  - Browser talks directly to OpenAI via WebRTC using `/v1/realtime/calls`.
 - Dependencies
   - `OPENAI_API_KEY`, browser microphone, OpenAI Realtime API, WebRTC.
 - Admin/config dependencies
@@ -87,13 +88,14 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
 - Fragile points
   - Browser audio/device quirks.
   - Timeout/keepalive logic is easy to regress.
-  - Historical websocket consumer still exists in the repo, but it is no longer routed and can still confuse debugging.
+  - `lessons/consumers.py` is only a historical marker; do not reintroduce a Django websocket bridge by accident.
 
 ## Translator Assistant
 - Feature goal
   - Provide a live speech-to-speech interpreter/assistant for users with translator access.
 - Main files
   - `lessons/views.py`
+  - `english_course/realtime.py`
   - `static/js/translator-assistant.js`
   - `lessons/templates/lessons/lesson_list.html`
   - `lessons/models.py`
@@ -101,7 +103,8 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
   - Lesson list page exposes translator launcher UI.
   - Frontend checks `/api/translator/check-access/`.
   - Frontend requests `/api/translator/token/` when starting a session.
-  - Browser talks directly to OpenAI Realtime via WebRTC.
+  - Backend mints an OpenAI Realtime GA client secret.
+  - Browser talks directly to OpenAI Realtime via WebRTC using `/v1/realtime/calls`.
 - Dependencies
   - `OPENAI_API_KEY`, browser microphone, OpenAI Realtime API, WebRTC.
 - Admin/config dependencies
@@ -152,8 +155,9 @@ Use this after `PROJECT_CONTEXT.md` and `FILE_MAP.md`. This file maps real featu
   - `lessons/fixtures/explanations.json`
 - Request/data flow
   - `start_quiz()` calls `generate_quiz_questions()` on demand.
-  - `generate_quiz_questions()` parses lesson vocabulary and rebuilds DB question rows.
-  - `explain_section()` generates AI text and TTS audio, then updates `Explanation`.
+  - `generate_quiz_questions()` parses lesson vocabulary and creates missing DB question rows without deleting existing rows.
+  - `submit_answer()` writes one `QuizAnswer` per attempt/question and derives score from stored answers.
+  - `explain_section()` generates AI text and GA Realtime MP3 audio, then updates `Explanation`.
 - Dependencies
   - Vocabulary text formatting, OpenAI API, media storage.
 - Admin/config dependencies

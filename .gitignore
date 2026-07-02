@@ -8,3 +8,43 @@ staticfiles/
 
 media_files.zip
 db.sqlite3
+# --- Local-only files ---
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local databases
+db.sqlite3
+*.sqlite3
+
+# Django generated files
+media/
+staticfiles/
+
+# Test and coverage output
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs and temporary editor files
+*.log
+*.swp
+*.swo
+*~
+
+# Operating-system files
+.DS_Store
+Thumbs.db

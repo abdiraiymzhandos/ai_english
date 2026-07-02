@@ -1,6 +1,6 @@
 # FILE_MAP.md
 
-Use this after `PROJECT_CONTEXT.md`. This file is for fast navigation, not architecture narrative.
+Use this after `AGENTS.md` and `PROJECT_CONTEXT.md`. This file is for fast navigation, not architecture narrative.
 
 ## Top Important Folders
 
@@ -22,11 +22,12 @@ Use this after `PROJECT_CONTEXT.md`. This file is for fast navigation, not archi
 | --- | --- | --- | --- |
 | `english_course/settings.py` | Environment loading, installed apps, middleware, env-driven DB selection, static/media, security, OpenAI key loading | Config, deployment, env, static/media, middleware changes | Import-time side effects, remaining hard-coded paths, debug/security drift |
 | `english_course/urls.py` | Root URL handoff | Only when adding/removing top-level routing | Easy to forget `lessons.urls` is the real surface |
+| `english_course/realtime.py` | Shared GA Realtime client-secret minting and safety identifiers | Voice, translator, classroom token work | Must not expose raw user IDs or standard API keys to browser |
 | `whatsapp_agent/services.py` | WhatsApp sales-agent business logic, Cloud API sends/downloads, template test sends, Telegram alerts, receipt validation, account provisioning | WhatsApp automation behavior changes | External API calls, Meta test-recipient input vs `wa_id` confusion, receipt confidence rules, paid-access automation |
 | `whatsapp_agent/views.py` | Meta webhook verification + POST intake | Webhook verification or inbound parsing changes | Must never crash on malformed payloads |
 | `whatsapp_agent/models.py` | WhatsApp leads, messages, events, and receipts | Data model/admin/reporting changes for the sales agent | Avoid coupling to unrelated lesson models |
 | `english_course/asgi.py` | ASGI entrypoint | ASGI/deployment work or historical realtime cleanup | Should remain explicit about HTTP-only ASGI unless a new websocket architecture is intentionally added |
-| `english_course/utils/realtime_tts.py` | Realtime TTS helper used for lesson explanations | TTS/audio generation fixes | Realtime API assumptions, audio conversion path |
+| `english_course/utils/realtime_tts.py` | GA Realtime WebSocket TTS helper used for lesson explanation MP3s | TTS/audio generation fixes | Realtime API assumptions, audio conversion path, ffmpeg/pydub availability |
 | `lessons/urls.py` | Main product route map | Adding/changing behavior endpoints | Very dense surface; easy to miss related routes |
 | `lessons/models.py` | Lessons, quiz attempts, explanations, user profile/access, devices, leads, classroom WIP models | Data model, access logic, classroom data, content schema | `QuizAttempt.user_id` is string-based; `UserProfile` helpers are now the first access source to inspect |
 | `lessons/views.py` | Lesson flow, explanation generation, quiz APIs, voice/translator token minting, leads, profile, PWA endpoints | Most product/backend behavior changes | Monolithic; lesson progression is still sensitive even though core access checks now lean on `UserProfile` helpers |
@@ -70,6 +71,7 @@ Use this after `PROJECT_CONTEXT.md`. This file is for fast navigation, not archi
 ## If Task Is About Realtime Voice, Open These First
 - `lessons/views.py`
 - `static/js/voice-lesson.js`
+- `english_course/realtime.py`
 - `english_course/utils/realtime_tts.py`
 - `lessons/templates/lessons/lesson_detail.html`
 - `english_course/settings.py`
@@ -77,6 +79,7 @@ Use this after `PROJECT_CONTEXT.md`. This file is for fast navigation, not archi
 ## If Task Is About Translator Assistant, Open These First
 - `lessons/views.py`
 - `static/js/translator-assistant.js`
+- `english_course/realtime.py`
 - `lessons/templates/lessons/lesson_list.html`
 - `lessons/models.py`
 - `english_course/settings.py`

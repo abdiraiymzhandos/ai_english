@@ -1,6 +1,6 @@
 # ENVIRONMENT_DEPLOYMENT.md
 
-Use this with `PROJECT_CONTEXT.md`. This file is only for environment and deployment-sensitive facts found in code.
+Use this with `AGENTS.md`, `PROJECT_CONTEXT.md`, and `docs/AI_AGENT_RUNBOOK.md`. This file is only for environment and deployment-sensitive facts found in code.
 
 ## Current Environment Shape
 - Django `5.1.x`.
@@ -13,7 +13,7 @@ Use this with `PROJECT_CONTEXT.md`. This file is only for environment and deploy
 - Current ASGI app is HTTP-only; the deprecated interactive voice websocket route is no longer exposed.
 - WhiteNoise is enabled for static handling.
 - `Procfile` uses `gunicorn english_course.wsgi`.
-- Media is stored outside the repo source tree via a hard-coded absolute `MEDIA_ROOT`.
+- Media defaults to `<repo>/media` locally and can be moved with the `MEDIA_ROOT` environment variable.
 
 ## Environment Variables Found In Code
 
@@ -28,6 +28,7 @@ Use this with `PROJECT_CONTEXT.md`. This file is only for environment and deploy
 | `MYSQL_PORT` | MySQL port | Defaults to `3306`; should still be set explicitly in production |
 | `OPENAI_API_KEY` | OpenAI text, TTS, realtime token minting | Required at import time in `english_course/settings.py`; app raises if missing |
 | `SECRET_KEY` | Django secret key | Loaded from env in `english_course/settings.py` |
+| `MEDIA_ROOT` | Media storage root | Optional; defaults to `<repo>/media` |
 | `WHATSAPP_ACCESS_TOKEN` | WhatsApp Cloud API outbound sends + media download | Required for live WhatsApp agent operation |
 | `WHATSAPP_PHONE_NUMBER_ID` | WhatsApp Cloud API send target | Required for outbound sends |
 | `WHATSAPP_WABA_ID` | WhatsApp Business Account reference | Stored for deployment/config parity |
@@ -56,7 +57,7 @@ WhatsApp sandbox note:
 | `DEBUG` | Env-driven | Defaults to local-friendly `"1"` |
 | `ALLOWED_HOSTS` | Hard-coded list | Includes localhost, PythonAnywhere, `oqyai.kz` |
 | `CSRF_TRUSTED_ORIGINS` | Hard-coded list | Production-sensitive |
-| `MEDIA_ROOT` | Hard-coded absolute path | `/home/abdiraiymzhandos/media/` |
+| `MEDIA_ROOT` | Env-driven | Defaults to `<repo>/media`; set explicitly in production if media lives elsewhere |
 | Secure cookies | Hard-coded `True` | Can affect local/debug auth behavior |
 | `TIME_ZONE` | Hard-coded `UTC` | App logic uses timezone-aware access checks |
 | Channel layer | Hard-coded in-memory backend | Currently low impact because interactive voice no longer uses Django websocket routing |
@@ -84,13 +85,13 @@ WhatsApp sandbox note:
 
 ## Realtime / OpenAI Deployment Concerns
 - Token minting is server-side in `lessons/views.py` and `lessons/views_classroom.py`.
-- Browser talks directly to OpenAI Realtime after the server returns a session payload.
+- Browser talks directly to OpenAI Realtime after the server returns an ephemeral GA client secret.
 - Realtime voice/translator/classroom sessions need:
   - working `OPENAI_API_KEY`
   - outbound network access from server
   - browser microphone access
   - HTTPS in real browser environments for media APIs
-- `english_course/utils/realtime_tts.py` uses the OpenAI Realtime client for audio synthesis.
+- `english_course/utils/realtime_tts.py` uses the GA Realtime server WebSocket for explanation MP3 synthesis.
 - If a websocket architecture is ever reintroduced, the current in-memory channel layer is a deployment limitation.
 
 ## Import-Time Settings Warning

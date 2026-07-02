@@ -1,6 +1,6 @@
 # CLASSROOM_ARCHITECTURE.md
 
-Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
+Use this with `AGENTS.md`, `docs/REALTIME_AND_QUIZ_CONTRACTS.md`, `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 
 ## Stable Baseline Classroom-Related Architecture
 - Stable committed baseline does not appear to have a fully established classroom subsystem yet.
@@ -9,7 +9,7 @@ Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
   - `UserProfile` access model in `lessons/models.py`
   - lesson content from `Lesson`
   - auth shell template `lessons/templates/lessons/auth_base.html`
-  - voice token minting pattern from `lessons/views.py` and `static/js/voice-lesson.js`
+  - GA Realtime client-secret minting pattern from `english_course/realtime.py`, `lessons/views.py`, and `static/js/voice-lesson.js`
 
 ## Current Local WIP: Classroom Overview
 - Goal
@@ -21,7 +21,7 @@ Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 
 | File | Purpose |
 | --- | --- |
-| `lessons/views_classroom.py` | Backend for classroom dashboard, group/student CRUD, photo serving, voice embedding save, session token minting |
+| `lessons/views_classroom.py` | Backend for classroom dashboard, group/student CRUD, photo serving, voice embedding save, Realtime client-secret minting |
 | `lessons/forms_classroom.py` | Group, student, multi-photo, and session-select forms |
 | `lessons/models.py` | `ClassGroup`, `ClassStudent`, `StudentPhoto`, `UserProfile.role`, `voice_embeddings` |
 | `lessons/templates/lessons/classroom/dashboard.html` | Teacher dashboard listing groups |
@@ -61,7 +61,7 @@ Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 | `/classroom/photo/<photo_id>/` | `classroom_student_photo` | Serve photo back to teacher/browser |
 | `/classroom/session/` | `classroom_session_select` | Select group + lesson |
 | `/classroom/session/<group_id>/<lesson_id>/` | `classroom_session` | Session runtime page |
-| `/api/realtime/classroom/<lesson_id>/<group_id>/` | `mint_realtime_classroom_token` | Classroom-specific OpenAI Realtime session payload |
+| `/api/realtime/classroom/<lesson_id>/<group_id>/` | `mint_realtime_classroom_token` | Classroom-specific OpenAI Realtime client secret |
 
 ## Enrollment Flow
 1. Teacher registers or has `role=teacher` in local WIP.
@@ -102,9 +102,9 @@ Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 ## Realtime / Websocket Interactions
 - Intended classroom transport is not Django websocket.
 - Classroom follows the same pattern as the voice lesson:
-  - backend mints token
-  - browser talks directly to OpenAI Realtime via WebRTC
-- The only websocket code in repo is the older deprecated `lessons/consumers.py` route, which is not classroom-specific.
+  - backend mints an OpenAI Realtime GA client secret
+  - browser talks directly to OpenAI Realtime via WebRTC using `/v1/realtime/calls`
+- `lessons/consumers.py` is only a historical marker and is not classroom-specific.
 
 ## External Browser Dependencies
 - `face-api.js`

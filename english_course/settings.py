@@ -224,8 +224,8 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = "whitenoise.storage.ManifestStaticFilesStorage"
 
 # Медиа файлдар
-MEDIA_URL = '/media/'
-MEDIA_ROOT = "/home/abdiraiymzhandos/media/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", str(BASE_DIR / "media")))
 
 
 # Default primary key field type

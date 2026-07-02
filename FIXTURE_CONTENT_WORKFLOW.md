@@ -1,6 +1,6 @@
 # FIXTURE_CONTENT_WORKFLOW.md
 
-Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
+Use this with `AGENTS.md`, `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 
 ## Relevant Files
 
@@ -25,6 +25,8 @@ Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 - `QuizQuestion` rows point to `Lesson`.
 - `Explanation` rows are unique per `(lesson, section)`.
 - `QuizAttempt.user_id` is a string, not a foreign key.
+- `QuizAttempt` is unique per `user_id + lesson`.
+- `QuizAnswer` stores one answer per `attempt + question`.
 - Current local snapshot counts observed in repo:
   - `lessons.json`: `300` lessons
   - `quiz_questions.json`: `1042` rows
@@ -40,14 +42,15 @@ Use this with `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
 
 ## How Content And Quiz Generation Interact
 - `lessons/views.py::generate_quiz_questions()`
-  - Deletes existing `QuizQuestion` rows for a lesson.
-  - Rebuilds them from `Lesson.vocabulary`.
+  - Leaves existing `QuizQuestion` rows in place.
+  - Creates rows from `Lesson.vocabulary` only when a lesson has no questions.
 - Parsing assumption
   - Vocabulary lines are split using the delimiter `" – "`.
 - `lessons/views.py::start_quiz()`
   - Calls `generate_quiz_questions()` during request handling.
 - Implication
-  - Content formatting changes can immediately affect runtime quiz generation.
+  - Content formatting changes affect initial quiz question generation.
+  - Existing questions are preserved so stored `QuizAnswer` rows do not lose their question references.
 
 ## How Explanations Interact With Content
 - `lessons/views.py::explain_section()`

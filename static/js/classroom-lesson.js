@@ -599,10 +599,20 @@ class ClassroomLessonManager extends window.VoiceLessonManager {
     }
 
     async fetchRealtimeToken() {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        const csrfToken = this.getCSRFToken();
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;
+        }
+
         const response = await fetch(`/api/realtime/classroom/${this.lessonId}/${this.groupId}/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
+            headers,
+            body: JSON.stringify({}),
+            credentials: 'same-origin'
         });
 
         if (!response.ok) {

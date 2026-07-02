@@ -435,14 +435,17 @@ class TranslatorAssistant {
 
     async startRealtimeSession() {
         const tokenPayload = await this.fetchRealtimeToken();
-        const clientSecret = tokenPayload?.client_secret?.value || tokenPayload?.client_secret;
+        const clientSecret =
+            tokenPayload?.value ||
+            tokenPayload?.client_secret?.value ||
+            tokenPayload?.client_secret;
         if (!clientSecret) {
             throw new Error('OpenAI-тен дұрыс емес жауап алынды');
         }
         this.clientSecret = clientSecret;
-        const realtimeModel = tokenPayload?.realtime_model || tokenPayload?.model || this.config.realtimeModel;
-        if (!realtimeModel) {
-            throw new Error('OpenAI realtime model missing from token response');
+        const realtimeModel = tokenPayload?.realtime_model || tokenPayload?.model || this.config.realtimeModel || '';
+        if (realtimeModel) {
+            console.debug('Realtime model:', realtimeModel);
         }
 
         const pc = new RTCPeerConnection({
@@ -505,41 +508,10 @@ class TranslatorAssistant {
             }
         };
 
-        // Dual data channel setup
-        pc.ondatachannel = (event) => {
-            const channel = event.channel;
-            this.eventsChannel = channel;
-            channel.onmessage = (e) => this.handleRealtimeMessage(e.data);
-
-            channel.onopen = () => {
-                console.log('OpenAI data channel opened');
-                try {
-                    channel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: { modalities: ['audio', 'text'] }
-                    }));
-                    console.log('Sent initial session.update');
-                } catch (err) {
-                    console.warn('Failed to send via OpenAI channel:', err);
-                }
-            };
-        };
-
-        this.dataChannel = pc.createDataChannel('translator-events');
+        this.dataChannel = pc.createDataChannel('oai-events');
         this.dataChannel.onmessage = (e) => this.handleRealtimeMessage(e.data);
         this.dataChannel.onopen = () => {
-            console.log('Custom data channel opened');
-            if (!this.eventsChannel || this.eventsChannel.readyState !== 'open') {
-                try {
-                    this.dataChannel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: { modalities: ['audio', 'text'] }
-                    }));
-                    console.log('Sent session.update');
-                } catch (err) {
-                    console.warn('Failed to send via custom channel:', err);
-                }
-            }
+            console.log('Realtime data channel opened');
 
             if (this.useKeepAlive) {
                 this.startKeepAlive();
@@ -567,8 +539,7 @@ class TranslatorAssistant {
         await pc.setLocalDescription(offer);
         await this.waitForIceGatheringComplete(pc);
 
-        const encodedRealtimeModel = encodeURIComponent(realtimeModel);
-        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${encodedRealtimeModel}`, {
+        const sdpResponse = await fetch('https://api.openai.com/v1/realtime/calls', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${clientSecret}`,
@@ -579,6 +550,7 @@ class TranslatorAssistant {
 
         if (!sdpResponse.ok) {
             const text = await sdpResponse.text();
+            console.error('Realtime SDP connection failed:', sdpResponse.status, text);
             throw new Error(text || 'OpenAI Realtime SDP қатесі');
         }
 
@@ -622,10 +594,7 @@ class TranslatorAssistant {
             this.dataChannel = null;
         }
 
-        if (this.eventsChannel) {
-            try { this.eventsChannel.close(); } catch (e) { /* ignore */ }
-            this.eventsChannel = null;
-        }
+        this.eventsChannel = null;
 
         if (this.peerConnection) {
             try {
@@ -675,7 +644,7 @@ class TranslatorAssistant {
         if (!type) return;
 
         switch (type) {
-            case 'response.audio_transcript.delta':
+            case 'response.output_audio_transcript.delta':
             case 'response.output_text.delta': {
                 const textDelta = data?.delta || '';
                 if (textDelta) {
@@ -684,7 +653,7 @@ class TranslatorAssistant {
                 break;
             }
 
-            case 'response.audio_transcript.done':
+            case 'response.output_audio_transcript.done':
             case 'response.output_text.done':
                 this.completeAIMessage();
                 break;
