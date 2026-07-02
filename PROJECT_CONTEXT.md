@@ -1,12 +1,13 @@
 # PROJECT_CONTEXT.md
 
 ## Project Snapshot
+- For current agent workflow and contracts, read `AGENTS.md` first, then `docs/ARCHITECTURE_AND_DATA_FLOW.md`, `docs/REALTIME_AND_QUIZ_CONTRACTS.md`, and `docs/AI_AGENT_RUNBOOK.md`.
 - Hybrid scope as of `2026-03-28`: this document describes the stable product architecture first, then a separate `Current Local WIP: Classroom` section for the uncommitted classroom work present in this workspace.
-- Stack: Django `5.1.x`, one main app `lessons`, project config in `english_course/`, static assets in `static/`, media served from a hard-coded external `MEDIA_ROOT`.
+- Stack: Django `5.1.x`, one main app `lessons`, project config in `english_course/`, static assets in `static/`, media served from portable `MEDIA_ROOT`.
 - Root URL flow is simple: `english_course/urls.py` delegates almost everything to `lessons/urls.py`.
 - This is effectively a single dense Django app. `lessons` owns lessons, quizzes, access rules, auth-adjacent product logic, OpenAI integrations, lead capture, and now classroom work.
 - Premium/access is flag-based and admin-driven. There is no Stripe, checkout, webhook, or real billing backend in the repo today.
-- Realtime AI flows are backend-minted OpenAI session tokens plus client-side WebRTC in the browser.
+- Realtime AI browser flows are backend-minted OpenAI GA client secrets plus client-side WebRTC in the browser.
 
 ## Three Truths To Remember First
 1. Open `lessons/urls.py`, `lessons/views.py`, and `lessons/models.py` before making assumptions. Most product behavior lives there.
@@ -17,7 +18,7 @@
 - `english_course/settings.py`: environment loading, installed apps, middleware, static/media config, ASGI/WSGI setup, OpenAI key loading.
   - Database selection is now env-driven: SQLite by default, MySQL when `USE_MYSQL=1`, so manual comment/uncomment switching is no longer part of deploy flow.
 - `english_course/urls.py`: admin + include of `lessons.urls`.
-- `english_course/asgi.py`: ASGI entrypoint. Interactive realtime voice is HTTP token minting + browser WebRTC; no deprecated voice websocket route is exposed here now.
+- `english_course/asgi.py`: ASGI entrypoint. Interactive realtime voice is HTTP client-secret minting + browser WebRTC; no deprecated voice websocket route is exposed here now.
 - `lessons/`: core product app.
 - `lessons/templates/lessons/`: primary template tree.
 - `static/js/`: frontend behavior for voice lesson, translator, classroom, PWA, guide modal.
@@ -48,9 +49,9 @@
 - `/lesson/<lesson_id>/` -> `lesson_detail`
   - Enforces access rules, loads `Explanation` records, renders lesson page.
 - `/start-quiz/<lesson_id>/` -> `start_quiz`
-  - Rebuilds quiz questions from lesson vocabulary on demand, returns JSON.
+  - Ensures quiz questions exist, resumes the one attempt, and returns questions plus authoritative state.
 - `/submit-answer/<lesson_id>/` -> `submit_answer`
-  - Updates `QuizAttempt`, progresses unlock state, mutates session/profile.
+  - Stores one `QuizAnswer` per question, derives score/mistakes, and progresses unlock state only after a real pass.
 - `/register/`, `/login/`, `/logout/`, `/profile/`
   - Standard auth plus role/phone/profile behavior. `/profile/` now also acts as the main user-facing access dashboard and soft upsell surface.
 - `/advertisement/`
@@ -60,9 +61,9 @@
 - `/lesson/<lesson_id>/explain-section/` -> AI explanation generation + TTS + DB persistence.
 - `/chat-with-gpt/<lesson_id>/` -> lesson-aware Q&A in Kazakh.
 - `/motivational-message/` -> small GPT-generated motivational modal.
-- `/api/realtime/token/<lesson_id>/` -> ephemeral OpenAI session token for voice lesson.
+- `/api/realtime/token/<lesson_id>/` -> ephemeral OpenAI Realtime client secret for voice lesson.
 - `/api/translator/check-access/` -> translator feature gate check.
-- `/api/translator/token/` -> ephemeral OpenAI session token for translator assistant.
+- `/api/translator/token/` -> ephemeral OpenAI Realtime client secret for translator assistant.
 
 ### PWA and utility endpoints
 - `/sw.js` and `/manifest.json`
@@ -95,6 +96,11 @@
   - `ForeignKey -> Lesson`.
   - Stores `user_id` as a string, not a foreign key. This is important.
   - Used for both authenticated users and guests via session key.
+  - Unique per `(user_id, lesson)`.
+- `QuizAnswer`
+  - `ForeignKey -> QuizAttempt` and `ForeignKey -> QuizQuestion`.
+  - Unique per `(attempt, question)`.
+  - Server-authoritative record of submitted answers and timeouts.
 - `Explanation`
   - `ForeignKey -> Lesson`.
   - Unique per `(lesson, section)`.
@@ -131,7 +137,7 @@
   - Main track: lesson IDs `< 251`
   - Alternate track: lesson IDs `>= 251`
 - Unlocking is range-based from the highest passed lesson, not a separate curriculum model.
-- `start_quiz()` always calls `generate_quiz_questions()`, which deletes and rebuilds quiz questions from vocabulary text each time.
+- `start_quiz()` calls `generate_quiz_questions()`, but existing `QuizQuestion` rows are preserved so stored `QuizAnswer` rows remain valid.
 - Vocabulary parsing depends on the delimiter `" – "`. Content formatting mistakes can break quiz generation.
 
 ## User / Authentication / Access Logic
@@ -168,17 +174,17 @@
 
 ### Stable baseline AI paths
 - `lessons/views.py::explain_section`
-  - Uses OpenAI `responses.create(model="gpt-5")` for explanation text.
+  - Uses OpenAI text APIs for explanation text.
   - Falls back to chat completions if needed.
-  - Uses `english_course/utils/realtime_tts.py` to synthesize audio and persists `Explanation`.
+  - Uses `english_course/utils/realtime_tts.py` GA Realtime WebSocket TTS to synthesize MP3 audio and persists `Explanation`.
 - `lessons/views.py::chat_with_gpt`
   - Lesson-aware chat response in Kazakh.
 - `lessons/views.py::motivational_message`
   - Small GPT-generated motivational message.
 - `lessons/views.py::mint_realtime_token`
-  - Mints OpenAI Realtime session for voice lesson.
+  - Mints an OpenAI Realtime GA client secret for voice lesson.
 - `lessons/views.py::mint_translator_token`
-  - Mints OpenAI Realtime session for translator assistant.
+  - Mints an OpenAI Realtime GA client secret for translator assistant.
 
 ### Frontend realtime entry points
 - `static/js/voice-lesson.js`
@@ -188,11 +194,10 @@
 - `static/js/translator-assistant.js`
   - Similar WebRTC pattern for live translation/interpreter behavior.
 - `english_course/utils/realtime_tts.py`
-  - Async helper for Realtime TTS, converts streamed PCM16 to MP3 bytes.
+  - Async GA Realtime WebSocket helper for explanation audio, converts streamed PCM16 to MP3 bytes.
 
-### Docs drift warning
-- `VOICE_LESSON_README.md` still contains historical websocket-centric guidance.
-- Actual live voice lesson code says `WebRTC ONLY`.
+### Docs note
+- `VOICE_LESSON_README.md` is now a current WebRTC/Realtime GA overview.
 
 ## Templates And Static Files
 - Biggest UI hubs:
@@ -269,45 +274,42 @@
 - `english_course/settings.py`
   - Raises if `OPENAI_API_KEY` is missing.
   - Prints on import.
-  - Hard-coded `DEBUG = True`.
-  - Hard-coded `MEDIA_ROOT`.
+  - `DEBUG` is env-driven.
+  - `MEDIA_ROOT` is env-driven with a local `<repo>/media` default.
   - Secure cookies forced even in debug.
 - `lessons/consumers.py`
-  - Historical deprecated consumer remains in the repo for reference.
-  - It is no longer routed, but it still describes a costlier architecture that should not be revived accidentally.
+  - Historical marker only. It is not routed and contains no active websocket bridge.
 - Deployment drift
   - `Procfile` uses `gunicorn english_course.wsgi`.
   - ASGI/channels exists, but production entrypoint is WSGI.
 - `lessons/views.py::generate_quiz_questions`
-  - Rebuilds DB quiz data at request time.
+  - Generates missing DB quiz data at request time.
   - Depends on vocabulary text formatting.
 - Template weight
   - `lesson_list.html` and `lesson_detail.html` are large, mixed responsibility files.
-- Access endpoints
-  - Important POST endpoints use `csrf_exempt`.
 - Tests
-  - `lessons/tests.py` is effectively empty.
+  - Focused quiz and Realtime contract tests live in `lessons/test_quiz_integrity.py`.
 - Docs drift
   - `VOICE_LESSON_README.md` is partially stale relative to current frontend architecture.
 
 ## Top 10 Most Important Files
-1. [english_course/settings.py](/home/abdiraiymzhandos/english_platform/english_course/english_course/settings.py)
-2. [lessons/urls.py](/home/abdiraiymzhandos/english_platform/english_course/lessons/urls.py)
-3. [lessons/models.py](/home/abdiraiymzhandos/english_platform/english_course/lessons/models.py)
-4. [lessons/views.py](/home/abdiraiymzhandos/english_platform/english_course/lessons/views.py)
-5. [lessons/views_classroom.py](/home/abdiraiymzhandos/english_platform/english_course/lessons/views_classroom.py)
-6. [lessons/templates/lessons/lesson_list.html](/home/abdiraiymzhandos/english_platform/english_course/lessons/templates/lessons/lesson_list.html)
-7. [lessons/templates/lessons/lesson_detail.html](/home/abdiraiymzhandos/english_platform/english_course/lessons/templates/lessons/lesson_detail.html)
-8. [static/js/voice-lesson.js](/home/abdiraiymzhandos/english_platform/english_course/static/js/voice-lesson.js)
-9. [static/js/translator-assistant.js](/home/abdiraiymzhandos/english_platform/english_course/static/js/translator-assistant.js)
-10. [static/js/classroom-lesson.js](/home/abdiraiymzhandos/english_platform/english_course/static/js/classroom-lesson.js)
+1. `english_course/settings.py`
+2. `english_course/realtime.py`
+3. `english_course/utils/realtime_tts.py`
+4. `lessons/urls.py`
+5. `lessons/models.py`
+6. `lessons/views.py`
+7. `lessons/views_classroom.py`
+8. `lessons/templates/lessons/lesson_list.html`
+9. `lessons/templates/lessons/lesson_detail.html`
+10. `static/js/voice-lesson.js`
 
 ## Top 5 Folders To Inspect First
-1. [lessons](/home/abdiraiymzhandos/english_platform/english_course/lessons)
-2. [lessons/templates/lessons](/home/abdiraiymzhandos/english_platform/english_course/lessons/templates/lessons)
-3. [static/js](/home/abdiraiymzhandos/english_platform/english_course/static/js)
-4. [english_course](/home/abdiraiymzhandos/english_platform/english_course/english_course)
-5. [lessons/fixtures](/home/abdiraiymzhandos/english_platform/english_course/lessons/fixtures)
+1. `lessons`
+2. `lessons/templates/lessons`
+3. `static/js`
+4. `english_course`
+5. `docs`
 
 ## Task Routing Cheat Sheet
 - Lesson content / unlock / quiz bug
@@ -333,7 +335,7 @@
 
 ## Most Fragile Areas
 - `settings.py` import-time side effects and config drift.
-- Historical deprecated websocket consumer remains in the repo as reference code.
+- `lessons/consumers.py` is only a historical marker; do not reintroduce a Django websocket bridge accidentally.
 - Large monolithic templates with inline behavior.
 - Access/control logic split across views, middleware, admin, and session state.
   - This is slightly improved by `UserProfile` helper methods, but lesson progression and admin provisioning are still intentionally separate.

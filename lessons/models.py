@@ -39,27 +39,40 @@ class QuizAttempt(models.Model):
     def __str__(self):
         return f"{self.user_id} - {self.lesson.title} ({self.score} ұпай)"
 
-    def increase_attempts(self):
-        self.attempts += 1
-        if self.attempts >= 3:
-            self.score = 0
-            self.attempts = 0
-        self.save()
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user_id", "lesson"],
+                name="unique_quiz_attempt_per_user_lesson",
+            )
+        ]
 
-    def add_score(self):
-        self.score += 1
-        self.save()
 
-    def check_pass(self):
-        total_questions = self.lesson.quiz_questions.count()
-        # Егер барлық сұрақтарға жауап берілсе
-        if (self.score + self.attempts) >= total_questions:
-            if self.attempts < 3:
-                self.is_passed = True
-                self.completed = True
-            else:
-                self.is_passed = False
-            self.save()
+class QuizAnswer(models.Model):
+    attempt = models.ForeignKey(
+        QuizAttempt,
+        on_delete=models.CASCADE,
+        related_name="answers",
+    )
+    question = models.ForeignKey(
+        QuizQuestion,
+        on_delete=models.CASCADE,
+        related_name="quiz_answers",
+    )
+    selected_answer = models.CharField(max_length=255, blank=True)
+    is_correct = models.BooleanField()
+    answered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["attempt", "question"],
+                name="unique_answer_per_attempt_question",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.attempt_id} - {self.question_id}"
 
 
 class Explanation(models.Model):

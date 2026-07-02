@@ -7,7 +7,7 @@
   <title>{{ lesson.title }}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'css/voice-lesson.css' %}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1032,44 +1032,6 @@
         }
     });
 
-    document.getElementById('start-quiz-btn').addEventListener('click', function () {
-      Swal.fire({
-        title: '📢 Тест ережелері',
-        html: `
-          ⏱ <b>Әр сұраққа жауап беру үшін 5 секунд бар.</b><br>
-          ❌ Егер 3 рет қателесеңіз, тест басынан басталады.<br><br>
-          Тесті бастауға дайынсыз ба?
-        `,
-        icon: 'info',
-        showCancelButton: true,
-        confirmButtonText: 'Иә, бастаймыз',
-        cancelButtonText: 'Жоқ',
-        confirmButtonColor: '#28a745'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          document.getElementById('quiz-content').style.display = 'block';
-          document.getElementById('start-quiz-btn').style.display = 'none';
-          startQuiz(); // 👈 тек осы жерде басталады
-        }
-      });
-    });
-
-    function startQuiz() {
-      fetch("/start-quiz/{{ lesson.id }}/")
-        .then(response => response.json())
-        .then(data => {
-          questions = data.questions;
-          currentQuestionIndex = 0;
-          score = 0;
-          attempts = 0;
-          nextQuestion();
-        });
-    }
-
-
-
-
-
     // Ағымдағы сабақтың ID-сы
     const currentLessonId = "{{ lesson.id }}";
 
@@ -1222,8 +1184,9 @@
       });
 
       // ========== 6. QUIZ FUNCTIONALITY ==========
-      // ✅ Глобал айнымалылар
-      let questions = [], currentQuestionIndex = 0, score = 0, attempts = 0, timer;
+      let questions = [], currentQuestionIndex = 0, timer;
+      let answeredQuestionIds = new Set();
+      let isSubmitting = false;
 
       // ✅ DOM элементтер
       const startQuizBtn = document.getElementById("start-quiz-btn");
@@ -1235,7 +1198,6 @@
       const scoreText = document.getElementById("score");
       const attemptsText = document.getElementById("attempts");
 
-      // ✅ Тест ережесі терезесі және басталуы
       startQuizBtn.addEventListener("click", function () {
         Swal.fire({
           title: "\uD83D\uDCE2 Тест ережелері",
@@ -1258,26 +1220,46 @@
         });
       });
 
-      // ✅ Тестті бастау логикасы
       function startQuiz() {
-        fetch("/start-quiz/{{ lesson.id }}/")
-          .then((response) => response.json())
+        fetch("/start-quiz/{{ lesson.id }}/", { credentials: "same-origin" })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((data) => {
+                throw new Error(data.error || "Тестті бастау мүмкін болмады");
+              });
+            }
+            return response.json();
+          })
           .then((data) => {
-            questions = data.questions;
-            currentQuestionIndex = 0;
-            score = 0;
-            attempts = 0;
-            scoreText.innerText = "\ud83c\udfc6 \u04b0пай: 0";
-            attemptsText.innerText = "\u274c \u049aателер: 0/3";
+            questions = data.questions || [];
+            applyServerState(data);
+            if (data.passed) {
+              showQuizComplete(data.score || 0);
+              return;
+            }
+            currentQuestionIndex = getQuestionIndexById(data.next_question_id);
             nextQuestion();
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Қате",
+              text: error.message || "Тестті бастау мүмкін болмады",
+            });
           });
       }
 
-      // ✅ Келесі сұрақты көрсету
       function nextQuestion() {
+        isSubmitting = false;
+        while (
+          currentQuestionIndex < questions.length &&
+          answeredQuestionIds.has(questions[currentQuestionIndex].id)
+        ) {
+          currentQuestionIndex++;
+        }
+
         if (currentQuestionIndex >= questions.length) {
-          quizContent.innerHTML = `<h3 class="text-success">✅ Тест аяқталды! Ұпай: ${score}</h3>
-            <button class='btn btn-primary' onclick='location.reload()'>🔄 Қайта тапсыру</button>`;
+          showQuizComplete(getDisplayedScore());
           return;
         }
 
@@ -1299,44 +1281,90 @@
         resetTimer();
       }
 
-      // ✅ Жауапты тексеру
       function checkAnswer(questionId, selectedAnswer, btn) {
+        submitAnswer(questionId, selectedAnswer, btn, false);
+      }
+
+      function submitAnswer(questionId, selectedAnswer, btn, timedOut) {
+        if (isSubmitting) return;
+        isSubmitting = true;
         clearInterval(timer);
+        disableAnswerButtons();
+        if (btn) {
+          btn.classList.add("active");
+        }
+
+        const csrfToken = getCookie("csrftoken");
         fetch("/submit-answer/{{ lesson.id }}/", {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ question_id: questionId, answer: selectedAnswer })
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": csrfToken
+          },
+          credentials: "same-origin",
+          body: new URLSearchParams({
+            question_id: questionId,
+            answer: selectedAnswer || "",
+            timed_out: timedOut ? "true" : "false"
+          })
         })
-          .then(response => response.json())
-          .then(data => {
-            if (data.correct) {
-              score++;
-              btn.classList.add("btn-success");
-              scoreText.innerText = `\ud83c\udfc6 \u04b0пай: ${score}`;
-            } else {
-              attempts++;
-              btn.classList.add("btn-danger");
-              attemptsText.innerText = `❌ Қателер: ${attempts}/3`;
-              if (attempts >= 3) {
-                Swal.fire({
-                  icon: 'error',
-                  title: '❌ 3 рет қателестіңіз!',
-                  text: 'Тест басынан басталады.',
-                  confirmButtonText: 'Қайта бастау'
-                }).then(() => {
-                  location.reload();
-                });
-                return;
-              }
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().catch(() => ({})).then((data) => {
+                throw new Error(data.error || "Жауапты сақтау мүмкін болмады");
+              });
             }
+            return response.json();
+          })
+          .then(data => {
+            applyServerState(data);
+
+            if (data.restart_required) {
+              Swal.fire({
+                icon: "error",
+                title: timedOut ? "⏳ Уақыт бітті" : "❌ 3 рет қателестіңіз!",
+                html: "Тест басынан басталады.",
+                confirmButtonText: "Қайта бастау"
+              }).then(() => {
+                location.reload();
+              });
+              return;
+            }
+
+            if (data.already_answered || data.already_passed) {
+              isSubmitting = false;
+              return;
+            }
+
+            if (data.correct) {
+              if (btn) btn.classList.add("btn-success");
+            } else {
+              if (btn) btn.classList.add("btn-danger");
+            }
+
+            if (data.passed) {
+              setTimeout(() => showQuizComplete(data.score || 0), 800);
+              return;
+            }
+
             setTimeout(() => {
-              currentQuestionIndex++;
+              currentQuestionIndex = data.next_question_id
+                ? getQuestionIndexById(data.next_question_id)
+                : currentQuestionIndex + 1;
               nextQuestion();
-            }, 1000);
+            }, 800);
+          })
+          .catch((error) => {
+            isSubmitting = false;
+            enableAnswerButtons();
+            Swal.fire({
+              icon: "error",
+              title: "Қате",
+              text: error.message || "Жауапты сақтау мүмкін болмады"
+            });
           });
       }
 
-      // ✅ Таймерді жаңарту
       function resetTimer() {
         let timeLeft = 5;
         timerText.innerText = `⏳ ${timeLeft} секунд`;
@@ -1346,23 +1374,45 @@
           timerText.innerText = `⏳ ${timeLeft} секунд`;
           if (timeLeft <= 0) {
             clearInterval(timer);
-            attempts++;
-            attemptsText.innerText = `❌ Қателер: ${attempts}/3`;
-            if (attempts >= 3) {
-              Swal.fire({
-                icon: 'error',
-                title: '⏳ Уақыт бітті',
-                html: 'Сіз 3 рет қателестіңіз.<br>Тест басынан басталады.',
-                confirmButtonText: 'Қайта тапсыру'
-              }).then(() => {
-                location.reload();
-              });
-            } else {
-              currentQuestionIndex++;
-              nextQuestion();
-            }
+            const question = questions[currentQuestionIndex];
+            submitAnswer(question.id, "", null, true);
           }
         }, 1000);
+      }
+
+      function applyServerState(data) {
+        answeredQuestionIds = new Set(data.already_answered_question_ids || []);
+        scoreText.innerText = `🏆 Ұпай: ${Number(data.score || 0)}`;
+        attemptsText.innerText = `❌ Қателер: ${Number(data.attempts || 0)}/3`;
+      }
+
+      function getQuestionIndexById(questionId) {
+        if (!questionId) return 0;
+        const index = questions.findIndex((question) => question.id === questionId);
+        return index >= 0 ? index : 0;
+      }
+
+      function disableAnswerButtons() {
+        answerButtons.querySelectorAll("button").forEach((button) => {
+          button.disabled = true;
+        });
+      }
+
+      function enableAnswerButtons() {
+        answerButtons.querySelectorAll("button").forEach((button) => {
+          button.disabled = false;
+        });
+      }
+
+      function getDisplayedScore() {
+        const match = scoreText.innerText.match(/\d+/);
+        return match ? Number(match[0]) : 0;
+      }
+
+      function showQuizComplete(scoreValue) {
+        clearInterval(timer);
+        quizContent.innerHTML = `<h3 class="text-success">✅ Тест аяқталды! Ұпай: ${scoreValue}</h3>
+          <button class='btn btn-primary' onclick='location.reload()'>🔄 Қайта тапсыру</button>`;
       }
 
     });

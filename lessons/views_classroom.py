@@ -3,16 +3,19 @@ import logging
 import mimetypes
 import os
 
-import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from english_course.realtime_config import REALTIME_MODEL
+from english_course.realtime import (
+    RealtimeTokenError,
+    get_openai_safety_identifier,
+    mint_realtime_client_secret,
+    realtime_token_error_response,
+)
 
 from .forms_classroom import ClassGroupForm, ClassStudentForm, StudentPhotoForm, ClassroomSessionSelectForm
 from .models import ClassGroup, ClassStudent, StudentPhoto, Lesson
@@ -463,7 +466,6 @@ def classroom_student_voice_embedding(request, student_id):
     return JsonResponse({"ok": True, "count": len(embeddings)})
 
 
-@csrf_exempt
 @require_POST
 @login_required
 def mint_realtime_classroom_token(request, lesson_id, group_id):
@@ -478,46 +480,15 @@ def mint_realtime_classroom_token(request, lesson_id, group_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
     group = get_object_or_404(ClassGroup, id=group_id, teacher=request.user)
 
-    payload = {
-        "model": REALTIME_MODEL,
-        "modalities": ["audio", "text"],
-        "voice": "cedar",
-        "turn_detection": {"type": "server_vad"},
-        "instructions": _classroom_instructions(lesson, group),
-    }
-
     try:
-        response = requests.post(
-            "https://api.openai.com/v1/realtime/sessions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-                "OpenAI-Beta": "realtime=v1",
-            },
-            json=payload,
-            timeout=20,
+        data = mint_realtime_client_secret(
+            api_key=api_key,
+            instructions=_classroom_instructions(lesson, group),
+            safety_identifier=get_openai_safety_identifier(request),
+            feature=f"classroom lesson {lesson_id} group {group_id}",
+            voice="cedar",
         )
-        if response.status_code >= 400:
-            try:
-                err_payload = response.json()
-            except ValueError:
-                err_payload = {"error": response.text}
-            logger.error(
-                "OpenAI realtime session error %s for classroom lesson %s: %s",
-                response.status_code,
-                lesson_id,
-                err_payload,
-            )
-            return JsonResponse({"error": "OpenAI realtime session error", "details": err_payload}, status=502)
-    except requests.RequestException as exc:
-        logger.exception("Failed to mint classroom realtime session token for lesson %s", lesson_id)
-        return JsonResponse({"error": "OpenAI realtime session error", "details": str(exc)}, status=502)
+    except RealtimeTokenError:
+        return realtime_token_error_response()
 
-    try:
-        data = response.json()
-    except ValueError as exc:
-        logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
-        return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
-
-    data["realtime_model"] = REALTIME_MODEL
     return JsonResponse(data)

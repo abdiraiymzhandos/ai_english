@@ -1,5 +1,4 @@
 import logging
-import openai
 import os
 import random
 import re
@@ -7,19 +6,19 @@ import uuid
 import glob
 from urllib.parse import quote
 
-import requests
 from openai import OpenAI
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from .models import Lesson, QuizQuestion, QuizAttempt, Explanation, Lead
+from .models import Lesson, QuizQuestion, QuizAttempt, QuizAnswer, Explanation, Lead
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
+from django.db import IntegrityError, transaction
 
 from .forms import CustomRegisterForm
 from .models import UserProfile
@@ -27,7 +26,13 @@ from django.contrib.auth import login
 
 from asgiref.sync import async_to_sync
 from english_course.realtime_config import REALTIME_MODEL
-from english_course.utils.realtime_tts import synthesize_audio_realtime_wav
+from english_course.realtime import (
+    RealtimeTokenError,
+    get_openai_safety_identifier,
+    mint_realtime_client_secret,
+    realtime_token_error_response,
+)
+from english_course.utils.realtime_tts import synthesize_audio_realtime_mp3
 
 
 logger = logging.getLogger(__name__)
@@ -211,6 +216,7 @@ def lesson_list(request):
     })
 
 
+@ensure_csrf_cookie
 def lesson_detail(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
     user_profile = getattr(request.user, "profile", None)
@@ -269,7 +275,6 @@ def advertisement(request):
     })
 
 
-@csrf_exempt
 @require_POST
 def mint_realtime_token(request, lesson_id):
     if not request.user.is_authenticated:
@@ -285,50 +290,17 @@ def mint_realtime_token(request, lesson_id):
 
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
-    # Note: Ephemeral tokens expire in 60 seconds, but the WebRTC session
-    # continues after initial connection. Keep-alive maintains the connection.
-    payload = {
-        "model": REALTIME_MODEL,
-        "modalities": ["audio", "text"],
-        "voice": "cedar",
-        "turn_detection": {"type": "server_vad"},
-        "instructions": _teacher_instructions(lesson),
-    }
-
     try:
-        response = requests.post(
-            "https://api.openai.com/v1/realtime/sessions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-                "OpenAI-Beta": "realtime=v1",
-            },
-            json=payload,
-            timeout=20,
+        data = mint_realtime_client_secret(
+            api_key=api_key,
+            instructions=_teacher_instructions(lesson),
+            safety_identifier=get_openai_safety_identifier(request),
+            feature=f"voice lesson {lesson_id}",
+            voice="cedar",
         )
-        if response.status_code >= 400:
-            try:
-                err_payload = response.json()
-            except ValueError:
-                err_payload = {"error": response.text}
-            logger.error(
-                "OpenAI realtime session error %s for lesson %s: %s",
-                response.status_code,
-                lesson_id,
-                err_payload,
-            )
-            return JsonResponse({"error": "OpenAI realtime session error", "details": err_payload}, status=502)
-    except requests.RequestException as exc:
-        logger.exception("Failed to mint realtime session token for lesson %s", lesson_id)
-        return JsonResponse({"error": "OpenAI realtime session error", "details": str(exc)}, status=502)
+    except RealtimeTokenError:
+        return realtime_token_error_response()
 
-    try:
-        data = response.json()
-    except ValueError as exc:
-        logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
-        return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
-
-    data["realtime_model"] = REALTIME_MODEL
     return JsonResponse(data)
 
 
@@ -500,30 +472,43 @@ Always end by inviting the student to try one short sentence using the rule."""
             tts_input = f"<<READ_START>>\n{explanation_text}\n<<READ_END>>"
 
             try:
-                # 1) cedar-мен көреміз
-                wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
+                audio_bytes = async_to_sync(synthesize_audio_realtime_mp3)(
                     tts_input,
                     api_key=settings.OPENAI_API_KEY,
                     model=REALTIME_MODEL,
                     voice="cedar",
                     system_instructions=system_instructions,
+                    safety_identifier=get_openai_safety_identifier(request),
                 )
-            except Exception as e1:
-                # 2) cedar қолжетімсіз болса — alloy-ға фолбэк
-                wav_bytes = async_to_sync(synthesize_audio_realtime_wav)(
-                    tts_input,
-                    api_key=settings.OPENAI_API_KEY,
-                    model=REALTIME_MODEL,
-                    voice="alloy",
-                    system_instructions=system_instructions,
-                )
+            except Exception:
+                logger.exception("Realtime TTS failed with cedar for lesson %s section %s", lesson.id, section)
+                try:
+                    audio_bytes = async_to_sync(synthesize_audio_realtime_mp3)(
+                        tts_input,
+                        api_key=settings.OPENAI_API_KEY,
+                        model=REALTIME_MODEL,
+                        voice="alloy",
+                        system_instructions=system_instructions,
+                        safety_identifier=get_openai_safety_identifier(request),
+                    )
+                except Exception:
+                    logger.exception("Realtime TTS fallback failed for lesson %s section %s", lesson.id, section)
+                    return JsonResponse(
+                        {"error": "Аудио генерациясы уақытша қолжетімсіз. Кейін қайталап көріңіз."},
+                        status=502,
+                    )
 
             with open(audio_path, "wb") as f:
-                f.write(wav_bytes)
-            audio_url = f"{settings.MEDIA_URL}{audio_filename}"
-
-            # except openai.OpenAIError as e:
-            #     return JsonResponse({"error": f"Аудио генерация қатесі: {str(e)}"}, status=500)
+                f.write(audio_bytes)
+            if os.path.exists(audio_path) and os.path.getsize(audio_path) > 0:
+                audio_url = f"{settings.MEDIA_URL}{audio_filename}"
+            else:
+                logger.error(
+                    "Realtime TTS output missing or empty for lesson %s section %s at %s",
+                    lesson.id,
+                    section,
+                    audio_path,
+                )
 
         # Дерекқорға түсіндірмені сақтау (Update немесе Create)
         explanation_obj, created = Explanation.objects.update_or_create(
@@ -616,8 +601,8 @@ def generate_quiz_questions(lesson_id):
     """
     lesson = get_object_or_404(Lesson, id=lesson_id)
 
-    # Барлық бұрынғы сұрақтарды өшіру (ескі деректерді тазарту)
-    QuizQuestion.objects.filter(lesson=lesson).delete()
+    if QuizQuestion.objects.filter(lesson=lesson).exists():
+        return
 
     vocabulary_text = lesson.vocabulary.strip()
     lines = vocabulary_text.split("\n")
@@ -640,7 +625,85 @@ def generate_quiz_questions(lesson_id):
 
     QuizQuestion.objects.bulk_create(questions)  # ✅ Барлық сөздерді бірден енгізу
 
-    print(f"✅ {len(questions)} сұрақ базаға енгізілді!")
+    logger.info("Generated %s quiz questions for lesson %s", len(questions), lesson_id)
+
+
+def _get_quiz_user_id(request):
+    if request.user.is_authenticated:
+        return str(request.user.id)
+    if not request.session.session_key:
+        request.session.create()
+    return request.session.session_key
+
+
+def _get_or_create_quiz_attempt(user_id, lesson):
+    try:
+        return QuizAttempt.objects.get_or_create(user_id=user_id, lesson=lesson)
+    except IntegrityError:
+        return QuizAttempt.objects.get(user_id=user_id, lesson=lesson), False
+
+
+def _quiz_answer_counts(attempt):
+    answers = attempt.answers.all()
+    answered_count = answers.count()
+    score = answers.filter(is_correct=True).count()
+    mistakes = answered_count - score
+    return answered_count, score, mistakes
+
+
+def _sync_attempt_from_answers(attempt):
+    answered_count, score, mistakes = _quiz_answer_counts(attempt)
+    attempt.score = score
+    attempt.attempts = mistakes
+    attempt.save(update_fields=["score", "attempts"])
+    return answered_count, score, mistakes
+
+
+def _first_unanswered_question_id(questions, answered_ids):
+    answered_set = set(answered_ids)
+    for question in questions:
+        if question.id not in answered_set:
+            return question.id
+    return None
+
+
+def _quiz_state_payload(attempt, lesson, questions, *, extra=None):
+    answered_ids = list(
+        attempt.answers.order_by("question_id").values_list("question_id", flat=True)
+    )
+    answered_count, score, mistakes = _sync_attempt_from_answers(attempt)
+    payload = {
+        "score": score,
+        "attempts": mistakes,
+        "passed": attempt.is_passed,
+        "completed": attempt.completed,
+        "answered_count": answered_count,
+        "total_questions": len(questions),
+        "already_answered_question_ids": answered_ids,
+        "next_question_id": _first_unanswered_question_id(questions, answered_ids),
+    }
+    if extra:
+        payload.update(extra)
+    return payload
+
+
+def _unlock_after_quiz_pass(request, user_id, lesson):
+    passed_lessons = list(
+        QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
+        .values_list("lesson_id", flat=True)
+    )
+    next_lesson = Lesson.objects.filter(id__gt=lesson.id).order_by("id").first()
+    unlocked_lessons = sorted(set(passed_lessons + ([next_lesson.id] if next_lesson else [])))
+    request.session["passed_lessons"] = unlocked_lessons
+    request.session.save()
+
+    if request.user.is_authenticated and next_lesson:
+        profile = request.user.profile
+        if next_lesson.id > profile.current_lesson:
+            profile.current_lesson = next_lesson.id
+            profile.save(update_fields=["current_lesson"])
+
+    return next_lesson.id if next_lesson else None
 
 
 def start_quiz(request, lesson_id):
@@ -653,13 +716,14 @@ def start_quiz(request, lesson_id):
     # Тест сұрақтарын генерациялау (егер әлі енгізілмесе)
     generate_quiz_questions(lesson_id)
 
+    user_id = _get_quiz_user_id(request)
+    attempt, _ = _get_or_create_quiz_attempt(user_id, lesson)
+
     # Барлық тест сұрақтарын алу
-    questions = list(QuizQuestion.objects.filter(lesson=lesson))
+    questions = list(QuizQuestion.objects.filter(lesson=lesson).order_by("id"))
 
     if len(questions) < 4:
         return JsonResponse({"error": "Бұл сабақта жеткілікті сөздер жоқ!"}, status=400)
-
-    random.shuffle(questions)
 
     question_data = []
 
@@ -683,77 +747,127 @@ def start_quiz(request, lesson_id):
             "choices": choices
         })
 
-    return JsonResponse({"questions": question_data})
+    return JsonResponse({
+        "questions": question_data,
+        **_quiz_state_payload(attempt, lesson, questions),
+    })
 
 
-@csrf_exempt
+@require_POST
 def submit_answer(request, lesson_id):
-    if request.method == "POST":
-        # Сессияның бар-жоғын тексеріп, қажет болса құру
-        if not request.session.session_key:
-            request.session.create()
-        user_id = str(request.user.id) if request.user.is_authenticated else request.session.session_key or "guest"
+    user_id = _get_quiz_user_id(request)
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    question_id = request.POST.get("question_id")
+    timed_out = str(request.POST.get("timed_out", "")).lower() in {"1", "true", "yes", "on"}
+    selected_answer = "" if timed_out else request.POST.get("answer", "")
 
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-        attempt, created = QuizAttempt.objects.get_or_create(user_id=user_id, lesson=lesson)
-        question_id = request.POST.get("question_id")
-        selected_answer = request.POST.get("answer")
-        question = get_object_or_404(QuizQuestion, id=question_id)
+    question = get_object_or_404(
+        QuizQuestion,
+        id=question_id,
+        lesson=lesson,
+    )
+    questions = list(QuizQuestion.objects.filter(lesson=lesson).order_by("id"))
 
-        # Сабаққа қатысты тесттегі жалпы сұрақтар саны
-        total_questions = lesson.quiz_questions.count()
+    with transaction.atomic():
+        attempt, _ = _get_or_create_quiz_attempt(user_id, lesson)
+        attempt = QuizAttempt.objects.select_for_update().get(id=attempt.id)
 
-        # Дұрыс жауап болса score-ды арттырып, қате болса attempts-ты арттырамыз
-        if question.kazakh_translation == selected_answer:
-            attempt.add_score()
-        else:
-            attempt.increase_attempts()
-
-        # Егер барлық сұрақтарға жауап берілді деп есептесек,
-        # (яғни, дұрыс жауаптар мен қатенің қосындысы >= жалпы сұрақ саны),
-        # тест аяқталғанын тексереміз
-        if (attempt.score + attempt.attempts) >= total_questions:
-            attempt.check_pass()
-
-        # Егер тест өтілсе, келесі сабақты ашу үшін session-ды жаңартамыз
         if attempt.is_passed:
-            passed_lessons = list(
-                QuizAttempt.objects.filter(user_id=user_id, is_passed=True)
-                .values_list("lesson_id", flat=True)
-            )
-            # Ең үлкен өткен сабақ нөміріне 1 қосамыз
-            next_lesson = max(passed_lessons) + 1 if passed_lessons else 1
-            # Келесі сабақ шынымен бар-жоғын тексереміз
-            if Lesson.objects.filter(id=next_lesson).exists():
-                passed_lessons.append(next_lesson)
-            request.session['passed_lessons'] = passed_lessons
-            request.session.save()
+            return JsonResponse(_quiz_state_payload(
+                attempt,
+                lesson,
+                questions,
+                extra={
+                    "correct": False,
+                    "accepted": False,
+                    "already_passed": True,
+                },
+            ))
 
-            # Егер қолданушы тіркелген болса, оның профиліндегі current_lesson-ды жаңартамыз
-            if request.user.is_authenticated:
-                profile = request.user.profile
-                # Тек жоғарырақ сабаққа өтсе ғана жаңартамыз
-                if next_lesson > profile.current_lesson:
-                    profile.current_lesson = next_lesson
-                    profile.save()
+        existing_answer = QuizAnswer.objects.filter(attempt=attempt, question=question).first()
+        if existing_answer:
+            return JsonResponse(_quiz_state_payload(
+                attempt,
+                lesson,
+                questions,
+                extra={
+                    "correct": existing_answer.is_correct,
+                    "accepted": False,
+                    "already_answered": True,
+                    "selected_answer": existing_answer.selected_answer,
+                },
+            ))
 
+        is_correct = (not timed_out) and selected_answer == question.kazakh_translation
+        try:
+            with transaction.atomic():
+                QuizAnswer.objects.create(
+                    attempt=attempt,
+                    question=question,
+                    selected_answer=selected_answer,
+                    is_correct=is_correct,
+                )
+        except IntegrityError:
+            existing_answer = QuizAnswer.objects.get(attempt=attempt, question=question)
+            return JsonResponse(_quiz_state_payload(
+                attempt,
+                lesson,
+                questions,
+                extra={
+                    "correct": existing_answer.is_correct,
+                    "accepted": False,
+                    "already_answered": True,
+                    "selected_answer": existing_answer.selected_answer,
+                },
+            ))
+
+        answered_count, score, mistakes = _sync_attempt_from_answers(attempt)
+
+        if mistakes >= 3:
+            attempt.score = 0
+            attempt.attempts = 0
+            attempt.completed = False
+            attempt.is_passed = False
+            attempt.save(update_fields=["score", "attempts", "completed", "is_passed"])
+            attempt.answers.all().delete()
             return JsonResponse({
-                "correct": question.kazakh_translation == selected_answer,
-                "score": attempt.score,
-                "attempts": attempt.attempts,
-                "passed": attempt.is_passed,
-                "next_lesson": next_lesson
+                "correct": is_correct,
+                "accepted": True,
+                "score": 0,
+                "attempts": 0,
+                "passed": False,
+                "completed": False,
+                "restart_required": True,
+                "answered_count": 0,
+                "total_questions": len(questions),
+                "already_answered_question_ids": [],
+                "next_question_id": questions[0].id if questions else None,
             })
 
-        # Тест әлі аяқталмаған жағдайда (барлық сұраққа жауап берілмеген жағдайда)
-        return JsonResponse({
-            "correct": question.kazakh_translation == selected_answer,
-            "score": attempt.score,
-            "attempts": attempt.attempts,
-            "passed": attempt.is_passed
-        })
+        next_lesson_id = None
+        just_passed = False
+        if answered_count >= len(questions) and mistakes < 3:
+            just_passed = not attempt.is_passed
+            attempt.is_passed = True
+            attempt.completed = True
+            attempt.score = score
+            attempt.attempts = mistakes
+            attempt.save(update_fields=["is_passed", "completed", "score", "attempts"])
+            if just_passed:
+                next_lesson_id = _unlock_after_quiz_pass(request, user_id, lesson)
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
+        return JsonResponse(_quiz_state_payload(
+            attempt,
+            lesson,
+            questions,
+            extra={
+                "correct": is_correct,
+                "accepted": True,
+                "already_answered": False,
+                "restart_required": False,
+                "next_lesson": next_lesson_id,
+            },
+        ))
 
 
 def account_locked(request):
@@ -1146,45 +1260,15 @@ def mint_translator_token(request):
     )
 
 
-    payload = {
-        "model": REALTIME_MODEL,
-        "modalities": ["audio", "text"],
-        "voice": "cedar",
-        "turn_detection": {"type": "server_vad"},
-        "instructions": translator_instructions,
-    }
-
     try:
-        response = requests.post(
-            "https://api.openai.com/v1/realtime/sessions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-                "OpenAI-Beta": "realtime=v1",
-            },
-            json=payload,
-            timeout=20,
+        data = mint_realtime_client_secret(
+            api_key=api_key,
+            instructions=translator_instructions,
+            safety_identifier=get_openai_safety_identifier(request),
+            feature="translator",
+            voice="cedar",
         )
-        if response.status_code >= 400:
-            try:
-                err_payload = response.json()
-            except ValueError:
-                err_payload = {"error": response.text}
-            logger.error(
-                "OpenAI realtime session error %s for translator: %s",
-                response.status_code,
-                err_payload,
-            )
-            return JsonResponse({"error": "OpenAI realtime session error", "details": err_payload}, status=502)
-    except requests.RequestException as exc:
-        logger.exception("Failed to mint realtime session token for translator")
-        return JsonResponse({"error": "OpenAI realtime session error", "details": str(exc)}, status=502)
+    except RealtimeTokenError:
+        return realtime_token_error_response()
 
-    try:
-        data = response.json()
-    except ValueError as exc:
-        logger.exception("Invalid JSON from OpenAI realtime session: %s", exc)
-        return JsonResponse({"error": "Invalid response from OpenAI"}, status=502)
-
-    data["realtime_model"] = REALTIME_MODEL
     return JsonResponse(data)

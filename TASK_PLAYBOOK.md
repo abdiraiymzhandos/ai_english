@@ -1,9 +1,9 @@
 # TASK_PLAYBOOK.md
 
 ## How Future Codex Should Work
-1. Read `PROJECT_CONTEXT.md` first
-2. Read `FILE_MAP.md` and `FEATURES_MAP.md`
-3. Read `KNOWN_RISKS.md` before changing sensitive areas
+1. Read `AGENTS.md` first
+2. Read `docs/ARCHITECTURE_AND_DATA_FLOW.md`, `docs/REALTIME_AND_QUIZ_CONTRACTS.md`, and `docs/AI_AGENT_RUNBOOK.md`
+3. Read `PROJECT_CONTEXT.md`, `FILE_MAP.md`, `FEATURES_MAP.md`, and `KNOWN_RISKS.md`
 4. Open only relevant source files
 5. Avoid full-repo rescans unless necessary
 
@@ -114,7 +114,7 @@
   - Check settings/env only if server token mint fails.
 - What not to break
   - explanation generation and translator flow
-  - historical deprecated websocket consumer should not be reintroduced by accident
+  - the historical websocket marker should not become an active bridge by accident
 - Quick verification steps
   - Start/stop session.
   - Confirm audio connects.

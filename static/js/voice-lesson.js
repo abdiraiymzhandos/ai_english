@@ -9,7 +9,7 @@ class VoiceLessonManager {
         this.lessonId = lessonId;
         this.peerConnection = null;
         this.dataChannel = null;
-        this.eventsChannel = null;  // ✅ From OpenAI (ondatachannel)
+        this.eventsChannel = null;
         this.remoteAudioEl = null;
         this.remoteStream = null;
 
@@ -237,19 +237,14 @@ class VoiceLessonManager {
         }
 
         this.keepAliveInterval = setInterval(() => {
-            if (this.dataChannel && this.dataChannel.readyState === 'open') {
-                try {
-                    // Send empty session.update (valid message type, no-op)
-                    this.dataChannel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: {}
-                    }));
-                    console.debug('🔄 Keep-alive sent');
-                } catch (err) {
-                    console.warn('Keep-alive failed:', err);
-                }
+            if (!this.peerConnection || this.peerConnection.connectionState === 'closed') {
+                this.stopKeepAlive();
+                return;
             }
-        }, 15000); // Send keep-alive every 15 seconds
+            if (this.peerConnection.connectionState === 'failed') {
+                this.safeTerminateSession('Байланыс сәтсіз аяқталды');
+            }
+        }, 15000);
     }
 
     stopKeepAlive() {
@@ -431,10 +426,20 @@ class VoiceLessonManager {
     }
 
     async fetchRealtimeToken() {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        const csrfToken = this.getCSRFToken();
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;
+        }
+
         const response = await fetch(`/api/realtime/token/${this.lessonId}/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
+            headers,
+            body: JSON.stringify({}),
+            credentials: 'same-origin'
         });
 
         if (!response.ok) {
@@ -447,14 +452,17 @@ class VoiceLessonManager {
 
     async startRealtimeSession() {
         const tokenPayload = await this.fetchRealtimeToken();
-        const clientSecret = tokenPayload?.client_secret?.value || tokenPayload?.client_secret;
+        const clientSecret =
+            tokenPayload?.value ||
+            tokenPayload?.client_secret?.value ||
+            tokenPayload?.client_secret;
         if (!clientSecret) {
             throw new Error('OpenAI-тен дұрыс емес жауап алынды');
         }
         this.clientSecret = clientSecret;
-        const realtimeModel = tokenPayload?.realtime_model || tokenPayload?.model;
-        if (!realtimeModel) {
-            throw new Error('OpenAI realtime model missing from token response');
+        const realtimeModel = tokenPayload?.realtime_model || tokenPayload?.model || '';
+        if (realtimeModel) {
+            console.debug('Realtime model:', realtimeModel);
         }
 
         const pc = new RTCPeerConnection({
@@ -519,49 +527,17 @@ class VoiceLessonManager {
             }
         };
 
-        // ✅ DUAL data channel setup (from working version 3e50b42)
-        // Receive channel from OpenAI
-        pc.ondatachannel = (event) => {
-            const channel = event.channel;
-            this.eventsChannel = channel;  // Store as eventsChannel
-            channel.onmessage = (e) => this.handleRealtimeMessage(e.data);
-
-            channel.onopen = () => {
-                console.log('✅ OpenAI data channel opened');
-                try {
-                    // Send initial session config
-                    channel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: { modalities: ['audio', 'text'] }
-                    }));
-                    channel.send(JSON.stringify({ type: 'response.create' }));
-                    console.log('✅ Sent initial session.update + response.create via OpenAI channel');
-                } catch (err) {
-                    console.warn('Failed to send via OpenAI channel:', err);
-                }
-            };
-        };
-
-        // ✅ Also CREATE our own data channel (this was missing!)
-        this.dataChannel = pc.createDataChannel('lesson-events');
+        this.dataChannel = pc.createDataChannel('oai-events');
         this.dataChannel.onmessage = (e) => this.handleRealtimeMessage(e.data);
         this.dataChannel.onopen = () => {
-            console.log('✅ Custom data channel opened');
-            // Only send if OpenAI channel isn't already open
-            if (!this.eventsChannel || this.eventsChannel.readyState !== 'open') {
-                try {
-                    this.dataChannel.send(JSON.stringify({
-                        type: 'session.update',
-                        session: { modalities: ['audio', 'text'] }
-                    }));
-                    this.dataChannel.send(JSON.stringify({ type: 'response.create' }));
-                    console.log('✅ Sent session.update + response.create via custom channel');
-                } catch (err) {
-                    console.warn('Failed to send via custom channel:', err);
-                }
+            console.log('✅ Realtime data channel opened');
+            try {
+                this.dataChannel.send(JSON.stringify({ type: 'response.create', response: {} }));
+                console.log('✅ Requested initial Realtime response');
+            } catch (err) {
+                console.warn('Failed to request initial response:', err);
             }
 
-            // Start keep-alive
             if (this.useKeepAlive) {
                 this.startKeepAlive();
                 console.log('🔄 Keep-alive started');
@@ -569,13 +545,13 @@ class VoiceLessonManager {
         };
 
         this.dataChannel.onclose = () => {
-            console.log('Custom data channel closed');
+            console.log('Realtime data channel closed');
             this.stopKeepAlive();
         };
 
         this.dataChannel.onerror = (err) => {
-            console.error('Custom data channel error:', err);
-            this.stopKeepAlive();
+            console.error('Realtime data channel error:', err);
+            this.safeTerminateSession('Realtime байланыс қатесі');
         };
 
         if (this.microphone) {
@@ -588,8 +564,7 @@ class VoiceLessonManager {
         await pc.setLocalDescription(offer);
         await this.waitForIceGatheringComplete(pc);
 
-        const encodedRealtimeModel = encodeURIComponent(realtimeModel);
-        const sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${encodedRealtimeModel}`, {
+        const sdpResponse = await fetch('https://api.openai.com/v1/realtime/calls', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${clientSecret}`,
@@ -600,6 +575,7 @@ class VoiceLessonManager {
 
         if (!sdpResponse.ok) {
             const text = await sdpResponse.text();
+            console.error('Realtime SDP connection failed:', sdpResponse.status, text);
             throw new Error(text || 'OpenAI Realtime SDP қатесі');
         }
 
@@ -618,10 +594,7 @@ class VoiceLessonManager {
             this.dataChannel = null;
         }
 
-        if (this.eventsChannel) {
-            try { this.eventsChannel.close(); } catch (e) { /* ignore */ }
-            this.eventsChannel = null;
-        }
+        this.eventsChannel = null;
 
         if (this.peerConnection) {
             try {
@@ -671,7 +644,7 @@ class VoiceLessonManager {
         if (!type) return;
 
         switch (type) {
-            case 'response.audio_transcript.delta':
+            case 'response.output_audio_transcript.delta':
             case 'response.output_text.delta': {
                 const textDelta = data?.delta || '';
                 if (textDelta) {
@@ -681,7 +654,7 @@ class VoiceLessonManager {
                 break;
             }
 
-            case 'response.audio_transcript.done':
+            case 'response.output_audio_transcript.done':
             case 'response.output_text.done':
                 this.completeAIMessage();
                 break;
@@ -706,13 +679,13 @@ class VoiceLessonManager {
 
             case 'response.error':
             case 'response.failed':
-                console.error('Realtime response error:', data);
-                this.updateAudioStatus('recording');
+                console.error('Realtime response failure event:', data);
                 this.awaitingResponse = false;
                 if (this.pendingResponseTimeout) {
                     clearTimeout(this.pendingResponseTimeout);
                     this.pendingResponseTimeout = null;
                 }
+                this.safeTerminateSession(this.getRealtimeErrorMessage(data));
                 break;
 
             case 'conversation.item.input_audio_transcription.completed': {
@@ -738,9 +711,8 @@ class VoiceLessonManager {
                 break;
 
             case 'error':
-                if (data.error?.message) {
-                    this.updateUI('error', data.error.message);
-                }
+                console.error('Realtime error event:', data);
+                this.safeTerminateSession(this.getRealtimeErrorMessage(data));
                 break;
 
             default:
@@ -748,6 +720,20 @@ class VoiceLessonManager {
                     console.debug('Realtime event:', data);
                 }
         }
+    }
+
+    getRealtimeErrorMessage(data) {
+        const error = data?.error || data?.response?.status_details?.error || data?.response?.error;
+        if (error && typeof error === 'object' && error.message) {
+            return error.message;
+        }
+        if (typeof error === 'string') {
+            return error;
+        }
+        if (data?.message) {
+            return data.message;
+        }
+        return 'Realtime қатесі';
     }
 
     getConversationBox() {
@@ -981,6 +967,18 @@ class VoiceLessonManager {
         const isIOS = /iPad|iPhone|iPod/.test(ua) || /iPad|iPhone|iPod/.test(platform);
         const isTouchMac = platform === 'MacIntel' && navigator.maxTouchPoints > 1;
         return isIOS || isTouchMac;
+    }
+
+    getCSRFToken() {
+        const name = 'csrftoken=';
+        const cookies = document.cookie ? document.cookie.split(';') : [];
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name)) {
+                return decodeURIComponent(cookie.substring(name.length));
+            }
+        }
+        return '';
     }
 
     updateUI(state, message = '') {

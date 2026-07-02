@@ -12,7 +12,7 @@ from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'english_course.settings')
 
-# Interactive realtime voice now uses backend-minted OpenAI session tokens and
+# Interactive realtime voice now uses backend-minted OpenAI client secrets and
 # browser WebRTC, so this ASGI app does not expose the old Django websocket
 # bridge. Keep ASGI explicit and HTTP-only unless a new websocket architecture is
 # intentionally introduced.

@@ -1,15 +1,15 @@
 # KNOWN_RISKS.md
 
-Read this before editing access, realtime, templates, config, or fixtures.
+Read this before editing access, realtime, templates, config, or fixtures. For current invariants, also read `AGENTS.md` and `docs/REALTIME_AND_QUIZ_CONTRACTS.md`.
 
 ## Ranked Risk List
 
-### 1. `settings.py` import-time side effects and hard-coded config
+### 1. `settings.py` import-time side effects and config drift
 - Description
-  - `english_course/settings.py` raises if `OPENAI_API_KEY` is missing, prints on import, hard-codes `DEBUG`, `MEDIA_ROOT`, hosts, and secure-cookie behavior.
+  - `english_course/settings.py` raises if `OPENAI_API_KEY` is missing, prints on import, keeps some host/cookie settings static, and uses env-driven `DEBUG` and `MEDIA_ROOT`.
 - Why it is risky
   - Import-time behavior can break management commands, tests, dumps, and local tooling.
-  - Hard-coded values make deploy changes easy to get wrong.
+  - Mixed env-driven and static values make deploy changes easy to get wrong.
 - Affected files
   - `english_course/settings.py`
   - `lessons/fixtures/*.json`
@@ -22,9 +22,9 @@ Read this before editing access, realtime, templates, config, or fixtures.
   - Re-check management commands and fixture output after any edit.
   - Separate “make configurable” work from unrelated feature work.
 
-### 2. Historical deprecated websocket consumer remains in the repo
+### 2. Historical websocket bridge confusion
 - Description
-  - `lessons/consumers.py` is deprecated historical code for the old websocket bridge. It is no longer exposed by active routing, but it remains in the repo and can still mislead future work.
+  - `lessons/consumers.py` is now only a marker. Active voice, translator, and classroom sessions use browser WebRTC plus backend-minted Realtime client secrets.
 - Why it is risky
   - Future engineers can debug the wrong realtime path or accidentally reintroduce an expensive old flow.
 - Affected files
@@ -74,11 +74,11 @@ Read this before editing access, realtime, templates, config, or fixtures.
   - Search within the whole template before editing one block.
   - Re-test all feature mounts on that page, not just the target change.
 
-### 5. `generate_quiz_questions()` rebuilds DB data during request handling
+### 5. Quiz/content generation remains format-sensitive
 - Description
-  - `start_quiz()` calls `generate_quiz_questions()` and deletes/recreates quiz questions based on lesson vocabulary text.
+  - `start_quiz()` calls `generate_quiz_questions()`, which creates missing quiz questions from lesson vocabulary text but preserves existing rows for `QuizAnswer` integrity.
 - Why it is risky
-  - Runtime requests mutate content-derived DB state.
+  - Runtime requests can still create content-derived DB state.
   - Formatting changes in vocabulary can silently break quizzes.
 - Affected files
   - `lessons/views.py`
