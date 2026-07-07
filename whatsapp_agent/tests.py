@@ -13,6 +13,7 @@ from whatsapp_agent.models import WhatsAppAgentEvent, WhatsAppLead, WhatsAppMess
 from whatsapp_agent.services import (
     WhatsAppAPIError,
     provision_course_access_for_lead,
+    send_telegram_alert,
     send_whatsapp_template,
     send_whatsapp_text,
 )
@@ -225,6 +226,81 @@ class WhatsAppWebhookTests(TestCase):
         self.assertEqual(event.payload["parsed_json_error"]["code"], 131047)
         self.assertTrue(WhatsAppAgentEvent.objects.filter(event_type="webhook_message_failed").exists())
         mock_send_telegram.assert_called_once()
+
+
+@override_settings(
+    TELEGRAM_BOT_TOKEN="configured",
+    TELEGRAM_CHAT_ID="configured",
+    OPENAI_API_KEY="test-openai-key",
+)
+class WhatsAppTelegramAlertTests(TestCase):
+    def test_send_telegram_alert_delegates_transport_and_preserves_dedupe(self):
+        lead = WhatsAppLead.objects.create(phone_number="+77011234567")
+
+        with patch("whatsapp_agent.services.send_telegram_message", return_value=True) as mock_send:
+            first_result = send_telegram_alert(
+                "Alert text",
+                lead=lead,
+                event_type="payment_intent",
+                dedupe_key="payment-intent",
+                payload={"source": "test"},
+            )
+            second_result = send_telegram_alert(
+                "Alert text",
+                lead=lead,
+                event_type="payment_intent",
+                dedupe_key="payment-intent",
+                payload={"source": "test"},
+            )
+
+        self.assertTrue(first_result)
+        self.assertFalse(second_result)
+        mock_send.assert_called_once_with("Alert text")
+
+        event = WhatsAppAgentEvent.objects.get(event_type="telegram_alert:payment_intent")
+        self.assertEqual(event.lead, lead)
+        self.assertEqual(event.payload["dedupe_key"], "payment-intent")
+        self.assertEqual(event.payload["source"], "test")
+
+    def test_send_telegram_alert_logs_safe_failure_without_success_event(self):
+        lead = WhatsAppLead.objects.create(phone_number="+77011234567")
+
+        with patch("whatsapp_agent.services.send_telegram_message", return_value=False) as mock_send:
+            result = send_telegram_alert(
+                "Alert text",
+                lead=lead,
+                event_type="handoff_needed",
+                dedupe_key="handoff-needed",
+            )
+
+        self.assertFalse(result)
+        mock_send.assert_called_once_with("Alert text")
+        failure_event = WhatsAppAgentEvent.objects.get(event_type="telegram_alert_failed")
+        self.assertEqual(failure_event.lead, lead)
+        self.assertEqual(failure_event.payload["event_type"], "handoff_needed")
+        self.assertEqual(failure_event.payload["dedupe_key"], "handoff-needed")
+        self.assertEqual(failure_event.payload["error"], "send_failed")
+        self.assertFalse(WhatsAppAgentEvent.objects.filter(event_type="telegram_alert:handoff_needed").exists())
+
+    @override_settings(TELEGRAM_BOT_TOKEN="", TELEGRAM_CHAT_ID="")
+    def test_send_telegram_alert_missing_config_keeps_skip_event_and_skips_transport(self):
+        lead = WhatsAppLead.objects.create(phone_number="+77011234567")
+
+        with patch("whatsapp_agent.services.send_telegram_message") as mock_send:
+            result = send_telegram_alert(
+                "Alert text",
+                lead=lead,
+                event_type="handoff_needed",
+                dedupe_key="handoff-needed",
+            )
+
+        self.assertFalse(result)
+        mock_send.assert_not_called()
+        skipped_event = WhatsAppAgentEvent.objects.get(event_type="telegram_alert_skipped")
+        self.assertEqual(skipped_event.lead, lead)
+        self.assertEqual(skipped_event.payload["event_type"], "handoff_needed")
+        self.assertEqual(skipped_event.payload["dedupe_key"], "handoff-needed")
+        self.assertEqual(skipped_event.payload["reason"], "missing_config")
 
 
 @override_settings(

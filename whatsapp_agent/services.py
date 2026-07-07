@@ -12,6 +12,7 @@ from django.db import transaction
 from django.utils import timezone
 from openai import OpenAI
 
+from english_course.services.telegram import send_telegram_message
 from lessons.models import UserProfile
 
 from .models import WhatsAppAgentEvent, WhatsAppLead, WhatsAppMessage, WhatsAppReceipt
@@ -127,23 +128,12 @@ def send_telegram_alert(text, lead=None, event_type="general", dedupe_key=None, 
         )
         return False
 
-    try:
-        response = requests.post(
-            f"https://api.telegram.org/bot{token}/sendMessage",
-            data={
-                "chat_id": chat_id,
-                "text": text,
-                "disable_web_page_preview": True,
-            },
-            timeout=15,
-        )
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        logger.exception("Telegram alert failed for %s", event_type)
+    if not send_telegram_message(text):
+        logger.warning("Telegram alert failed for %s", event_type)
         log_agent_event(
             "telegram_alert_failed",
             lead=lead,
-            payload={"event_type": event_type, "dedupe_key": dedupe_key, "error": str(exc)},
+            payload={"event_type": event_type, "dedupe_key": dedupe_key, "error": "send_failed"},
         )
         return False
 

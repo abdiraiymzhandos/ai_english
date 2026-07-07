@@ -33,6 +33,7 @@ from english_course.realtime import (
     realtime_token_error_response,
 )
 from english_course.utils.realtime_tts import synthesize_audio_realtime_mp3
+from .services.registration_notifications import send_registration_notification
 
 
 logger = logging.getLogger(__name__)
@@ -308,11 +309,14 @@ def register(request):
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            phone = form.cleaned_data.get('phone')
-            role = form.cleaned_data.get('role') or "student"
-            # ✅ Профиль жасау кезінде телефон номерін сақтауға болады (егер UserProfile-те сақтағыңыз келсе)
-            UserProfile.objects.create(user=user, phone=phone, role=role)
+            with transaction.atomic():
+                user = form.save()
+                phone = form.cleaned_data.get('phone')
+                role = form.cleaned_data.get('role') or "student"
+                profile = UserProfile.objects.create(user=user, phone=phone, role=role)
+                transaction.on_commit(
+                    lambda: send_registration_notification(user, profile)
+                )
             login(request, user)
             return redirect('lesson_list')
     else:
