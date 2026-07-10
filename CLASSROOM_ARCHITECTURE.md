@@ -1,142 +1,83 @@
-# CLASSROOM_ARCHITECTURE.md
+# Classroom architecture
 
-Use this with `AGENTS.md`, `docs/REALTIME_AND_QUIZ_CONTRACTS.md`, `PROJECT_CONTEXT.md`, `FILE_MAP.md`, and `KNOWN_RISKS.md`.
+Status: **tracked on `main`, experimental/partially implemented, not production-ready**. The former claim that classroom was uncommitted local WIP was obsolete as of the 2026-07-10 audit.
 
-## Stable Baseline Classroom-Related Architecture
-- Stable committed baseline does not appear to have a fully established classroom subsystem yet.
-- The current classroom stack in this repo is local worktree WIP.
-- Stable pieces reused by classroom WIP:
-  - `UserProfile` access model in `lessons/models.py`
-  - lesson content from `Lesson`
-  - auth shell template `lessons/templates/lessons/auth_base.html`
-  - GA Realtime client-secret minting pattern from `english_course/realtime.py`, `lessons/views.py`, and `static/js/voice-lesson.js`
+Read this with [architecture](docs/ARCHITECTURE_AND_CODEBASE.md), [AI integrations](docs/AI_INTEGRATIONS.md), [security](docs/SECURITY_AUDIT.md), and [UX audit](docs/UX_UI_AUDIT.md).
 
-## Current Local WIP: Classroom Overview
-- Goal
-  - Teacher accounts can create groups, add students/photos, enroll voice samples, and run a classroom AI session.
-- Important warning
-  - Treat all classroom behavior as WIP until committed. Verify in code before assuming production truth.
+## Implemented scope
 
-## Main Classroom Files
+- Any profile whose role is `teacher` can create owned groups and student rosters.
+- Teachers can upload student photos and save browser-derived voice embeddings.
+- With active voice access, a teacher can select any lesson and open a live page.
+- The browser loads face/hand/voice libraries/models, opens camera/microphone, matches enrolled students, and sends control-style messages into an OpenAI Realtime session.
+- Photos are served through an owner-filtered Django view; production media mapping can still bypass that protection if all `MEDIA_ROOT` is served publicly.
 
-| File | Purpose |
+There is no persistent classroom session, attendance, outcome, correction, consent, guardian, retention, or audit model.
+
+## Files
+
+| Path | Responsibility |
 | --- | --- |
-| `lessons/views_classroom.py` | Backend for classroom dashboard, group/student CRUD, photo serving, voice embedding save, Realtime client-secret minting |
-| `lessons/forms_classroom.py` | Group, student, multi-photo, and session-select forms |
-| `lessons/models.py` | `ClassGroup`, `ClassStudent`, `StudentPhoto`, `UserProfile.role`, `voice_embeddings` |
-| `lessons/templates/lessons/classroom/dashboard.html` | Teacher dashboard listing groups |
-| `lessons/templates/lessons/classroom/group_detail.html` | Group roster, photo add, delete, standalone voice enrollment modal |
-| `lessons/templates/lessons/classroom/session_select.html` | Select class + lesson before session |
-| `lessons/templates/lessons/classroom/session.html` | Session runtime page with camera, roster, voice lesson container |
-| `static/js/classroom-lesson.js` | Session runtime manager: face/hand/voice matching, attendance, OpenAI events |
-| `static/js/classroom-voice-enroll.js` | Standalone voice enrollment flow used on group detail page |
-| `CLASSROOM_MVP_NOTES.md` | Design notes and historical context; code is still source of truth |
+| `lessons/models.py` | `ClassGroup`, `ClassStudent`, `StudentPhoto`, profile role, face/voice embedding fields |
+| `lessons/forms_classroom.py` | Group/student/photo/session forms |
+| `lessons/views_classroom.py` | Ownership guards, CRUD, protected photo response, embedding save, session context, token mint |
+| `lessons/templates/lessons/classroom/` | Dashboard, setup, roster, enrollment, session UI |
+| `static/js/classroom-lesson.js` | Live camera/face/hand/voice/OpenAI runtime |
+| `static/js/classroom-voice-enroll.js` | Standalone voice enrollment on group page |
 
-## Classroom Data Model
-- `UserProfile.role`
-  - Teacher/student distinction for local WIP access checks.
-- `ClassGroup`
-  - Owned by teacher.
-  - Unique by `(teacher, school_name, name)`.
-- `ClassStudent`
-  - Belongs to group.
-  - Has `notes`, optional linked `user`, `face_embedding`, `voice_embeddings`.
-- `StudentPhoto`
-  - Stores uploaded images for a student.
-- Verify in code before relying on `face_embedding`
-  - The field exists, but current runtime appears to derive face descriptors in browser from photos each session rather than saving a server-side face embedding workflow.
+## Data and ownership
 
-## Backend / View Endpoints
+```mermaid
+erDiagram
+    USER ||--o{ CLASS_GROUP : teacher_owns
+    CLASS_GROUP ||--o{ CLASS_STUDENT : contains
+    CLASS_STUDENT ||--o{ STUDENT_PHOTO : has
+    USER o|--o{ CLASS_STUDENT : may_link
+```
 
-| Route | Handler | Purpose |
-| --- | --- | --- |
-| `/classroom/` | `classroom_dashboard` | Teacher group list |
-| `/classroom/new/` | `classroom_group_create` | Create class group |
-| `/classroom/<group_id>/` | `classroom_group_detail` | Group roster and actions |
-| `/classroom/<group_id>/edit/` | `classroom_group_edit` | Backfill/change school name |
-| `/classroom/<group_id>/students/new/` | `classroom_student_create` | Add student and photos |
-| `/classroom/student/<student_id>/photo/` | `classroom_student_add_photo` | Add more photos |
-| `/classroom/student/<student_id>/voice/` | `classroom_student_voice_embedding` | Save voice embedding sample |
-| `/classroom/student/<student_id>/delete/` | `classroom_student_delete` | Remove student |
-| `/classroom/photo/<photo_id>/` | `classroom_student_photo` | Serve photo back to teacher/browser |
-| `/classroom/session/` | `classroom_session_select` | Select group + lesson |
-| `/classroom/session/<group_id>/<lesson_id>/` | `classroom_session` | Session runtime page |
-| `/api/realtime/classroom/<lesson_id>/<group_id>/` | `mint_realtime_classroom_token` | Classroom-specific OpenAI Realtime client secret |
+`ClassStudent.user` is a nullable `ForeignKey`: each roster row can link to zero or one `User`, while one `User` can link to multiple `ClassStudent` rows. View queries consistently filter groups/students/photos by `group__teacher=request.user`. `Confirmed / High`. Teacher eligibility itself is unsafe because the role is self-selected publicly (`SEC-010`).
 
-## Enrollment Flow
-1. Teacher registers or has `role=teacher` in local WIP.
-2. Teacher opens classroom dashboard and creates a `ClassGroup`.
-3. Teacher adds students with photos.
-4. Group detail page shows roster and launches `static/js/classroom-voice-enroll.js` for voice enrollment.
-5. Browser records audio, extracts embeddings, and posts JSON to `/classroom/student/<student_id>/voice/`.
-6. Backend appends embedding to `ClassStudent.voice_embeddings` and caps stored samples at 5.
+## Runtime flow
 
-## Session / Runtime Flow
-1. Teacher opens session select page and chooses class + lesson.
-2. Backend `classroom_session()` serializes roster data into the template:
-   - student IDs
-   - names
-   - photo URLs
-   - voice embeddings
-3. Session template loads:
-   - `voice-lesson.js`
-   - `classroom-lesson.js`
-   - external browser-side CV/audio libs
-4. `ClassroomLessonManager` extends `VoiceLessonManager`.
-5. Browser requests classroom realtime token from `/api/realtime/classroom/<lesson_id>/<group_id>/`.
-6. Browser opens OpenAI Realtime session via WebRTC.
-7. Browser-side logic handles face detection, hand raise matching, voice matching, attendance/time events, and sends event-style prompts into the OpenAI session.
+```mermaid
+sequenceDiagram
+    participant T as Teacher browser
+    participant D as Django
+    participant O as OpenAI Realtime
+    participant C as Third-party model/CDN hosts
+    T->>D: open owned group + lesson session
+    D-->>T: roster names, protected photo URLs, voice embeddings
+    T->>C: load CV/audio libraries and models
+    T->>D: POST classroom token
+    D->>O: mint ephemeral session with lesson + school/class/student names
+    T->>O: WebRTC audio/events
+    T->>T: face/hand/voice recognition and transient attendance
+```
 
-## JS / Frontend Pieces
-- `static/js/classroom-lesson.js`
-  - Extends the normal voice lesson manager.
-  - Handles camera preview.
-  - Loads face/hand/voice tooling.
-  - Sends classroom control events such as hand raise, voice detected, attendance, and time remaining.
-- `static/js/classroom-voice-enroll.js`
-  - Used on `group_detail.html`.
-  - Handles recording, preview, MFCC extraction, spectrum fallback, and save.
-- Verify in code before editing enrollment logic
-  - `classroom-lesson.js` also contains voice enrollment methods, but the visible group-detail enrollment flow uses the standalone `classroom-voice-enroll.js` modal. Confirm which path is intended before consolidating behavior.
+Recognition thresholds and model endpoints are configured in the session template/client. Runtime dependencies include direct CDN and model-host downloads without SRI/package locking.
 
-## Realtime / Websocket Interactions
-- Intended classroom transport is not Django websocket.
-- Classroom follows the same pattern as the voice lesson:
-  - backend mints an OpenAI Realtime GA client secret
-  - browser talks directly to OpenAI Realtime via WebRTC using `/v1/realtime/calls`
-- `lessons/consumers.py` is only a historical marker and is not classroom-specific.
+## Privacy and safety blockers
 
-## External Browser Dependencies
-- `face-api.js`
-- `onnxruntime-web`
-- `@mediapipe/face_detection`
-- `@mediapipe/hands`
-- `meyda`
-- These are loaded from CDNs in `lessons/templates/lessons/classroom/session.html`.
-- Verify in code before changing production behavior that CDN access, CSP, and browser support are acceptable.
+- No verified teacher/school relationship.
+- No age/guardian/biometric consent or opt-out record.
+- No individual photo deletion route; FileField deletion lifecycle is incomplete.
+- No voice-embedding deletion UI or data-access audit.
+- Student/school/class names are sent to OpenAI instructions.
+- Camera/audio disclosures and retention choices are incomplete.
+- Production private-media access is not established.
+- The active privacy policy omits material classroom processing.
+- No accuracy evaluation or manual correction record for attendance/identity.
+- Any teacher can store unbounded total photos/students subject only to ten files per form submission.
 
-## Fragile Or Incomplete Areas
-- Entire classroom stack is WIP.
-- Many thresholds and weights are configured inline in `session.html`.
-- External models/libs are runtime dependencies.
-- Accuracy depends on browser/device conditions.
-- `face_embedding` persistence path is unclear from current flow; verify before using it.
-- Voice enrollment logic is duplicated across files; verify intended source of truth.
-- Classroom access is coupled to teacher role plus active voice access.
+Do not market or deploy recognition to learners/minors until `SEC-007` and `SEC-010` acceptance criteria are satisfied.
 
-## If Asked To Modify Classroom, Read These Files First
-- `lessons/views_classroom.py`
-- `lessons/forms_classroom.py`
-- `lessons/models.py`
-- `lessons/templates/lessons/classroom/group_detail.html`
-- `lessons/templates/lessons/classroom/session.html`
-- `static/js/classroom-lesson.js`
-- `static/js/classroom-voice-enroll.js`
-- `KNOWN_RISKS.md`
+## Modification rules
 
-## Verify In Code Before Editing
-- Whether classroom is meant to be treated as production-ready or local-only WIP.
-- Whether `UserProfile.role` behavior is fully merged or still local.
-- Whether `face_embedding` should be persisted or ignored.
-- Whether the duplicate voice enrollment logic should stay duplicated.
-- Whether any deployment environment can actually support the required CDNs/browser APIs.
+- Preserve owner filters and add negative cross-teacher tests.
+- Default recognition off; do not collect more biometric data by convenience.
+- Never send raw photos/embeddings or additional identifiers to an external model without approved necessity and consent.
+- Add file size/dimension/type limits and atomic storage behavior.
+- Treat browser recognition as probabilistic; persist corrections, not silent certainty.
+- Test mobile/browser permissions, unavailable CDNs/models, accessibility, and a no-recognition path.
+
+See feature opportunity `FEAT-008` for the proposed consent-safe session/report MVP.

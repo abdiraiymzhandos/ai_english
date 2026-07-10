@@ -1,347 +1,143 @@
-# PROJECT_CONTEXT.md
+# OqyAI project context
 
-## Project Snapshot
-- For current agent workflow and contracts, read `AGENTS.md` first, then `docs/ARCHITECTURE_AND_DATA_FLOW.md`, `docs/REALTIME_AND_QUIZ_CONTRACTS.md`, and `docs/AI_AGENT_RUNBOOK.md`.
-- Hybrid scope as of `2026-03-28`: this document describes the stable product architecture first, then a separate `Current Local WIP: Classroom` section for the uncommitted classroom work present in this workspace.
-- Stack: Django `5.1.x`, one main app `lessons`, project config in `english_course/`, static assets in `static/`, media served from portable `MEDIA_ROOT`.
-- Root URL flow is simple: `english_course/urls.py` delegates almost everything to `lessons/urls.py`.
-- This is effectively a single dense Django app. `lessons` owns lessons, quizzes, access rules, auth-adjacent product logic, OpenAI integrations, lead capture, and now classroom work.
-- Premium/access is flag-based and admin-driven. There is no Stripe, checkout, webhook, or real billing backend in the repo today.
-- Realtime AI browser flows are backend-minted OpenAI GA client secrets plus client-side WebRTC in the browser.
+Audit snapshot: 2026-07-10. Evidence labels in this document use `Confirmed`, `Inferred`, `Needs verification`, and `Needs product-owner confirmation`.
 
-## Three Truths To Remember First
-1. Open `lessons/urls.py`, `lessons/views.py`, and `lessons/models.py` before making assumptions. Most product behavior lives there.
-2. Many UI pages are large standalone templates with inline CSS/JS. A backend change often also requires editing a template.
-3. Voice, translator, and classroom work are not separate services. They are bolted into the same app and depend on `UserProfile` access flags.
+## Vision and audience
 
-## Django Structure
-- `english_course/settings.py`: environment loading, installed apps, middleware, static/media config, ASGI/WSGI setup, OpenAI key loading.
-  - Database selection is now env-driven: SQLite by default, MySQL when `USE_MYSQL=1`, so manual comment/uncomment switching is no longer part of deploy flow.
-- `english_course/urls.py`: admin + include of `lessons.urls`.
-- `english_course/asgi.py`: ASGI entrypoint. Interactive realtime voice is HTTP client-secret minting + browser WebRTC; no deprecated voice websocket route is exposed here now.
-- `lessons/`: core product app.
-- `lessons/templates/lessons/`: primary template tree.
-- `static/js/`: frontend behavior for voice lesson, translator, classroom, PWA, guide modal.
-- `lessons/fixtures/`: main content/data dumps. Current fixture files are polluted by a settings print line at the top.
+OqyAI is an English-learning platform primarily designed for Kazakh-speaking learners. The code and lesson copy target beginner through upper-intermediate study and emphasize Kazakh explanations, structured vocabulary/grammar/dialogue, quizzes, and AI-assisted speaking. `Confirmed / High` — `lessons/models.py`, `lessons/views.py`, lesson templates, and `lessons/fixtures/lessons.json`.
 
-## Main Apps And Responsibilities
-- `lessons/models.py`
-  - Owns lesson content, quiz state, explanations, user access/profile state, device locking, leads, and local classroom models.
-- `lessons/views.py`
-  - Owns lesson list/detail pages, AI explanation generation, quiz APIs, translator APIs, voice token minting, lead capture, PWA root files, privacy/profile pages.
-- `lessons/urls.py`
-  - Main product map. If a task changes behavior, routing usually starts here.
-- `whatsapp_agent/`
-  - Isolated WhatsApp Cloud API sales app.
-  - Owns webhook intake, lead/message/event/receipt models, Telegram alerts, receipt validation, automatic `UserProfile.is_paid` provisioning after high-confidence receipt validation, and template test-send support for Meta API Setup recipients whose raw `input` can differ from the resolved `wa_id`.
-- `lessons/views_classroom.py`
-  - Local WIP classroom management and classroom realtime token flow.
-- `lessons/admin.py`
-  - Operational control panel. Access is manually granted here more often than through end-user flows.
-- `lessons/middleware.py`
-  - Domain redirect + account/device lock behavior.
+The intended minimum learner age appears to be 12 in prompts and old policy text, but the active product has no age gate or guardian-consent model. `Needs product-owner confirmation / High risk`.
 
-## URL Routing And Request Flow
+## Current product state
 
-### Core user flow
-- `/` -> `lesson_list`
-  - Computes unlocked lessons from `QuizAttempt`, `request.session`, and `UserProfile` flags.
-- `/lesson/<lesson_id>/` -> `lesson_detail`
-  - Enforces access rules, loads `Explanation` records, renders lesson page.
-- `/start-quiz/<lesson_id>/` -> `start_quiz`
-  - Ensures quiz questions exist, resumes the one attempt, and returns questions plus authoritative state.
-- `/submit-answer/<lesson_id>/` -> `submit_answer`
-  - Stores one `QuizAnswer` per question, derives score/mistakes, and progresses unlock state only after a real pass.
-- `/register/`, `/login/`, `/logout/`, `/profile/`
-  - Standard auth plus role/phone/profile behavior. `/profile/` now also acts as the main user-facing access dashboard and soft upsell surface.
-- `/advertisement/`
-  - Sales/upsell page; used as access fallback for locked premium content.
+| Capability | State | Evidence and caveat |
+| --- | --- | --- |
+| Account registration/login/logout/profile deletion | Implemented | Django auth plus `UserProfile`; no password reset, phone verification, or email flow |
+| Student and teacher roles | Implemented but unsafe | Teacher is self-selected at public registration; task `SEC-010` |
+| 250-lesson web catalog | Implemented | Five hard-coded 50-lesson slices; order and level depend on IDs |
+| Additional Russian-localized lesson data | Data present, product incomplete | Fixture IDs 251–300; catalog currently renders only the first 250 queryset rows |
+| Vocabulary/content/grammar/dialogue lesson view | Implemented | Server-rendered template; no explicit publish/version state |
+| Vocabulary quiz and progression | Implemented | Database-backed idempotency tests exist; access policy and UX gaps remain |
+| Stored AI explanations and MP3 audio | Implemented/admin-triggered | Partial fixture coverage; unsafe rendering and replacement lifecycle risks |
+| Lesson chat and motivational AI | Implemented but unmetered | Public, synchronous, no quota/rate limit; output XSS risk |
+| Premium Realtime voice lesson | Implemented transport; current behavior disputed | Pre-existing worktree change connects a social-content prompt instead of the lesson tutor; `Needs product-owner confirmation` |
+| Realtime translator | Implemented | Separate entitlement; no explicit language selectors or usage ledger |
+| Teacher classroom | Experimental/partially implemented | Groups, rosters, photos, voice embeddings, camera recognition, live Realtime; no persistent attendance/session outcomes or consent lifecycle |
+| PWA | Partial/broken | Manifest/service worker exist; active templates do not consistently register them and precache references a missing asset |
+| WhatsApp sales agent | Implemented but unsafe | Synchronous sales/replies, receipt OCR, Telegram alerts, and provisioning; critical tasks `SEC-001`–`SEC-004` |
+| Payment/subscription system | Missing as a domain | No order/payment/transaction/expiring course entitlement; a receipt image can set a permanent Boolean |
+| Product analytics | Missing | KPI baselines require analytics data |
 
-### AI / realtime endpoints
-- `/lesson/<lesson_id>/explain-section/` -> AI explanation generation + TTS + DB persistence.
-- `/chat-with-gpt/<lesson_id>/` -> lesson-aware Q&A in Kazakh.
-- `/motivational-message/` -> small GPT-generated motivational modal.
-- `/api/realtime/token/<lesson_id>/` -> ephemeral OpenAI Realtime client secret for voice lesson.
-- `/api/translator/check-access/` -> translator feature gate check.
-- `/api/translator/token/` -> ephemeral OpenAI Realtime client secret for translator assistant.
+## Confirmed roles
 
-### PWA and utility endpoints
-- `/sw.js` and `/manifest.json`
-  - Served from `staticfiles`, not directly from source static paths.
-- `/privacy-policy/`
-- `/register-lead/`
-- `/api/whatsapp/webhook/`
-  - WhatsApp Cloud API verification + inbound webhook endpoint for the sales agent.
+- Guest: views the catalog and free lesson pages; quiz identity uses a session key.
+- Student: authenticated learner with optional course, voice, and translator access.
+- Teacher: authenticated profile role that can manage owned classroom data; currently self-provisioned.
+- Staff/superuser: Django admin; superuser can generate lesson explanations.
+- WhatsApp lead/customer: separate phone-based record, not a verified Django identity or foreign key.
+- Product/operations administrator: inferred from Django admin actions and Telegram alerts; formal ownership is not documented.
 
-### Local WIP classroom routes
-- `/classroom/`
-- `/classroom/new/`
-- `/classroom/<group_id>/`
-- `/classroom/<group_id>/edit/`
-- `/classroom/<group_id>/students/new/`
-- `/classroom/student/<student_id>/photo/`
-- `/classroom/student/<student_id>/voice/`
-- `/classroom/student/<student_id>/delete/`
-- `/classroom/photo/<photo_id>/`
-- `/classroom/session/`
-- `/classroom/session/<group_id>/<lesson_id>/`
-- `/api/realtime/classroom/<lesson_id>/<group_id>/`
+There is no confirmed parent role, content-editor role, finance reviewer role, or support role. `Needs product-owner confirmation`.
 
-## Data Model Map
-- `Lesson`
-  - Main course unit. Stores `title`, `content`, `vocabulary`, `grammar`, `dialogue`.
-- `QuizQuestion`
-  - `ForeignKey -> Lesson`. Generated from lesson vocabulary text.
-- `QuizAttempt`
-  - `ForeignKey -> Lesson`.
-  - Stores `user_id` as a string, not a foreign key. This is important.
-  - Used for both authenticated users and guests via session key.
-  - Unique per `(user_id, lesson)`.
-- `QuizAnswer`
-  - `ForeignKey -> QuizAttempt` and `ForeignKey -> QuizQuestion`.
-  - Unique per `(attempt, question)`.
-  - Server-authoritative record of submitted answers and timeouts.
-- `Explanation`
-  - `ForeignKey -> Lesson`.
-  - Unique per `(lesson, section)`.
-  - Stores AI-generated explanation text and audio URL.
-- `UserProfile`
-  - `OneToOne -> auth.User`.
-  - Central access model: `role`, `is_paid`, `has_voice_access`, `voice_access_until`, `has_translator_access`, `translator_access_until`, `current_lesson`, `lock_until`, `phone`.
-  - Core helper methods now act as the lightweight access source of truth for stable features: `is_locked()`, `has_paid_lesson_access()`, `has_active_voice_access()`, `has_active_translator_access()`, `can_use_classroom_teacher_features()`, `can_run_classroom_voice_sessions()`.
-- `UserDevice`
-  - `ForeignKey -> auth.User`.
-  - Tracks device IDs for device-limit locking.
-- `Lead`
-  - Simple marketing capture: `name`, `phone`, `created_at`.
+## Primary user flows
 
-### Current Local WIP: Classroom models
-- `ClassGroup`
-  - `ForeignKey -> auth.User` as teacher.
-  - Unique by `(teacher, school_name, name)`.
-- `ClassStudent`
-  - `ForeignKey -> ClassGroup`.
-  - Optional `ForeignKey -> auth.User`.
-  - Stores `face_embedding` and `voice_embeddings`.
-- `StudentPhoto`
-  - `ForeignKey -> ClassStudent`.
-  - Image files stored under `classroom_faces/...`.
+### Learner
 
-## Lesson / Course Logic
-- Free lesson IDs are `{1, 2, 3, 251, 252, 253}`.
-- Main lesson gating lives in `lesson_list()` and `lesson_detail()`.
-- Guests progress through `request.session['passed_lessons']`.
-- Authenticated users progress through `QuizAttempt` rows plus session state.
-- The repo currently contains `300` lesson fixture records.
-- There are two practical tracks in logic:
-  - Main track: lesson IDs `< 251`
-  - Alternate track: lesson IDs `>= 251`
-- Unlocking is range-based from the highest passed lesson, not a separate curriculum model.
-- `start_quiz()` calls `generate_quiz_questions()`, but existing `QuizQuestion` rows are preserved so stored `QuizAnswer` rows remain valid.
-- Vocabulary parsing depends on the delimiter `" – "`. Content formatting mistakes can break quiz generation.
+1. Visitor lands directly on the lesson catalog, not a dedicated marketing/onboarding page.
+2. Visitor can open free lessons or register with username, Kazakhstan phone, role, and password.
+3. Registration creates `User` and `UserProfile`, logs the user in, and sends registration PII to configured Telegram operations.
+4. Learner opens lesson sections, optional stored explanations/audio, chat, and a timed vocabulary quiz.
+5. Passing all lesson questions with fewer than three mistakes records the pass and unlocks the next numeric lesson.
+6. Premium lesson access is a permanent `is_paid` flag; voice and translator use separate flags/expiry timestamps.
+7. Upgrade CTAs lead to WhatsApp or an advertisement page.
 
-## User / Authentication / Access Logic
-- Default Django auth user model is used. There is no custom user model.
-- Registration is in `lessons/forms.py` + `register()` and now captures:
-  - `username`
-  - `phone`
-  - `role` (`student` or `teacher`)
-  - password
-- `UserProfile` is the real product-access object.
-- Device locking is enforced in `DeviceLockMiddleware`.
-  - If a user exceeds 3 devices, the account is locked for 5 days and logged out.
-- `WwwRedirectMiddleware` permanently redirects `oqyai.kz` to `https://www.oqyai.kz`.
-- Access/subscription is manual/operational:
-  - `has_paid_lesson_access()` is the stable check for paid lesson access.
-  - `has_active_voice_access()` is the stable check for voice lesson access.
-  - `has_active_translator_access()` is the stable check for translator assistant access.
-  - Admin actions in `lessons/admin.py` and management commands grant/revoke voice access.
-  - Upsell path is WhatsApp, not a payment gateway.
+There is no explicit onboarding completion, placement test, daily plan, saved vocabulary review, mistake history UI, or retention loop. `Confirmed missing / High`.
 
-## Payment / Subscription / Access Reality
-- There is no real payment gateway in the codebase today.
-- No Stripe, no checkout session, no webhook, no invoice model, no subscription provider integration.
-- "Subscription" is effectively:
-  - sales copy in templates,
-  - manual admin flagging,
-  - voice-access management commands,
-  - WhatsApp contact links.
-- New isolated automation:
-  - `whatsapp_agent` can now validate inbound WhatsApp receipts conservatively and mark `UserProfile.is_paid=True` automatically when confidence is high.
-  - Low-confidence or failed receipt parsing is escalated to Telegram instead of silently granting access.
+### Teacher/classroom
 
-## AI / Voice / Realtime / Classroom Logic
+1. A user registers as teacher or is assigned that role.
+2. Teacher creates owned groups and students, uploads photos, and stores browser-derived voice embeddings.
+3. With active voice access, teacher selects any lesson and launches a camera/microphone Realtime session.
+4. Browser code performs face/hand/voice matching and sends control events to the AI teacher.
 
-### Stable baseline AI paths
-- `lessons/views.py::explain_section`
-  - Uses OpenAI text APIs for explanation text.
-  - Falls back to chat completions if needed.
-  - Uses `english_course/utils/realtime_tts.py` GA Realtime WebSocket TTS to synthesize MP3 audio and persists `Explanation`.
-- `lessons/views.py::chat_with_gpt`
-  - Lesson-aware chat response in Kazakh.
-- `lessons/views.py::motivational_message`
-  - Small GPT-generated motivational message.
-- `lessons/views.py::mint_realtime_token`
-  - Mints an OpenAI Realtime GA client secret for voice lesson.
-- `lessons/views.py::mint_translator_token`
-  - Mints an OpenAI Realtime GA client secret for translator assistant.
+Classroom session results and attendance are not persisted. Consent, guardian authorization, biometric deletion, and opt-out rules are missing. Treat classroom as experimental.
 
-### Frontend realtime entry points
-- `static/js/voice-lesson.js`
-  - Current live voice lesson client.
-  - WebRTC-only approach.
-  - Connects browser directly to OpenAI Realtime after backend token minting.
-- `static/js/translator-assistant.js`
-  - Similar WebRTC pattern for live translation/interpreter behavior.
-- `english_course/utils/realtime_tts.py`
-  - Async GA Realtime WebSocket helper for explanation audio, converts streamed PCM16 to MP3 bytes.
+### WhatsApp sale/payment
 
-### Docs note
-- `VOICE_LESSON_README.md` is now a current WebRTC/Realtime GA overview.
+1. Meta posts an inbound webhook.
+2. Django stores the lead/message/raw payload and handles intent synchronously.
+3. Text can call OpenAI for a sales reply; receipt media is downloaded and OCR/PDF text is analyzed.
+4. Current high-confidence OCR can immediately set/create permanent course access and send credentials.
 
-## Templates And Static Files
-- Biggest UI hubs:
-  - `lessons/templates/lessons/lesson_list.html`
-  - `lessons/templates/lessons/lesson_detail.html`
-- These are large standalone pages with a lot of inline CSS/JS and product logic embedded in templates.
-- `lessons/templates/lessons/auth_base.html`
-  - Base shell for login/register/profile/classroom management pages.
-- `lessons/templates/lessons/base.html`
-  - Exists, but is not the main base for core lesson pages.
-- `static/js/guide-modal.js`, `static/css/guide-modal.css`
-  - Marketing/help modal on lesson list.
-- `static/js/pwa-register.js`
-  - PWA registration helper.
-- `static/css/voice-lesson.css`, `static/css/translator-assistant.css`
-  - Shared frontend styling for premium AI features.
+This flow is not safe as payment proof. `SEC-001` is the required next implementation task.
 
-## Localization / Language Strategy
-- Formal Django i18n is minimal.
-- `LANGUAGE_CODE` is `en-us`, but product UI is mostly Kazakh-first.
-- Lesson content is English with Kazakh instructional context.
-- The alternate content track is encoded by lesson IDs, not translation catalogs.
-- Prompt instructions frequently mix Kazakh and English explicitly.
+## Monetization and commercial truth
 
-## Important Scripts / Services / Helpers
-- `lessons/admin.py`
-  - Highest-leverage operational file for access bugs and manual account management.
-- `lessons/management/commands/grant_voice_access.py`
-- `lessons/management/commands/revoke_voice_access.py`
-- `lessons/test_realtime_diag.py`, `lessons/test_realtime_kk.py`
-  - Realtime/OpenAI diagnostics, not proper automated tests.
-- `analyze_lessons.py`
-  - Likely legacy/local script.
-  - Hard-coded Postgres credentials.
-  - Uses `psycopg2`, which is not in `requirements.txt`.
+- Course, voice, and translator are separately provisioned in `UserProfile`.
+- Web UI advertises one course price while WhatsApp/configured receipt validation uses another. `Confirmed defect / High`; the correct price is `Needs product-owner confirmation`.
+- Copy promises one-year course access, but course access has no start or expiry. `Confirmed defect / High`.
+- Voice and translator durations exist but pricing/packaging rules are not modeled. `Needs product-owner confirmation`.
+- There is no payment provider verification, transaction identifier, refund state, invoice, order history, or entitlement audit ledger.
 
-## Fixtures / Content Data
-- `lessons/fixtures/lessons.json`: `300` lessons.
-- `lessons/fixtures/quiz_questions.json`: `1042` rows.
-- `lessons/fixtures/explanations.json`: `227` rows.
-- `lessons/fixtures/user_profiles.json`: `49` rows.
-- Current fixture dumps are not clean JSON at byte 0. They begin with `✅ OpenAI API кілті сәтті жүктелді!`, which suggests `settings.py` print output leaked into `dumpdata` output.
+## Architecture summary
 
-## Current Local WIP: Classroom
-- Scope: teacher registration role, classroom management, photo-based roster, voice enrollment, classroom session UI, face/hand/voice-based classroom interaction.
-- New local files:
-  - `lessons/forms_classroom.py`
-  - `lessons/views_classroom.py`
-  - `lessons/templates/lessons/classroom/*`
-  - `static/js/classroom-lesson.js`
-  - `static/js/classroom-voice-enroll.js`
-  - migrations `0011` to `0013`
-  - `CLASSROOM_MVP_NOTES.md`
-- Existing tracked files also modified locally to support classroom:
-  - `lessons/models.py`
-  - `lessons/forms.py`
-  - `lessons/views.py`
-  - `lessons/urls.py`
-  - `lessons/templates/lessons/register.html`
-  - `lessons/templates/lessons/profile.html`
-  - `requirements.txt`
-  - `english_course/settings.py`
-- Classroom runtime shape:
-  - teacher-only dashboard and group management,
-  - photo upload and photo serving,
-  - voice embedding save endpoint,
-  - classroom-specific OpenAI Realtime token,
-  - `ClassroomLessonManager` extends `VoiceLessonManager`,
-  - browser-side face detection, hand raise detection, voice matching, attendance/time events.
-  - Access checks now use `UserProfile.can_use_classroom_teacher_features()` for teacher-only pages and `UserProfile.can_run_classroom_voice_sessions()` for live classroom sessions.
-- Treat this as local WIP until committed. Do not describe it as fully merged baseline behavior in future tasks.
+OqyAI is a server-rendered Django monolith with two first-party apps. `lessons` is the dominant app and owns content, quiz, access, AI, profile, and classroom domains. `whatsapp_agent` owns messaging/OCR records but directly mutates `lessons.UserProfile`, so the boundary is coupled. External OpenAI, Meta, and Telegram calls happen synchronously in web requests. Local filesystem media is used. See [docs/ARCHITECTURE_AND_CODEBASE.md](docs/ARCHITECTURE_AND_CODEBASE.md).
 
-## Fragile / Risky Areas
-- `english_course/settings.py`
-  - Raises if `OPENAI_API_KEY` is missing.
-  - Prints on import.
-  - `DEBUG` is env-driven.
-  - `MEDIA_ROOT` is env-driven with a local `<repo>/media` default.
-  - Secure cookies forced even in debug.
-- `lessons/consumers.py`
-  - Historical marker only. It is not routed and contains no active websocket bridge.
-- Deployment drift
-  - `Procfile` uses `gunicorn english_course.wsgi`.
-  - ASGI/channels exists, but production entrypoint is WSGI.
-- `lessons/views.py::generate_quiz_questions`
-  - Generates missing DB quiz data at request time.
-  - Depends on vocabulary text formatting.
-- Template weight
-  - `lesson_list.html` and `lesson_detail.html` are large, mixed responsibility files.
-- Tests
-  - Focused quiz and Realtime contract tests live in `lessons/test_quiz_integrity.py`.
-- Docs drift
-  - `VOICE_LESSON_README.md` is partially stale relative to current frontend architecture.
+## Domain terminology
 
-## Top 10 Most Important Files
-1. `english_course/settings.py`
-2. `english_course/realtime.py`
-3. `english_course/utils/realtime_tts.py`
-4. `lessons/urls.py`
-5. `lessons/models.py`
-6. `lessons/views.py`
-7. `lessons/views_classroom.py`
-8. `lessons/templates/lessons/lesson_list.html`
-9. `lessons/templates/lessons/lesson_detail.html`
-10. `static/js/voice-lesson.js`
+- Lesson: one authored record with title, content, vocabulary, grammar, and dialogue.
+- Explanation: generated text/audio for one lesson section.
+- Quiz question: one English word and Kazakh translation, often derived from vocabulary lines.
+- Quiz attempt/answer: server-authoritative progress for a user ID or guest session.
+- Course access: current permanent `UserProfile.is_paid` flag; not a real subscription.
+- Voice/translator access: separate feature flags with optional expiry.
+- Classroom: teacher-owned group/student/biometric runtime, currently experimental.
+- WhatsApp lead: phone-keyed sales record; not verified account ownership.
+- Receipt validation: current OCR heuristic; not a bank/payment confirmation.
 
-## Top 5 Folders To Inspect First
-1. `lessons`
-2. `lessons/templates/lessons`
-3. `static/js`
-4. `english_course`
-5. `docs`
+## Deployment summary
 
-## Task Routing Cheat Sheet
-- Lesson content / unlock / quiz bug
-  - Open `lessons/views.py`, `lessons/models.py`, `lesson_list.html`, `lesson_detail.html`.
-- Auth / profile / paid-access bug
-  - Open `lessons/models.py`, `lessons/views.py`, `lessons/admin.py`, `lessons/middleware.py`, auth templates.
-- Voice lesson / translator realtime bug
-  - Open `lessons/views.py`, `static/js/voice-lesson.js`, `static/js/translator-assistant.js`, `english_course/utils/realtime_tts.py`.
-- Classroom change
-  - Open `lessons/views_classroom.py`, `lessons/forms_classroom.py`, classroom templates, `static/js/classroom-lesson.js`, `static/js/classroom-voice-enroll.js`.
+- `Procfile` declares synchronous Gunicorn over WSGI.
+- SQLite is the default; optional MySQL is selected by environment.
+- Static source is collected for WhiteNoise; media persistence and private serving are not solved for multi-instance/ephemeral hosting.
+- The audited environment used Python 3.10.12 and Django 5.1.6. Django 5.1 is unsupported and 5.1.6 predates security fixes.
+- No CI, worker queue, health endpoint, error tracker, backup automation, or restore drill is present.
+- Deployment ownership/topology is `Needs product-owner/operations confirmation`.
 
-## How Future Codex Should Work
-1. Read `PROJECT_CONTEXT.md` first
-2. Identify task type
-3. Open only the relevant files
-4. Avoid rescanning the whole repository unless necessary
+## Highest risks and immediate priorities
 
-## Most Important Areas
-- Lesson flow and unlock logic.
-- `UserProfile`-based access gating.
-- OpenAI realtime entrypoints for voice lesson and translator.
-- Current classroom stack in local WIP.
+1. `SEC-001`: fail closed on OCR receipts; require manual approval until verified payment exists.
+2. `SEC-002`: authenticate Meta webhook POSTs.
+3. `SEC-003`: remove recipient mutation/sandbox fallback from production replies.
+4. `SEC-004`: eliminate reusable plaintext password delivery and persistence.
+5. `SEC-005`: rotate exposed credentials and sanitize current tracked material before history cleanup.
+6. Resolve commercial price/duration truth (`BUG-001`, `DATA-002`).
+7. Fix AI output XSS and public AI abuse controls (`SEC-006`, `SEC-011`).
+8. Establish privacy controls for classroom/receipts/media (`SEC-007`, `SEC-010`, `SEC-012`).
+9. Upgrade supported framework/runtime and reproduce dependencies (`DEVOPS-001`, `DEVOPS-002`).
+10. Add tests around these boundaries before architectural cleanup.
 
-## Most Fragile Areas
-- `settings.py` import-time side effects and config drift.
-- `lessons/consumers.py` is only a historical marker; do not reintroduce a Django websocket bridge accidentally.
-- Large monolithic templates with inline behavior.
-- Access/control logic split across views, middleware, admin, and session state.
-  - This is slightly improved by `UserProfile` helper methods, but lesson progression and admin provisioning are still intentionally separate.
+## Product-owner decisions required
 
-## Additional Docs That Would Improve Future Speed
-- Environment + deployment doc covering `.env`, media/static, WSGI/ASGI, and production topology.
-- Access/admin operations doc covering `UserProfile` flags, admin actions, and voice/translator provisioning.
-- Classroom architecture + tuning doc covering face/hand/voice thresholds and teacher workflow.
-- Clean fixture/content workflow doc covering `dumpdata`, lesson authoring format, and quiz-generation assumptions.
+- What is the canonical course price, currency, duration, refund policy, and source of truth?
+- Must every payment be manually approved, or will a verifiable payment-provider integration be introduced?
+- Is teacher registration open, invitation-only, school-admin-approved, or staff-approved?
+- Is the current social-content voice prompt intentional, and should it be a separate creator-only feature?
+- Are IDs 251–300 an active Russian course, preview content, or historical data?
+- What age floor and guardian/biometric-consent policy apply to classroom learners?
+- Which data must be retained, where, and for how long across chat, audio, photos, embeddings, receipts, raw webhooks, and Telegram?
+- What is the actual production host/database/media/backup topology and who owns incidents?
+- Which voice/translator packages and usage caps are sold?
+
+## Sources of truth
+
+- [Documentation index](docs/INDEX.md)
+- [Architecture and codebase map](docs/ARCHITECTURE_AND_CODEBASE.md)
+- [Security audit](docs/SECURITY_AUDIT.md)
+- [Technical audit](docs/TECHNICAL_AUDIT.md)
+- [AI integrations](docs/AI_INTEGRATIONS.md)
+- [Content operations](docs/CONTENT_OPERATIONS.md)
+- [UX/UI audit](docs/UX_UI_AUDIT.md)
+- [Feature roadmap](docs/FEATURE_ROADMAP.md)
+- [Unified backlog](docs/BACKLOG.md)
+- [Phased implementation plan](docs/IMPLEMENTATION_PLAN.md)

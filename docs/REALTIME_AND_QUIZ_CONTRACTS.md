@@ -1,156 +1,84 @@
-# Realtime And Quiz Contracts
+# Realtime and quiz contracts
 
-## Realtime Model Rule
-All active Realtime features use the shared model in `english_course/realtime_config.py`:
+Audit snapshot: 2026-07-10. These are current technical invariants, not product pricing/behavior promises.
 
-```python
-REALTIME_MODEL = "gpt-realtime-2"
-```
+## Realtime configuration
 
-Do not hard-code another active Realtime model in views, browser clients, diagnostics, or utilities.
+- Active shared model constant: `REALTIME_MODEL = "gpt-realtime-2"` in `english_course/realtime_config.py`.
+- Django mints ephemeral browser credentials through the configured `/v1/realtime/client_secrets` endpoint.
+- The standard OpenAI API key must remain server-side.
+- Browser clients create one `oai-events` data channel and post SDP to `/v1/realtime/calls` with the ephemeral credential.
+- Browser audio plays through the remote WebRTC track. Clients consume text/transcript/control events; they do not need to decode server `response.output_audio.delta` for playback.
+- Backend explanation TTS is different: it connects to the Realtime WebSocket, collects `response.output_audio.delta`, converts PCM to MP3, and never owns persistence.
+- `OpenAI-Safety-Identifier` is a SHA-256 hash of internal user ID or anonymous session key.
 
-## Active Realtime Entry Points
-| Feature | Server Entry Point | Browser/Utility |
+Entry points:
+
+| Feature | Django | Browser/backend |
 | --- | --- | --- |
-| Voice Lesson | `lessons.views.mint_realtime_token` at `/api/realtime/token/<lesson_id>/` | `static/js/voice-lesson.js` |
-| Translator | `lessons.views.mint_translator_token` at `/api/translator/token/` | `static/js/translator-assistant.js` |
-| Classroom | `lessons.views_classroom.mint_realtime_classroom_token` at `/api/realtime/classroom/<lesson_id>/<group_id>/` | `static/js/classroom-lesson.js` |
-| Explanation Audio | `english_course.utils.realtime_tts.synthesize_audio_realtime_mp3` | backend WebSocket only |
+| Individual voice | `lessons.views.mint_realtime_token` | `static/js/voice-lesson.js` |
+| Translator | `lessons.views.mint_translator_token` | `static/js/translator-assistant.js` |
+| Classroom | `lessons.views_classroom.mint_realtime_classroom_token` | `static/js/classroom-lesson.js` |
+| Explanation audio | `english_course.utils.realtime_tts.synthesize_audio_realtime_mp3` | Backend WebSocket |
 
-Historical Django websocket consumers are not active product runtime.
+## Prompt warning
 
-## Browser WebRTC Contract
-Server-side token creation:
-- Django validates auth/access.
-- Django posts to `https://api.openai.com/v1/realtime/client_secrets`.
-- Request JSON uses GA nested session shape:
+Current pre-existing worktree state selects `_content_creator_instructions()` for individual voice. That prompt does not use the lesson and conflicts with the learner voice product. `_teacher_instructions(lesson)` remains in code but is not selected. Intent is `Needs product-owner confirmation`; track resolution as `BUG-002`.
 
-```json
-{
-  "session": {
-    "type": "realtime",
-    "model": "gpt-realtime-2",
-    "instructions": "feature-specific instructions",
-    "audio": {
-      "input": {
-        "turn_detection": {
-          "type": "server_vad"
-        }
-      },
-      "output": {
-        "voice": "cedar"
-      }
-    }
-  }
-}
-```
+Classroom instructions include lesson and roster names. Translator uses an inline interpreter prompt. See [AI integrations](AI_INTEGRATIONS.md).
 
-Browser connection:
-- Browser receives only an ephemeral client secret response, not the standard OpenAI API key.
-- Browser creates exactly one data channel:
+## Realtime security/cost rules
 
-```javascript
-pc.createDataChannel("oai-events")
-```
+- Token routes require POST, CSRF, authentication, and their feature entitlement.
+- Never return the standard key or a raw internal user ID.
+- Provider errors returned to clients must be generic; logs must be redacted.
+- Client-side 30-minute timers are not authoritative cost control. Server quotas/concurrency/minute accounting are required by `AI-002`/`SEC-011`.
+- Tests must mock external calls unless a credentialed manual test is explicitly authorized and documented.
 
-- Browser posts SDP to:
+## Quiz identity and uniqueness
 
-```text
-POST https://api.openai.com/v1/realtime/calls
-Content-Type: application/sdp
-Authorization: Bearer <ephemeral client secret>
-```
+- Authenticated identity: `str(request.user.id)`.
+- Guest identity: an ensured Django session key.
+- Database: one `QuizAttempt` per `(user_id, lesson)`.
+- Database: one `QuizAnswer` per `(attempt, question)`.
+- The submit view must load the question through both ID and current lesson.
+- The database cannot itself enforce question lesson equals attempt lesson; preserve application validation and tests.
 
-- The model must not be sent in a WebRTC URL query string.
-- The browser should not send old beta `session.update` payloads with top-level `modalities`.
+## Authoritative quiz state
 
-## Server WebSocket Contract For Explanation Audio
-The backend connects to:
+- Score = count of stored correct answers.
+- Mistakes = count of stored incorrect answers.
+- Completion depends on distinct stored answers, not browser counters or arithmetic on legacy fields.
+- A duplicate submission returns existing state and must not change score, mistakes, progress, or unlocks.
+- A timeout stores at most one incorrect answer with an empty selection.
+- Three distinct mistakes reset current answer rows and attempt counters; no lesson unlock.
+- Passing requires all current lesson questions answered and fewer than three mistakes.
+- The next existing numeric lesson is added once to session unlock state; authenticated `current_lesson` advances only upward.
 
-```text
-wss://api.openai.com/v1/realtime?model=gpt-realtime-2
-```
+## Known contract limitations
 
-Required headers:
-- `Authorization: Bearer <server API key>`
-- `OpenAI-Safety-Identifier: <sha256 hash>`
+- Quiz start is a GET that can write questions/attempt state.
+- Quiz routes do not consistently enforce course entitlement.
+- Question generation is exact-delimiter, exists-then-create, non-versioned, and race-prone.
+- Historical pass records can lack `QuizAnswer` evidence.
+- Lesson IDs encode curriculum order/track/access.
+- Frontend does not use returned `next_lesson` for a continuation CTA and retake is broken after pass.
 
-Event sequence:
-1. `session.update` with GA `session.type`, `instructions`, `output_modalities`, and `audio.output.voice`; the model is selected only in the WebSocket URL.
-2. `conversation.item.create` containing the explanation text as `input_text`.
-3. `response.create` requesting audio output.
-4. Collect only `response.output_audio.delta`.
-5. Stop on `response.done`.
-6. Raise controlled errors on `error`, `response.failed`, incomplete responses, or empty audio.
-7. Return MP3 bytes to the caller. The utility never writes files.
+These are backlog issues, not invariants to preserve.
 
-## Expected Realtime Events
-Browser clients must handle at minimum:
-- `response.output_text.delta`
-- `response.output_audio.delta`
-- `response.output_audio_transcript.delta`
-- `response.output_audio_transcript.done`
-- `response.done`
-- `error`
+## Required regression matrix
 
-Current browser clients use remote WebRTC audio for playback and transcript/text deltas for UI text.
-
-## Security Requirements
-- Never expose the standard OpenAI API key to the browser.
-- Never expose raw Django user IDs in OpenAI safety identifiers or browser JSON.
-- `OpenAI-Safety-Identifier` is SHA-256 of:
-  - authenticated user: internal user ID string;
-  - anonymous user: Django session key.
-- Token endpoints require current access checks.
-- Token creation failures are logged server-side with details and returned to browsers as safe generic errors.
-- Quiz answer POSTs require CSRF.
-
-## Feature-Specific Prompt Preservation
-- Voice Lesson uses `_teacher_instructions(lesson)` in `lessons/views.py`.
-- Translator uses `translator_instructions` in `lessons/views.py`.
-- Classroom uses `_classroom_instructions(lesson, group)` in `lessons/views_classroom.py`.
-- Explanation audio uses the existing narration instructions in `explain_section()`.
-
-## Quiz Idempotency Rules
-- `QuizAttempt` unique constraint: one attempt per `user_id + lesson`.
-- `QuizAnswer` unique constraint: one answer per `attempt + question`.
-- Duplicate POST for the same question returns `already_answered: true`.
-- Duplicate POST never increments score.
-- Duplicate POST never increments mistakes.
-- Duplicate POST never unlocks the next lesson.
-- Timeout posts use `timed_out=true` and store one incorrect answer with an empty selected answer.
-- Cross-lesson question IDs are rejected by querying `QuizQuestion(id=question_id, lesson=lesson)`.
-
-## Quiz Progression Rules
-- Score is the count of distinct correct `QuizAnswer` rows.
-- Mistakes are the count of distinct incorrect `QuizAnswer` rows.
-- Completion is based on `attempt.answers.count()`, never `score + attempts`.
-- Three distinct wrong answers:
-  - return `restart_required: true`;
-  - reset score, mistakes, completed, and pass state;
-  - delete answer rows for the attempt;
-  - do not unlock any lesson.
-- Passing:
-  - requires every distinct lesson question to be answered;
-  - requires fewer than three mistakes;
-  - persists pass state once;
-  - unlocks the next existing lesson once;
-  - updates authenticated profile progress only when the next lesson is higher.
-
-## Test Matrix
-| Area | Required Test |
+| Case | Expected result |
 | --- | --- |
-| Repeated correct click | Same correct answer submitted 10 times creates one `QuizAnswer`, score 1, not passed |
-| Normal pass | All unique correct answers pass and unlock next lesson once |
-| Cross-lesson question | Wrong lesson question rejected and attempt unchanged |
-| Three mistakes | Third unique wrong answer resets state and clears answers |
-| Timeout | Timeout creates one wrong answer; duplicate timeout does not add another mistake |
-| Attempt uniqueness | DB prevents duplicate `QuizAttempt(user_id, lesson)` |
-| Browser token | Uses `/v1/realtime/client_secrets`, `gpt-realtime-2`, safety header, no beta header |
-| Server TTS | Uses GA WebSocket endpoint, decodes `response.output_audio.delta`, returns MP3, controlled error on `error` |
+| Same correct answer repeated | One answer, score one, no duplicate progress |
+| All unique correct answers | Pass once, unlock next once |
+| Cross-lesson question | Reject; attempt unchanged |
+| Third unique mistake | Reset answers/state; no unlock |
+| Duplicate timeout | One incorrect answer |
+| Concurrent attempt create | One attempt |
+| Unauthorized/locked lesson quiz | Deny after access-policy task |
+| Realtime token | Shared model, ephemeral secret, safety hash, no standard key |
+| Realtime error | Generic client response; redacted server detail |
+| TTS provider error/empty audio | Controlled exception; existing media preserved after future lifecycle fix |
 
-Run:
-
-```bash
-./venv/bin/python manage.py test lessons
-```
+Run the actual test command defined in [TESTING_AND_QUALITY.md](TESTING_AND_QUALITY.md).

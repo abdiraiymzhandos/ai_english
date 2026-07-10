@@ -1,95 +1,47 @@
-# ADMIN_ACCESS_OPERATIONS.md
+# Admin access operations
 
-Use this with `PROJECT_CONTEXT.md`, `FEATURES_MAP.md`, and `KNOWN_RISKS.md`.
+This is a concise operator-facing map of existing access state. It is not a payment ledger or authorization specification. Read [the architecture/access matrix](docs/ARCHITECTURE_AND_CODEBASE.md#access-and-entitlement-matrix) and [security audit](docs/SECURITY_AUDIT.md) before changing access.
 
-## Access Model At A Glance
+## Existing profile state
 
-| Field / Mechanism | Purpose | Notes |
-| --- | --- | --- |
-| `UserProfile.is_paid` | Paid lesson access | Does not automatically grant voice or translator access |
-| `UserProfile.has_paid_lesson_access()` | Paid lesson access check | Preferred runtime check where paid lesson gating is needed |
-| `UserProfile.has_voice_access` | Voice lesson access | Checked with `voice_access_until` |
-| `UserProfile.voice_access_until` | Voice expiry | `has_active_voice_access()` is the real check |
-| `UserProfile.has_translator_access` | Translator assistant access | Separate from paid/voice |
-| `UserProfile.translator_access_until` | Translator expiry | `has_active_translator_access()` is the real check |
-| `UserProfile.current_lesson` | Progress snapshot | Not the only source of truth; `QuizAttempt` also matters |
-| `UserProfile.lock_until` | Account/device lock | Enforced by middleware |
-| `UserProfile.role` | Teacher/student distinction | Current local WIP; verify commit state before treating as stable baseline |
-| `UserProfile.can_use_classroom_teacher_features()` | Teacher classroom pages | Preferred runtime check for dashboard/group management |
-| `UserProfile.can_run_classroom_voice_sessions()` | Teacher classroom live session access | Teacher role + active voice access |
-| `UserDevice` rows | Device count enforcement | More than 3 devices locks the account |
+| State/helper | Current meaning |
+| --- | --- |
+| `UserProfile.is_paid` / `has_paid_lesson_access()` | Permanent Boolean course access; no start/expiry/source/audit |
+| `has_voice_access`, `voice_access_until`, `has_active_voice_access()` | Separate voice entitlement and optional expiry |
+| `has_translator_access`, `translator_access_until`, `has_active_translator_access()` | Separate translator entitlement and optional expiry |
+| `role` / `is_teacher()` | Student or teacher; currently self-selected at registration |
+| `can_use_classroom_teacher_features()` | Teacher role only |
+| `can_run_classroom_voice_sessions()` | Teacher role plus active voice access |
+| `current_lesson` | Numeric snapshot, not the only progress source |
+| `lock_until` / `is_locked()` | Device middleware account lock |
+| `UserDevice` | Cookie-derived device rows; not a trustworthy identity control |
 
-## Where Access Behavior Is Controlled
-- `lessons/models.py`
-  - `UserProfile` helpers define paid lesson access, active voice/translator access, lock state, and classroom teacher/session access.
-- `lessons/views.py`
-  - Lesson gating, voice token gating, translator token gating, profile behavior.
-- `lessons/templates/lessons/profile.html`
-  - User-facing mirror of current access state and upgrade CTAs. Useful when UI looks wrong but backend flags are correct.
-- `lessons/middleware.py`
-  - Device lock and forced logout path.
-- `lessons/admin.py`
-  - Manual access/provisioning actions.
-- `lessons/management/commands/grant_voice_access.py`
-- `lessons/management/commands/revoke_voice_access.py`
+Admin actions in `lessons/admin.py` can mark course access, grant/revoke dated voice/translator access, and unlock accounts. They do not create an order, payment, entitlement audit, reviewer record, or reason.
 
-## Admin Actions Present In Code
-- `unlock_accounts`
-  - Clears `lock_until` and deletes device rows through `profile.unlock()`.
-- `mark_as_paid`
-  - Sets `is_paid=True`.
-- `grant_voice_access_30_days`
-- `grant_voice_access_90_days`
-- `revoke_voice_access`
-- `grant_translator_access_30_days`
-- `grant_translator_access_90_days`
-- `revoke_translator_access`
+## Safe operational rules
 
-## Important Operational Reality
-- Paid access, voice access, and translator access are separate.
-- A user can be paid but still lack voice or translator access.
-- Voice access has both a boolean and an expiry date.
-- Translator access has both a boolean and an expiry date.
-- Lesson unlock progression is not admin-driven in normal flow; it comes from `QuizAttempt` plus session state.
-- Current local classroom WIP ties teacher classroom pages to `can_use_classroom_teacher_features()` and live classroom sessions to `can_run_classroom_voice_sessions()`.
-- New WhatsApp sales automation only grants the existing paid-course flag:
-  - high-confidence receipt validation sets `UserProfile.is_paid=True`
-  - it does not automatically grant voice or translator access
+- Identify whether the request concerns course, voice, translator, classroom role, or device lock; these are separate.
+- Verify account ownership through an approved process. A matching unverified phone string is insufficient.
+- Do not grant course access solely because OCR recognized a receipt; see `SEC-001`.
+- Do not use WhatsApp auto-provisioning until critical security tasks are complete.
+- Record authorization and reason outside this incomplete admin flow until `DATA-002` adds an audit ledger.
+- Never place credentials or private values in screenshots, tickets, commands, or Markdown.
+- Check both the page and backing endpoint; UI state alone is not authorization evidence.
+- Avoid bulk changes unless explicitly approved, reviewed, and reversible.
 
-## How Lesson Access / Unlock Provisioning Appears To Work
-- Free lessons are always available for `{1,2,3,251,252,253}`.
-- Unpaid users are gated off premium lesson ranges.
-- `QuizAttempt` is the main record of passed lessons.
-- `request.session['passed_lessons']` also affects visible unlock state.
-- `current_lesson` is updated after quiz progression, but it is not the only thing the app checks.
+## Known failure modes
 
-## Common Failure Modes
-- User is marked paid, but voice lesson still fails because `has_voice_access` is false or expired.
-- User is marked paid, but translator assistant still fails because translator access is separate.
-- Access looks correct in UI, but token endpoint rejects the user.
-- Device lock logs the user out and gets mistaken for a permission bug.
-- `UserProfile` is missing expected values because middleware created it lazily.
-- Current local teacher/classroom access behaves differently from stable baseline; verify commit state.
+- Paid course access does not imply voice or translator access.
+- Teacher role does not imply live classroom voice access.
+- Duplicate/non-canonical phone values can make WhatsApp linking fail or bind incorrectly.
+- Device cookie loss can create new rows and eventually lock an account; the lock page currently loses expiry detail after logout (`BUG-003`).
+- `current_lesson`, passed `QuizAttempt` rows, and session unlock state can disagree.
+- Course copy promises a duration that the Boolean access model cannot enforce.
 
-## Safe Operational Guidance
-- Inspect the actual `UserProfile` row before changing code.
-- Identify which feature is failing: paid lessons, voice, translator, account lock, or classroom.
-- Start with the relevant `UserProfile` helper before editing views or templates.
-- Change the smallest access mechanism needed.
-- Do not implicitly couple unrelated flags unless that is an explicit product decision.
-- Verify both the user-facing page and the backing API/token endpoint.
+## Verification after an authorized change
 
-## Where To Inspect First For Access Issues
-- `lessons/models.py`
-- `lessons/views.py`
-- `lessons/admin.py`
-- `lessons/middleware.py`
-- relevant template showing the feature CTA
-
-## Questions To Answer Before Changing Access Logic
-- Is the failure about paid lesson access, voice access, translator access, device lock, or classroom WIP?
-- Should the fix change stable baseline behavior or only local WIP behavior?
-- Is the UI wrong, the backend wrong, or both?
-- Which user states must continue to work: guest, unpaid, paid, expired-access, teacher?
-- Should the change affect provisioning rules, runtime checks, or just display logic?
-- Is there an operational/admin-only fix that is safer than changing code?
+- Confirm the exact profile state and optional expiry.
+- Confirm access denial for an adjacent unauthorized state.
+- Confirm relevant token/API endpoint, not only template display.
+- Confirm no unrelated entitlement changed.
+- Record the change and update future entitlement audit data when `DATA-002` exists.
