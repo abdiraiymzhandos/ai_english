@@ -849,7 +849,7 @@
         <!-- Аудио блок тек сыртында қалады -->
         {% if explanations.vocabulary.audio_url %}
           <div class="audio-container mt-2">
-            <audio preload="none" controls class="w-100">
+            <audio preload="metadata" controls class="w-100">
               <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -884,7 +884,7 @@
         <!-- Аудио плеер үнемі көрініп тұрады -->
         {% if explanations.content.audio_url %}
           <div class="audio-container mt-2">
-            <audio preload="none" controls class="w-100">
+            <audio preload="metadata" controls class="w-100">
               <source src="{{ explanations.content.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -919,7 +919,7 @@
         <!-- Аудио плеер блок әрдайым көрініп тұрады -->
         {% if explanations.grammar.audio_url %}
           <div class="audio-container mt-2">
-            <audio preload="none" controls class="w-100">
+            <audio preload="metadata" controls class="w-100">
               <source src="{{ explanations.grammar.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -954,7 +954,7 @@
         <!-- Аудио плеер үнемі көрініп тұрады -->
         {% if explanations.dialogue.audio_url %}
           <div class="audio-container mt-2">
-            <audio preload="none" controls class="w-100">
+            <audio preload="metadata" controls class="w-100">
               <source src="{{ explanations.dialogue.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>

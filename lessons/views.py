@@ -690,7 +690,7 @@ def chat_with_gpt(request, lesson_id):
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-5.5",
+                model="gpt-6-astra",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question},
@@ -718,7 +718,7 @@ def motivational_message(request):
         try:
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
             response = client.chat.completions.create(
-                model="gpt-5.5",  # Use your preferred model.
+                model="gpt-6-astra",  # Use your preferred model.
                 messages=[{"role": "user", "content": prompt}],
                 temperature=1,
             )
