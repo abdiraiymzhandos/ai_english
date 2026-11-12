@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
+  {% include "lessons/includes/loading.html" %}
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  {% block viewport %}<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">{% endblock %}
   <title>{% block title %}OQYAI{% endblock %}</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">

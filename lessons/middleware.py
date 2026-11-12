@@ -12,6 +12,8 @@ class DeviceLockMiddleware(MiddlewareMixin):
         if request.user.is_authenticated:
             # Профиль бар-жоғын тексеріп, болмаса жасаймыз.
             profile, created = UserProfile.objects.get_or_create(user=request.user)
+            # Reuse this request's fresh profile in views/templates; no cross-request cache.
+            request.user.profile = profile
 
             # Егер аккаунт құлтаулы болса, шығарып, арнайы бетке бағыттаймыз.
             if profile.is_locked():

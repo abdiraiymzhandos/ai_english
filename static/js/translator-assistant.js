@@ -52,9 +52,12 @@ class TranslatorAssistant {
     }
 
     async checkAccess() {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
         try {
             const response = await fetch(this.config.checkAccessUrl, {
                 method: 'GET',
+                signal: controller.signal,
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -82,7 +85,7 @@ class TranslatorAssistant {
         } catch (error) {
             console.error('Access check error:', error);
             return { has_access: false, error: 'Байланыс қатесі' };
-        }
+        } finally { clearTimeout(timeout); }
     }
 
     async showTranslator() {
@@ -105,9 +108,15 @@ class TranslatorAssistant {
 
         this.createModal();
         this.modal.style.display = 'flex';
+        document.getElementById('close-translator').focus();
     }
 
     showAccessDeniedModal(message) {
+        const pageStatus = document.getElementById('translator-page-status');
+        if (pageStatus) {
+            pageStatus.textContent = message || 'Аудармашыға қол жеткізу жоқ';
+            return;
+        }
         const isAuthError = message && /кіру|login/i.test(message);
         const loginUrl = this.config.loginUrl || '/login/';
         const loginContent = `
@@ -173,15 +182,15 @@ class TranslatorAssistant {
         }
 
         const modalHtml = `
-            <div class="translator-modal" id="translator-modal">
+            <div class="translator-modal" id="translator-modal" role="dialog" aria-modal="true" aria-label="AI аудармашы">
                 <div class="translator-modal-content">
                     <div class="translator-modal-header">
                         <h3>
                             <span class="translator-icon">🌐</span>
                             AI Аудармашы Көмекшісі
                         </h3>
-                        <button class="translator-close" id="close-translator">
-                            <i class="fas fa-times"></i>
+                        <button class="translator-close" id="close-translator" aria-label="Жабу">
+                            <span aria-hidden="true">×</span>
                         </button>
                     </div>
 
@@ -251,13 +260,12 @@ class TranslatorAssistant {
     }
 
     closeModal() {
-        if (this.isConnected) {
-            this.stopSession();
-        }
+        this.stopSession();
         if (this.modal) {
             this.modal.remove();
             this.modal = null;
         }
+        document.getElementById('open-translator')?.focus();
     }
 
     async startSession() {

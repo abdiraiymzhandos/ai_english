@@ -1,5 +1,18 @@
 # Architecture and codebase map
 
+## Learning architecture update — 2026-11-12
+
+Current learning-specific behavior supersedes the historical audit rows below:
+
+- `lessons/services/course_progress.py`: shared progress, track boundaries, and existing lesson access decisions.
+- `lessons/services/quiz.py`: vocabulary parsing, content fingerprints, active question selection, current-run reset, and authoritative state serialization.
+- `lessons/views.py`: `start_quiz` GET, `restart_quiz` POST, `submit_answer` POST; all enforce lesson access and disallow caching. Quiz POSTs require a run token and CSRF.
+- `QuizAttempt.is_passed` remains permanent completion; `completed` describes the current run. Migration `0017` adds run token, question IDs, vocabulary hash, and saved successful score/total.
+- `static/js/quiz.js` owns quiz UI state; `loading.js` / `loading.css` and a shared template include provide navigation/request feedback.
+- `static/sw.js` caches only content-hashed public static assets; page/API/media responses are excluded.
+
+Detailed current invariants: [quiz contracts](REALTIME_AND_QUIZ_CONTRACTS.md). Evidence, changed files, deployment, and remaining limitations: [report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md).
+
 Audit snapshot: 2026-07-10. This describes tracked code plus explicitly labeled local evidence. It is not a production topology claim.
 
 ## System at a glance

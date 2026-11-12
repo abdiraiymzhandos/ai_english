@@ -1,102 +1,36 @@
-// Service Worker for English Course PWA
-const CACHE_NAME = 'english-course-v2';
-const urlsToCache = [
-  '/',
-  '/static/css/guide-modal.css',
-  '/static/js/guide-modal.js',
-  '/static/js/pwa-register.js',
-  '/static/images/image.png',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
-];
+// Cache only content-hashed public assets. Learning/account/API state is network-only.
+const CACHE_NAME = 'english-course-static-v3';
 
-// Install event - cache resources
 self.addEventListener('install', event => {
-  console.log('[SW] Installing Service Worker...');
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Caching app shell');
-        return cache.addAll(urlsToCache);
-      })
-      .catch(err => {
-        console.error('[SW] Cache failed:', err);
-      })
-  );
-  self.skipWaiting(); // Activate worker immediately
+  event.waitUntil(self.skipWaiting());
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating Service Worker...');
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-  return self.clients.claim(); // Take control of all pages
+  event.waitUntil((async () => {
+    for (const name of await caches.keys()) {
+      if (name.startsWith('english-course-') && name !== CACHE_NAME) await caches.delete(name);
+    }
+    await self.clients.claim();
+  })());
 });
 
-// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  const isRealtimePath =
-    url.pathname.startsWith('/api/realtime/') ||
-    url.pathname.startsWith('/api/translator/') ||
-    url.pathname === '/static/js/voice-lesson.js' ||
-    url.pathname === '/static/js/translator-assistant.js' ||
-    url.pathname === '/static/js/classroom-lesson.js';
-
-  if (event.request.method !== 'GET' || isRealtimePath) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          console.log('[SW] Serving from cache:', event.request.url);
-          return response;
-        }
-
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(response => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          // Cache the new response
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
-        }).catch(error => {
-          console.error('[SW] Fetch failed:', error);
-
-          // Return offline page or default response
-          if (event.request.destination === 'document') {
-            return caches.match('/');
-          }
-        });
-      })
-  );
+  const immutableAsset = url.origin === self.location.origin &&
+    /^\/static\/.+\.[a-f0-9]{8,64}\.(css|js|png|jpe?g|webp|svg|woff2?)$/i.test(url.pathname);
+  // Let the browser perform normal navigation/fetch; never reuse another user's
+  // dashboard, progress, questions, token, chat response, or private media.
+  if (event.request.method !== 'GET' || !immutableAsset) return;
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(event.request);
+    if (cached) return cached;
+    const response = await fetch(event.request);
+    if (response.ok && response.type === 'basic' && !/no-store|private/i.test(response.headers.get('Cache-Control') || '')) {
+      await cache.put(event.request, response.clone());
+    }
+    return response;
+  })());
 });
 
 // Background sync for offline actions (optional)

@@ -1,0 +1,29 @@
+#oqy-loading-bar {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 2147483646;
+  width: 100%;
+  height: 3px;
+  background: #38bdf8;
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  pointer-events: none;
+}
+#oqy-loading-bar.is-loading {
+  opacity: 1;
+  transform: scaleX(.12);
+  animation: oqy-progress 18s cubic-bezier(.1,.6,.1,1) forwards;
+}
+@keyframes oqy-progress { to { transform: scaleX(.92); } }
+.oqy-busy { cursor: progress !important; opacity: .7; }
+.oqy-visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  #oqy-loading-bar.is-loading { animation: none; transform: scaleX(.65); }
+}

@@ -2,6 +2,7 @@
 {% load static %}
 <html lang="kk">
 <head>
+  {% include "lessons/includes/loading.html" %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сабақтар</title>
@@ -20,7 +21,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/guide-modal.css' %}">
-    <link rel="stylesheet" href="{% static 'css/translator-assistant.css' %}">
 
     <style>
         body {
@@ -211,7 +211,15 @@
             background: linear-gradient(135deg, #6c757d, #495057) !important;
         }
         .auth-buttons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
             margin-bottom: 2rem;
+        }
+        .auth-buttons > a {
+            min-width: 0;
+            max-width: 100%;
+            overflow-wrap: anywhere;
         }
         .auth-buttons .btn {
             padding: 10px 20px;
@@ -474,7 +482,7 @@
         </button>
     </div>
 
-    <!-- Жүйеге кіру / шығу батырмалары -->
+    <!-- Аккаунтқа және сөздікке сілтемелер -->
     <div class="d-flex justify-content-end align-items-center auth-buttons">
         {% if user.is_authenticated %}
             <!-- Сөздікке сілтеме -->
@@ -485,18 +493,10 @@
 
         {% if user.is_authenticated %}
             <!-- Кіру жасаған қолданушыға сәлемдесу -->
-            <a href="{% url 'profile' %}" class="me-3" style="text-decoration: none; color: white; transition: all 0.3s ease;">
+            <a href="{% url 'profile' %}" style="text-decoration: none; color: white; transition: all 0.3s ease;">
                 <i class="fas fa-user me-2"></i>
                 Қош келдіңіз, <strong style="text-decoration: underline;">{{ user.username }}</strong>!
             </a>
-
-            <!-- Шығу -->
-            <form action="{% url 'logout' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger rounded-pill">
-                    <i class="fas fa-sign-out-alt me-2"></i>Шығу
-                </button>
-            </form>
 
         {% else %}
             <!-- ✅ Шынайы тіркелу бетіне сілтеме -->
@@ -676,7 +676,7 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            ${message}
+                            <span id="motivation-text"></span>
                         </div>
                         <div class="modal-footer border-0">
                             <button type="button"
@@ -689,6 +689,7 @@
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        document.getElementById('motivation-text').textContent = message;
         const modal = new bootstrap.Modal(document.getElementById('motivationalModal'));
         modal.show();
         document.getElementById('motivationalModal')
@@ -700,27 +701,17 @@
     // Мотивациялық хабарды батырма арқылы алу
     document.getElementById("motivational-btn").addEventListener("click", function () {
         const csrfToken = getCookie('csrftoken');
-        fetch("/motivational-message/", {
+        OqyLoading.json("/motivational-message/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "X-CSRFToken": csrfToken
             },
             body: new URLSearchParams({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                document.getElementById("motivational-message").innerHTML =
-                    `<div class="alert alert-danger">${data.error}</div>`;
-            } else {
-                showMotivationalModal(data.message);
-            }
-        })
+        }, {button: this, timeout: 60000})
+        .then(data => showMotivationalModal(data.message))
         .catch(error => {
-            console.error("Қате:", error);
-            document.getElementById("motivational-message").innerHTML =
-                `<div class="alert alert-danger">Қате орын алды.</div>`;
+            document.getElementById("motivational-message").textContent = error.message;
         });
     });
 
@@ -746,54 +737,30 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   leadForm.addEventListener("submit", async e=>{
     e.preventDefault();
-    const url = "{% url 'register_lead' %}";  // Django‑дан генерленетін жол
-    const formData = new FormData(leadForm);
-
-    try{
-      const resp = await fetch(url,{
-        method:"POST",
-        headers:{ "X-CSRFToken": getCookie("csrftoken") },
-        body: formData,
-        credentials:"same-origin"            // cookie жіберу
-      });
-
-      if(!resp.ok){
-        const text = await resp.text();
-        throw new Error(`Сервер қатесі: ${resp.status}\n${text.slice(0,120)}`);
-      }
-
-      /* view “redirect_url” қайтарса, соған; әйтпесе 1‑сабақ */
-      const data = await resp.json();
-      window.location.href = data.redirect_url || "https://www.oqyai.kz/lesson/1/";
-    }catch(err){
-      console.error(err);
-      alert("Қате: "+err.message);
+    if (leadForm.dataset.busy) return;
+    leadForm.dataset.busy = 'true';
+    try {
+      const data = await OqyLoading.json("{% url 'register_lead' %}", {
+        method: "POST",
+        headers: {"X-CSRFToken": getCookie("csrftoken")},
+        body: new FormData(leadForm), credentials: "same-origin"
+      }, {button: leadForm.querySelector('[type="submit"]')});
+      OqyLoading.navigate();
+      window.location.href = data.redirect_url || "{% url 'lesson_detail' 1 %}";
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      delete leadForm.dataset.busy;
     }
   });
 });
 
 </script>
 
-<!-- Translator Assistant Floating Button -->
-<button class="translator-floating-btn" onclick="window.translatorAssistant.showTranslator()" title="AI Аудармашы Көмекшісі">
-    🌐
-</button>
-
 <!-- Bootstrap JS (Modal және т.б. үшін) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/guide-modal.js' %}"></script>
-<script>
-    window.translatorAssistantConfig = {
-        realtimeModel: "{{ translator_realtime_model|escapejs }}",
-        checkAccessUrl: "{% url 'check_translator_access' %}",
-        tokenUrl: "{% url 'mint_translator_token' %}",
-        isAuthenticated: {{ user_is_authenticated|yesno:"true,false" }},
-        hasTranslatorAccess: {{ translator_access_active|yesno:"true,false" }},
-        translatorAccessExpires: {% if translator_access_expires %}"{{ translator_access_expires|date:"c" }}"{% else %}null{% endif %},
-        loginUrl: "{% url 'login' %}"
-    };
-</script>
-<script src="{% static 'js/translator-assistant.js' %}"></script>
+
 
 </body>
 </html>

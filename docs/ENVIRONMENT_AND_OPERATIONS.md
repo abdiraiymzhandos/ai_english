@@ -1,5 +1,13 @@
 # Environment And Operations
 
+## Verified learning release environment — 2026-11-13
+
+The learning patch explicitly sets MySQL connection `OPTIONS.charset` to `utf8mb4`. This fixes reproduced four-byte Unicode errors from Django 5.1's previous connection default; it does **not** convert any database/table/column charset. Inspect the deployed schema before release.
+
+A disposable MySQL 8.0.46 server and existing mysqlclient 2.1.1 passed the full 74-test suite, migration/rollback with 503 legacy attempts, and five real-lock race cases. SQLite passed 69 tests and skipped those five lock cases. No production database was used. The ordinary project virtualenv lacks mysqlclient; verification used the already installed user-site package without dependency installation. Verify the PythonAnywhere Web app's actual virtualenv/driver rather than assuming local package availability.
+
+PythonAnywhere backup, virtualenv/WSGI review, migration, static mapping, Reload, post-release checks, and rollback instructions are maintained in the [release report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md#safe-pythonanywhere-deployment-instructions). MySQL DDL and the actual production schema/volume still need a staged maintenance-window rehearsal. The historical environment audit below is not a current production claim.
+
 Audit date: 2026-07-10
 
 Status: observed repository behavior plus recommended operational controls. This document does not certify the application as production-ready.

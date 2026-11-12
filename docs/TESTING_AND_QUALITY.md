@@ -4,6 +4,38 @@ Audit date: 2026-07-10
 
 This document distinguishes observed test evidence from recommended future gates.
 
+## Learning-flow verification — 2026-11-13
+
+These independently re-run results supersede the historical 40-test audit and the initial 67-test implementation run. See the [complete report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) for findings, exact deployment steps, and limitations.
+
+- Full SQLite suite: **74 discovered, 69 passed, 5 skipped**, 25.155 s. The skips are explicitly the five tests that require real row locks.
+- Full MySQL 8.0.46 suite with mysqlclient 2.1.1 / Django 5.1.6: **74 passed, no skips**, 33.116 s. The server used a fresh temporary datadir, private Unix socket, and disabled networking. It was shut down and removed afterward; no production/local project database was modified.
+- Browser suite: **11 checks passed** in 68.916 s in Chromium 157.0.8103.78 at 390×844 and desktop viewports. Includes timer, retake, lost-response retry, history, keyboard/focus, reduced motion, answer feedback colors, and overlapping loading/form-watchdog regressions.
+- Node service-worker suite: **3 checks passed** without npm dependencies.
+- `lessons/test_learning_flow.py`: 28 tests including the performance harness; `test_quiz_migration.py`: forward/rollback with 503 legacy attempts; `test_quiz_concurrency.py`: five real-lock race tests; existing quiz integrity tests remain enabled.
+- Newly reproduced/fixed failures: inconsistent completed/pass flags despite complete answer evidence, overlapping loader operations leaving a button disabled, form watchdog surviving restoration, and MySQL four-byte Unicode persistence with the old default connection charset. Connection charset is now explicitly `utf8mb4`; existing table charsets are not converted.
+- Earlier Realtime test failures were stale literal model assertions; tests now use the existing `REALTIME_MODEL`. Runtime AI configuration was not changed.
+- System checks, migration drift, compilation, JavaScript syntax (including rendered inline code), diff whitespace, isolated static collection, and generated MySQL migration SQL were checked.
+- Existing virtualenv `pip check` conflict remains: `httpcore 1.0.7` requires `h11 <0.15, >=0.13`; installed `h11` is `0.16.0`. No dependencies were installed/upgraded.
+
+Reproduction with the existing virtualenv:
+
+```bash
+USE_MYSQL=0 OPENAI_API_KEY=test-placeholder ../venv/bin/python manage.py test --noinput
+USE_MYSQL=0 OPENAI_API_KEY=test-placeholder OQYAI_BENCHMARK=1 ../venv/bin/python manage.py test lessons.test_learning_flow.CoursePerformanceTests --noinput
+node --test lessons/js_tests/service-worker.test.cjs
+```
+
+For MySQL, use **only a disposable test instance**, set its `USE_MYSQL=1` / `MYSQL_*` environment variables, and run the same full suite. `MYSQL_HOST` may be its private Unix socket. The test account needs privileges on its synthetic database and Django's `test_` database. Never point test or setup commands at production. The executed run used the already installed user-site mysqlclient through `PYTHONPATH`; both environments used Django 5.1.6.
+
+Browser checks are explicit and optional:
+
+```bash
+USE_MYSQL=0 OPENAI_API_KEY=test-placeholder ../venv/bin/python manage.py test lessons.browser_checks --noinput
+```
+
+The main virtualenv has neither Selenium nor mysqlclient; the executed browser/MySQL runs additionally exposed the already installed user-site packages through `PYTHONPATH`. Configure `OQYAI_CHROMIUM` / optional `OQYAI_CHROMEDRIVER` for local paths. A Selenium-less browser run skips checks and is not a pass. External CDNs are blocked and AI is mocked: these are application-flow and local control tests, not live integrations, native Safari/WebViews, or complete accessibility certification. Production engine/schema/data-volume rehearsal remains a release requirement despite passing local MySQL tests.
+
 ## Verified results
 
 The audit ran this command twice, including once in the final validation pass:
@@ -492,3 +524,29 @@ Update this document whenever:
 - A security or operational incident reveals a missing test.
 
 Record the last complete-suite date, revision, environment, test count, result, and duration without recording credentials or private data.
+
+
+## Profile and translator verification — 2026-11-13
+
+After the profile/translator UI change, full SQLite discovery ran **83 tests: 78 passed, 5 skipped** (final resumed run: 11.454s). The skips are the existing real-row-lock tests, previously run on isolated MySQL in the learning-fix task. No schema or entitlement model change was made here. After correcting the template head block and removing unused catalog context, the relevant profile/learning suite ran **37 tests, all passing** (4.152s). Full Chromium suite: **14 passed** (final resumed run: 18.586s), including the earlier 11 quiz/loading checks. Service-worker Node suite: **3 passed**. Django check and migration drift check pass; no migration introduced. JavaScript syntax checks pass.
+
+New `lessons/test_profile_ui.py` tests cover flag/expiry/indefinite entitlement combinations, no entitlement mutation, anonymous/CSRF/API denial, mocked authorized token contract, asset isolation, real completion vs unlocks, Russian-track isolation, empty curriculum, teacher navigation, personal data rendering, incorrect deletion credentials/confirmation, and bounded profile queries. `lessons/browser_checks.py` adds actual rendered widths 320/375/390/430/1024, long data wrapping, touch targets, keyboard details, profile/lesson/back navigation, no translator assets on profile, opening/closing the translator with focus restoration, explicit CSS loading and non-overlapping panels, and translator access-error/loading recovery followed by successful retry. Existing browser checks continue to cover quiz/loading/error/retry behavior. External CDNs were blocked; no live provider, microphone, or production services were used.
+
+Commands use the existing virtualenv with `USE_MYSQL=0 OPENAI_API_KEY=test-placeholder`:
+
+```bash
+../venv/bin/python manage.py test --noinput
+../venv/bin/python manage.py test lessons.test_profile_ui lessons.test_learning_flow --noinput
+# Existing optional user-site Selenium, no installation:
+PYTHONPATH=/home/abdiraiymzhandos/.local/lib/python3.10/site-packages ../venv/bin/python manage.py test lessons.browser_checks --noinput
+node --test lessons/js_tests/service-worker.test.cjs
+```
+
+Chromium 157.0.8103.78 used the existing cached browser/driver, selected through `OQYAI_CHROMIUM` and `OQYAI_CHROMEDRIVER`. The first run found missing CSS due to an incorrect template block; fixed and rerun. Resume verification confirmed both saved logs completed successfully (13 browser / 37 targeted tests), then reran the full Django and expanded browser suites. An inherited icon-font dependency in the translator denial popup was avoided by rendering access errors as safe inline status text on the dedicated page. Physical Safari/Android WebViews and actual Realtime audio remain manual release checks. See [UI change record](UX_UI_AUDIT.md#mobile-profile-and-translator-entry--2026-11-13) for changed files, measurements, and rollout/rollback.
+
+
+## Dashboard logout verification — 2026-11-13
+
+The new regression first failed against the dashboard logout form, then passed after removal. Profile/learning/quiz-integrity suite: **52 passed** (10.060s). After the local account-row layout fallback, profile suite: **10 passed** (2.579s); full browser suite: **15 passed** (18.678s). Django system checks and `git diff --check` pass.
+
+Logout coverage uses a CSRF-enforcing client: GET is 405, missing-token POST is 403, valid POST clears authentication and redirects to login. Profile, translator, and vocabulary routes require login afterward; the test account and its completion record remain intact. Browser tests follow dashboard → profile → logout, test widths 320/390/1024, and check visible profile navigation and non-overlapping account links with external CDNs blocked. Mobile and desktop screenshots were visually inspected. The first browser run exposed reliance on Bootstrap's flex utility; local equivalent styles and wrapping fixed it. Existing quiz, progress, loading, and translator browser checks remain passing. Physical devices were not exercised.

@@ -47,9 +47,10 @@ class QuizIntegrityTests(TestCase):
             )
             for i in range(10)
         ]
+        self.state = self.client.get(reverse("start_quiz", args=[self.lesson.pk])).json()
 
     def submit(self, question, answer="", **extra):
-        payload = {"question_id": question.id, "answer": answer}
+        payload = {"question_id": question.id, "answer": answer, "attempt_token": self.state["attempt_token"]}
         payload.update(extra)
         return self.client.post(reverse("submit_answer", args=[self.lesson.id]), payload)
 
@@ -71,12 +72,14 @@ class QuizIntegrityTests(TestCase):
         client = self.csrf_client()
         client.get(reverse("lesson_detail", args=[self.lesson.id]))
         csrf_token = client.cookies["csrftoken"].value
+        state = client.get(reverse("start_quiz", args=[self.lesson.pk])).json()
 
         response = client.post(
             reverse("submit_answer", args=[self.lesson.id]),
             {
                 "question_id": self.questions[0].id,
                 "answer": self.questions[0].kazakh_translation,
+                "attempt_token": state["attempt_token"],
             },
             HTTP_X_CSRFTOKEN=csrf_token,
         )
@@ -96,9 +99,7 @@ class QuizIntegrityTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 403)
-        self.assertFalse(
-            QuizAttempt.objects.filter(user_id=str(self.user.id), lesson=self.lesson).exists()
-        )
+        self.assertFalse(QuizAnswer.objects.filter(attempt__user_id=str(self.user.id)).exists())
 
     def test_same_correct_answer_submitted_ten_times_counts_once(self):
         question = self.questions[0]
@@ -129,7 +130,7 @@ class QuizIntegrityTests(TestCase):
         self.assertEqual(self.client.session["passed_lessons"].count(self.next_lesson.id), 1)
 
     def test_cross_lesson_question_is_rejected_without_changing_attempt(self):
-        attempt = QuizAttempt.objects.create(user_id=str(self.user.id), lesson=self.lesson)
+        attempt = QuizAttempt.objects.get(user_id=str(self.user.id), lesson=self.lesson)
         other_lesson = Lesson.objects.create(
             title="Other",
             content="Content",
@@ -188,7 +189,6 @@ class QuizIntegrityTests(TestCase):
         self.assertEqual(attempt.attempts, 1)
 
     def test_quizattempt_unique_constraint_prevents_duplicates(self):
-        QuizAttempt.objects.create(user_id=str(self.user.id), lesson=self.lesson)
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 QuizAttempt.objects.create(user_id=str(self.user.id), lesson=self.lesson)
@@ -197,7 +197,7 @@ class QuizIntegrityTests(TestCase):
         for method_name in ("add_score", "increase_attempts", "check_pass"):
             self.assertFalse(hasattr(QuizAttempt, method_name))
 
-        attempt = QuizAttempt.objects.create(user_id=str(self.user.id), lesson=self.lesson)
+        attempt = QuizAttempt.objects.get(user_id=str(self.user.id), lesson=self.lesson)
         for _ in self.questions:
             attempt.score += 1
             attempt.save(update_fields=["score"])
@@ -272,7 +272,7 @@ class RealtimeContractTests(TestCase):
         payload = kwargs["json"]
 
         self.assertEqual(url, "https://api.openai.com/v1/realtime/client_secrets")
-        self.assertEqual(payload["session"]["model"], "gpt-realtime-2")
+        self.assertEqual(payload["session"]["model"], REALTIME_MODEL)
         self.assertEqual(payload["session"]["audio"]["input"]["turn_detection"]["type"], "server_vad")
         self.assertEqual(payload["session"]["audio"]["output"]["voice"], "cedar")
         self.assertNotIn("OpenAI-Beta", headers)
@@ -331,7 +331,7 @@ class RealtimeTTSTests(TestCase):
         self.assertEqual(result, b"mp3")
         url = mock_connect.call_args.args[0]
         headers = mock_connect.call_args.kwargs["additional_headers"]
-        self.assertEqual(url, "wss://api.openai.com/v1/realtime?model=gpt-realtime-2")
+        self.assertEqual(url, f"wss://api.openai.com/v1/realtime?model={REALTIME_MODEL}")
         self.assertEqual(headers["Authorization"], "Bearer server-key")
         self.assertEqual(headers["OpenAI-Safety-Identifier"], "safe-hash")
         self.assertNotIn("OpenAI-Beta", headers)

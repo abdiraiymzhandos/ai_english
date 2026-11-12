@@ -2,6 +2,7 @@
 {% load static %}
 <html lang="kk">
 <head>
+  {% include "lessons/includes/loading.html" %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ lesson.title }}</title>
@@ -10,7 +11,7 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'css/voice-lesson.css' %}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
   <style>
     /* Theme Variables */
@@ -267,8 +268,36 @@
     }
 
     /* Quiz */
+    /* Quiz controls remain usable while external styles are unavailable. */
+    #quiz-container [hidden] { display: none !important; }
+    #quiz-container > button, #quiz-summary .btn, #quiz-retry-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      margin: 4px 0;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      background: var(--hover-bg);
+      color: var(--text);
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #quiz-summary:not([hidden]) { display: flex; flex-wrap: wrap; gap: 12px; }
+    #quiz-result { flex-basis: 100%; }
+    #quiz-container button:focus-visible, #quiz-container a:focus-visible {
+      outline: 3px solid var(--accent); outline-offset: 3px;
+    }
+    #quiz-container #answer-buttons .btn-success { background: #166534; color: white; }
+    #quiz-container #answer-buttons .btn-danger { background: #b91c1c; color: white; }
+    #quiz-container button:disabled { cursor: wait; }
+
     #quiz-container {
-      @extend .glass-effect;
+      background: var(--hover-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
       padding: 30px;
       margin-top: 40px;
     }
@@ -820,7 +849,7 @@
         <!-- Аудио блок тек сыртында қалады -->
         {% if explanations.vocabulary.audio_url %}
           <div class="audio-container mt-2">
-            <audio controls class="w-100">
+            <audio preload="none" controls class="w-100">
               <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -855,7 +884,7 @@
         <!-- Аудио плеер үнемі көрініп тұрады -->
         {% if explanations.content.audio_url %}
           <div class="audio-container mt-2">
-            <audio controls class="w-100">
+            <audio preload="none" controls class="w-100">
               <source src="{{ explanations.content.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -890,7 +919,7 @@
         <!-- Аудио плеер блок әрдайым көрініп тұрады -->
         {% if explanations.grammar.audio_url %}
           <div class="audio-container mt-2">
-            <audio controls class="w-100">
+            <audio preload="none" controls class="w-100">
               <source src="{{ explanations.grammar.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -925,7 +954,7 @@
         <!-- Аудио плеер үнемі көрініп тұрады -->
         {% if explanations.dialogue.audio_url %}
           <div class="audio-container mt-2">
-            <audio controls class="w-100">
+            <audio preload="none" controls class="w-100">
               <source src="{{ explanations.dialogue.audio_url }}" type="audio/mpeg">
               Браузеріңіз аудионы қолдамайды.
             </audio>
@@ -973,7 +1002,7 @@
       <h5>Chat with Oqyai</h5>
       <button id="chat-close-btn">&times;</button>
     </div>
-    <div id="chat-messages"></div>
+    <div id="chat-messages" role="log" aria-live="polite"></div>
     <div id="chat-input-area">
       <textarea id="chat-input" rows="1" placeholder="Сұрағыңызды жазыңыз..."></textarea>
       <button id="chat-send-btn">
@@ -982,25 +1011,37 @@
     </div>
   </div>
 
-  <!-- Quiz блоктары -->
-  <div id="quiz-container" class="mt-4 text-center">
-    <button id="start-quiz-btn" class="btn btn-success btn-lg">🎯 Тестті бастау</button>
-
-    <div id="quiz-content" class="p-4" style="display: none;">
-      <h3 id="question-text" class="mb-3"></h3>
-
-      <div id="progress-bar" class="progress mb-3">
+  <!-- Each quiz run is bound to this lesson and a server token. -->
+  <div id="quiz-container" class="mt-4 text-center"
+       data-lesson-id="{{ lesson.id }}"
+       data-start-url="{% url 'start_quiz' lesson.id %}"
+       data-restart-url="{% url 'restart_quiz' lesson.id %}"
+       data-submit-url="{% url 'submit_answer' lesson.id %}"
+       data-lesson-url="{% url 'lesson_detail' 0 %}">
+    <p id="quiz-previous-score" {% if quiz_previous_score == None %}hidden{% endif %}>Алдыңғы нәтиже: {{ quiz_previous_score }}</p>
+    <button id="start-quiz-btn" type="button" class="btn btn-success btn-lg" data-retake="{{ quiz_passed|yesno:'true,false' }}">
+      {% if quiz_passed %}🔄 Қайта тапсыру (Retake Quiz){% else %}🎯 Тестті бастау{% endif %}
+    </button>
+    <p id="quiz-error" class="text-danger" role="alert" hidden></p>
+    <button id="quiz-retry-btn" type="button" class="btn btn-primary" hidden>Қайта көру</button>
+    <div id="quiz-content" class="p-4" hidden>
+      <h3 id="question-text" class="mb-3" tabindex="-1"></h3>
+      <div id="progress-bar" class="progress mb-3" aria-hidden="true">
         <div id="progress" class="progress-bar bg-success" style="width: 0%;"></div>
       </div>
-
       <div id="answer-buttons" class="d-grid gap-2"></div>
-
-      <p id="timer" class="text-danger mt-3">⏳ 4 секунд</p>
+      <p id="timer" class="text-danger mt-3">⏳ 5 секунд</p>
       <p id="score" class="mt-2">🏆 Ұпай: 0</p>
       <p id="attempts">❌ Қателер: 0/3</p>
     </div>
+    <div id="quiz-summary" class="p-4" hidden>
+      <h3 id="quiz-result" class="text-success" role="status"></h3>
+      <button id="retake-quiz-btn" type="button" class="btn btn-primary">🔄 Қайта тапсыру (Retake Quiz)</button>
+      <a id="next-lesson-link" class="btn btn-success" hidden>Келесі сабақ →</a>
+      <a href="{% url 'lesson_list' %}" class="btn btn-outline-primary">Сабақтар</a>
+    </div>
   </div>
-
+  <script src="{% static 'js/quiz.js' %}" defer></script>
 
   <!-- JavaScript блоктары -->
   <script>
@@ -1082,36 +1123,32 @@
           const section = button.dataset.section;
           const lessonId = button.dataset.lessonId;
           const explanationContainer = button.nextElementSibling;
-          explanationContainer.innerHTML = "Жүктелуде...";
-          const csrfToken = getCookie('csrftoken');
-          fetch(`/lesson/${lessonId}/explain-section/`, {
+          explanationContainer.textContent = "Жүктелуде...";
+          explanationContainer.setAttribute('role', 'status');
+          OqyLoading.json(`/lesson/${lessonId}/explain-section/`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "X-CSRFToken": csrfToken
-            },
-            body: new URLSearchParams({ section: section })
-          })
-          .then(response => response.json())
+            headers: {"X-CSRFToken": getCookie('csrftoken')},
+            body: new URLSearchParams({section})
+          }, {button, timeout: 120000})
           .then(data => {
-            if (data.error) {
-              explanationContainer.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
-            } else {
-              let html = `<div class="alert alert-info">🧠 ${data.text}</div>`;
-              if (data.audio_url) {
-                html += `<audio controls class="mt-2 w-100">
-                           <source src="${data.audio_url}">
-                           Браузеріңіз аудионы қолдамайды.
-                         </audio>`;
+            const text = document.createElement('div');
+            text.className = 'alert alert-info';
+            text.style.whiteSpace = 'pre-wrap';
+            text.textContent = data.text;
+            explanationContainer.replaceChildren(text);
+            if (data.audio_url) {
+              const audioUrl = new URL(data.audio_url, location.href);
+              if (audioUrl.origin === location.origin) {
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                audio.preload = 'none';
+                audio.className = 'mt-2 w-100';
+                audio.src = audioUrl.href;
+                explanationContainer.appendChild(audio);
               }
-              explanationContainer.innerHTML = html;
-              highlightEnglishText(explanationContainer);
             }
           })
-          .catch(error => {
-            console.error("Қате орын алды:", error);
-            explanationContainer.innerHTML = `<div class="alert alert-danger">Қате орын алды</div>`;
-          });
+          .catch(error => { explanationContainer.textContent = error.message; });
         });
       });
 
@@ -1133,7 +1170,7 @@
       // ========== 5. CHAT MESSAGE HANDLERS ==========
       function sendChatMessage() {
         const question = chatInput.value.trim();
-        if (!question) return;
+        if (!question || chatSendBtn.disabled) return;
         appendMessage("Сіз", question);
         chatInput.value = "";
         const loadingDiv = document.createElement("div");
@@ -1142,15 +1179,14 @@
         chatMessages.appendChild(loadingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         const csrfToken = getCookie('csrftoken');
-        fetch(`/chat-with-gpt/${currentLessonId}/`, {
+        OqyLoading.json(`/chat-with-gpt/${currentLessonId}/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
             "X-CSRFToken": csrfToken
           },
           body: new URLSearchParams({ question: question })
-        })
-        .then(response => response.json())
+        }, {button: chatSendBtn, timeout: 60000})
         .then(data => {
           loadingDiv.remove();
           if (data.error) {
@@ -1169,7 +1205,9 @@
       function appendMessage(sender, text) {
         const msgDiv = document.createElement("div");
         msgDiv.classList.add("mb-2");
-        msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        const label = document.createElement('strong');
+        label.textContent = sender + ': ';
+        msgDiv.append(label, document.createTextNode(text));
         chatMessages.appendChild(msgDiv);
         highlightEnglishText(msgDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -1182,238 +1220,6 @@
           sendChatMessage();
         }
       });
-
-      // ========== 6. QUIZ FUNCTIONALITY ==========
-      let questions = [], currentQuestionIndex = 0, timer;
-      let answeredQuestionIds = new Set();
-      let isSubmitting = false;
-
-      // ✅ DOM элементтер
-      const startQuizBtn = document.getElementById("start-quiz-btn");
-      const quizContent = document.getElementById("quiz-content");
-      const questionText = document.getElementById("question-text");
-      const progressBar = document.getElementById("progress");
-      const answerButtons = document.getElementById("answer-buttons");
-      const timerText = document.getElementById("timer");
-      const scoreText = document.getElementById("score");
-      const attemptsText = document.getElementById("attempts");
-
-      startQuizBtn.addEventListener("click", function () {
-        Swal.fire({
-          title: "\uD83D\uDCE2 Тест ережелері",
-          html: `
-            ⏱ <b>Әр сұраққа жауап беру үшін 5 секунд бар.</b><br>
-            ❌ Егер 3 рет қателессеңіз, тест басынан басталады.<br><br>
-            Тесті бастауға дайынсыз ба?
-          `,
-          icon: "info",
-          showCancelButton: true,
-          confirmButtonText: "Иә, бастаймыз",
-          cancelButtonText: "Жоқ",
-          confirmButtonColor: "#28a745",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            quizContent.style.display = "block";
-            startQuizBtn.style.display = "none";
-            startQuiz();
-          }
-        });
-      });
-
-      function startQuiz() {
-        fetch("/start-quiz/{{ lesson.id }}/", { credentials: "same-origin" })
-          .then((response) => {
-            if (!response.ok) {
-              return response.json().then((data) => {
-                throw new Error(data.error || "Тестті бастау мүмкін болмады");
-              });
-            }
-            return response.json();
-          })
-          .then((data) => {
-            questions = data.questions || [];
-            applyServerState(data);
-            if (data.passed) {
-              showQuizComplete(data.score || 0);
-              return;
-            }
-            currentQuestionIndex = getQuestionIndexById(data.next_question_id);
-            nextQuestion();
-          })
-          .catch((error) => {
-            Swal.fire({
-              icon: "error",
-              title: "Қате",
-              text: error.message || "Тестті бастау мүмкін болмады",
-            });
-          });
-      }
-
-      function nextQuestion() {
-        isSubmitting = false;
-        while (
-          currentQuestionIndex < questions.length &&
-          answeredQuestionIds.has(questions[currentQuestionIndex].id)
-        ) {
-          currentQuestionIndex++;
-        }
-
-        if (currentQuestionIndex >= questions.length) {
-          showQuizComplete(getDisplayedScore());
-          return;
-        }
-
-        const question = questions[currentQuestionIndex];
-        questionText.innerText = question.english_word;
-        progressBar.style.width = ((currentQuestionIndex + 1) / questions.length * 100) + "%";
-
-        answerButtons.innerHTML = "";
-        question.choices.forEach(choice => {
-          const btn = document.createElement("button");
-          btn.classList.add("btn", "btn-outline-primary", "btn-lg");
-          btn.innerText = choice;
-          btn.onclick = function () {
-            checkAnswer(question.id, choice, btn);
-          };
-          answerButtons.appendChild(btn);
-        });
-
-        resetTimer();
-      }
-
-      function checkAnswer(questionId, selectedAnswer, btn) {
-        submitAnswer(questionId, selectedAnswer, btn, false);
-      }
-
-      function submitAnswer(questionId, selectedAnswer, btn, timedOut) {
-        if (isSubmitting) return;
-        isSubmitting = true;
-        clearInterval(timer);
-        disableAnswerButtons();
-        if (btn) {
-          btn.classList.add("active");
-        }
-
-        const csrfToken = getCookie("csrftoken");
-        fetch("/submit-answer/{{ lesson.id }}/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": csrfToken
-          },
-          credentials: "same-origin",
-          body: new URLSearchParams({
-            question_id: questionId,
-            answer: selectedAnswer || "",
-            timed_out: timedOut ? "true" : "false"
-          })
-        })
-          .then((response) => {
-            if (!response.ok) {
-              return response.json().catch(() => ({})).then((data) => {
-                throw new Error(data.error || "Жауапты сақтау мүмкін болмады");
-              });
-            }
-            return response.json();
-          })
-          .then(data => {
-            applyServerState(data);
-
-            if (data.restart_required) {
-              Swal.fire({
-                icon: "error",
-                title: timedOut ? "⏳ Уақыт бітті" : "❌ 3 рет қателестіңіз!",
-                html: "Тест басынан басталады.",
-                confirmButtonText: "Қайта бастау"
-              }).then(() => {
-                location.reload();
-              });
-              return;
-            }
-
-            if (data.already_answered || data.already_passed) {
-              isSubmitting = false;
-              return;
-            }
-
-            if (data.correct) {
-              if (btn) btn.classList.add("btn-success");
-            } else {
-              if (btn) btn.classList.add("btn-danger");
-            }
-
-            if (data.passed) {
-              setTimeout(() => showQuizComplete(data.score || 0), 800);
-              return;
-            }
-
-            setTimeout(() => {
-              currentQuestionIndex = data.next_question_id
-                ? getQuestionIndexById(data.next_question_id)
-                : currentQuestionIndex + 1;
-              nextQuestion();
-            }, 800);
-          })
-          .catch((error) => {
-            isSubmitting = false;
-            enableAnswerButtons();
-            Swal.fire({
-              icon: "error",
-              title: "Қате",
-              text: error.message || "Жауапты сақтау мүмкін болмады"
-            });
-          });
-      }
-
-      function resetTimer() {
-        let timeLeft = 5;
-        timerText.innerText = `⏳ ${timeLeft} секунд`;
-        clearInterval(timer);
-        timer = setInterval(() => {
-          timeLeft--;
-          timerText.innerText = `⏳ ${timeLeft} секунд`;
-          if (timeLeft <= 0) {
-            clearInterval(timer);
-            const question = questions[currentQuestionIndex];
-            submitAnswer(question.id, "", null, true);
-          }
-        }, 1000);
-      }
-
-      function applyServerState(data) {
-        answeredQuestionIds = new Set(data.already_answered_question_ids || []);
-        scoreText.innerText = `🏆 Ұпай: ${Number(data.score || 0)}`;
-        attemptsText.innerText = `❌ Қателер: ${Number(data.attempts || 0)}/3`;
-      }
-
-      function getQuestionIndexById(questionId) {
-        if (!questionId) return 0;
-        const index = questions.findIndex((question) => question.id === questionId);
-        return index >= 0 ? index : 0;
-      }
-
-      function disableAnswerButtons() {
-        answerButtons.querySelectorAll("button").forEach((button) => {
-          button.disabled = true;
-        });
-      }
-
-      function enableAnswerButtons() {
-        answerButtons.querySelectorAll("button").forEach((button) => {
-          button.disabled = false;
-        });
-      }
-
-      function getDisplayedScore() {
-        const match = scoreText.innerText.match(/\d+/);
-        return match ? Number(match[0]) : 0;
-      }
-
-      function showQuizComplete(scoreValue) {
-        clearInterval(timer);
-        quizContent.innerHTML = `<h3 class="text-success">✅ Тест аяқталды! Ұпай: ${scoreValue}</h3>
-          <button class='btn btn-primary' onclick='location.reload()'>🔄 Қайта тапсыру</button>`;
-      }
 
     });
 
@@ -1433,8 +1239,8 @@
   </script>
 
   <!-- Voice Lesson JavaScript -->
-  <script src="{% static 'js/voice-lesson.js' %}"></script>
   {% if voice_access_active %}
+  <script src="{% static 'js/voice-lesson.js' %}"></script>
   <script>
     // Initialize Voice Lesson Manager when page loads
     document.addEventListener('DOMContentLoaded', function() {

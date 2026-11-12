@@ -35,6 +35,12 @@ class QuizAttempt(models.Model):
     completed = models.BooleanField(default=False, verbose_name="Өтіп болды ма?")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Өту уақыты")
     is_passed = models.BooleanField(default=False, verbose_name="Тест сәтті өтті ме?")
+    # is_passed is permanent completion; completed describes only the current run.
+    attempt_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    question_ids = models.JSONField(default=list, blank=True)
+    vocabulary_hash = models.CharField(max_length=64, blank=True)
+    last_passed_score = models.PositiveIntegerField(null=True, blank=True)
+    last_passed_total = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user_id} - {self.lesson.title} ({self.score} ұпай)"

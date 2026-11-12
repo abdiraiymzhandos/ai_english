@@ -60,24 +60,13 @@ Until `CONTENT-001`/`DATA-004`:
 - never create fixtures from an unfiltered production dump;
 - use aggregate validation and sanitized test data only.
 
-## Current quiz-content contract
+## Current quiz-content contract (updated 2026-11-12)
 
-`generate_quiz_questions()`:
+The current parser, question selection, legacy-pass handling, and vocabulary-change policy are defined in [Realtime and quiz contracts](REALTIME_AND_QUIZ_CONTRACTS.md#current-vocabulary-contract). Runtime quiz generation now serves only exact pairs from the selected lesson's current vocabulary, preserving historical question rows. Invalid lines produce a visible content error instead of silently reducing the quiz.
 
-1. exits if any question already exists for the lesson;
-2. splits vocabulary into lines;
-3. accepts only lines with the exact spaced en-dash delimiter;
-4. bulk-creates questions during a GET quiz-start request.
+Use `manage.py audit_learning_data` for a read-only stale-question/invalid-vocabulary summary. Optionally pass `--user-id <internal-id> --track kk --level 1` to list missing completion lesson IDs. The command does not change content or progress and does not print the identity. Run against the intended environment; local SQLite findings are not production evidence.
 
-Consequences:
-
-- edited vocabulary never updates existing questions;
-- one existing question blocks generation of missing questions;
-- concurrent first starts can create duplicates because no question uniqueness constraint exists;
-- content format errors silently reduce the quiz;
-- deleting questions can invalidate answer history/progress.
-
-Quiz attempts/answers are now authoritative, but historical attempt fixtures predate/omit `QuizAnswer` evidence. Restore behavior therefore needs an explicit legacy policy.
+See the [2026-11-12 report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) for local findings, tests, migration, and outstanding content review. Fixture hygiene and full authored revision workflows below remain separate unfinished work.
 
 ## Current explanation contract
 

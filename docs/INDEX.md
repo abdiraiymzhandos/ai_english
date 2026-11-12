@@ -41,6 +41,10 @@ This index defines documentation ownership after the 2026-07-10 repository audit
 | [AI agent runbook](AI_AGENT_RUNBOOK.md) | Deprecated pointer | Replacements: AGENTS, task playbook, environment/testing docs | [AGENTS](../AGENTS.md), [task playbook](../TASK_PLAYBOOK.md), [testing and quality](TESTING_AND_QUALITY.md) |
 | [Old architecture/data flow](ARCHITECTURE_AND_DATA_FLOW.md) | Deprecated pointer | Replacement: architecture and codebase | [Architecture and codebase](ARCHITECTURE_AND_CODEBASE.md) |
 
+## Implementation evidence
+
+- [OqyAI bug fixes and performance report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md): 2026-11-12 implementation and 2026-11-13 independent verification, including MySQL races, measurements, limitations, and PythonAnywhere deployment/rollback. Current behavior remains owned by the contract, content, architecture, UX, and testing documents above.
+
 ## Evidence conventions
 
 - `Confirmed`: directly observed in tracked code, templates, migrations, tests, safe command output, or aggregate fixture analysis.

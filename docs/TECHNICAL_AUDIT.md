@@ -1,5 +1,13 @@
 # Technical Audit
 
+## Learning-flow remediation — 2026-11-12
+
+`PERF-002` is partially implemented for the catalog and quiz: one bounded narrow catalog query, request-scoped profile reuse, no dashboard session writes, and one answer-state read per operation. No shared authorization cache or speculative index was added. Existing SQLite indexes cover the measured queries.
+
+`DATA-006` / `CONTENT-003` are partially implemented through vocabulary-bound runs, monotonic lesson completion, safe retakes, and migration `0017`. Full publishing/history/restore workflows remain open. The service worker no longer caches page/API/user state. See [current quiz contracts](REALTIME_AND_QUIZ_CONTRACTS.md) and the [measured report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md). The audit sections below retain their historical scope; unrelated findings are not claimed fixed.
+
+Independent verification on 2026-11-13 additionally passed the complete suite on a disposable MySQL 8.0.46 instance, including five concurrent-write cases and migration/rollback over 503 attempts. MySQL connections now use `utf8mb4` after an observed four-byte Unicode failure. Shared-loader overlap/watchdog cleanup and inconsistent completion-flag recovery gained failing-then-passing regressions. Production schema/volume and physical devices remain release gates; see the report for current results.
+
 ## Audit metadata and evidence rules
 
 This technical audit is based on the repository state inspected on 2026-07-10. Application code was not changed. lessons/views.py was already modified in the working tree before the documentation task.

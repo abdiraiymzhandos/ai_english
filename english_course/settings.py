@@ -152,6 +152,7 @@ if USE_MYSQL:
             "PASSWORD": mysql_password,
             "HOST": mysql_host,
             "PORT": mysql_port,
+            "OPTIONS": {"charset": "utf8mb4"},
         }
     }
 else:

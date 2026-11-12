@@ -2,6 +2,10 @@
 
 Audit snapshot: 2026-07-10. Provider behavior and pricing were not tested live. Model names below are code configuration, not proof of current availability or suitability.
 
+## Translator entry update — 2026-11-13
+
+The translator now opens from an authorized profile row through `/translator/`; the catalog no longer loads its assets or shows a floating button. The protected page and existing check/token endpoints use the unchanged active translator entitlement rule. Prompt, Realtime model, subscriptions, and expiry timestamps are unchanged. Assets initialize only on the dedicated page; microphone/session creation still requires explicit start. UI, verification, and limitations: [mobile profile update](UX_UI_AUDIT.md#mobile-profile-and-translator-entry--2026-11-13).
+
 ## Inventory
 
 | Feature | Entry point | Model/config source | Input | Output/persistence | Access |

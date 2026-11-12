@@ -1,5 +1,36 @@
 # OqyAI UX/UI Audit
 
+
+## Mobile profile and translator entry — 2026-11-13
+
+Implemented a focused slice of `UX-002`, `UX-004`, and `UX-006`; the broader onboarding/design-system work remains partial.
+
+- `/profile/` now has a compact avatar/name header, one completion count and native progress bar, a direct continue action, compact course/voice/authorized-translator rows, optional teacher classroom row, collapsed personal details, POST logout, and collapsed password/confirmation-protected account deletion. Primary labels are Kazakh. Username, email, phone, role, and join date remain available.
+- Completion uses durable passed IDs intersected with the actual 1–250 catalog, independent of payment/unlocks. Russian completions are excluded, matching the existing main catalog. Continue targets the first existing uncompleted lesson; existing lesson views still decide entitlement. Empty/fully completed catalogs link back to the catalog. No stored progress or entitlement changes.
+- Removed the floating translator button, configuration, CSS, and JavaScript from the catalog. The only learning-interface entry is the profile row for active translator customers. `/translator/` requires authentication and the existing `has_active_translator_access()` rule (flag plus optional expiry); denied users receive 403. Both existing access and token APIs retain their guards. No subscription, date, pricing, model, prompt, or token contract changes.
+- Translator resources load only after navigating to the protected page. Its explicit open action rechecks access with a 15-second deadline; access/connection errors appear inline and release the loader for retry. Microphone activation still requires starting the session. The modal supports focus entry/return, Escape, and keyboard containment; leaving the page requests session cleanup. Profile/navigation uses the existing shared loader. Profile and translator pages use `no-store`.
+- Profile CSS uses safe-area padding, wrapping account values, native details/summary, visible keyboard focus, and targets at least 44px. The shared auth layout adds an overridable viewport block; profile/translator permit zoom without changing the other auth pages. No new framework or icon-font dependency.
+
+Changed for this task: `lessons/views.py`, `lessons/urls.py`, `lessons/templates/lessons/auth_base.html`, `lessons/templates/lessons/profile.html`, `lessons/templates/lessons/lesson_list.html`, new `lessons/templates/lessons/translator.html`, new `static/css/profile.css`, `static/js/translator-assistant.js`, new `static/js/translator-page.js`, new `lessons/test_profile_ui.py`, and `lessons/browser_checks.py`. Documentation: this file, `AI_INTEGRATIONS.md`, `TESTING_AND_QUALITY.md`, and `BACKLOG.md`. Earlier uncommitted quiz/progress/cache work is retained.
+
+Performance evidence: the dashboard drops two resource requests totaling **52,955 uncompressed source bytes** (39,683 JS + 13,272 CSS before this task). It no longer constructs a translator instance. The profile no longer loads Font Awesome; it adds one small local CSS file and no page-specific JS. A warmed synthetic request measured **7 queries, 3.577 ms, 8,012 response bytes** (resume sample: 7 queries, 3.844 ms, 8,012 bytes); this single local sample is not a before/after latency benchmark or a production speed claim. Removed unused profile aggregation/marketing-card preparation; curriculum and completion each use one bounded query.
+
+Chromium rendered checks passed at 320, 375, 390, 430, and 1024px, including long username/email, details expansion with keyboard, touch targets, overflow, navigation/back, authorized translator opening, and no microphone connection on opening. Screenshots at all five widths were captured locally; all five sizes were visually inspected across implementation and resume verification. The initial run caught an incorrect template head block; it was corrected before the passing run. See [testing evidence](TESTING_AND_QUALITY.md#profile-and-translator-verification--2026-11-13). Physical iOS/Android WebViews, safe-area hardware insets, microphone permissions, and live paid Realtime translation remain unverified; API tests mock the provider.
+
+No migration, dependency, production-data action, commit, push, or deployment belongs to this task. Release requires the normal static collection and app reload after review; the earlier pending migration 0017 remains a prerequisite for the combined working tree. Rollback these UI files together with the route/view change; do not revert the earlier learning fixes or change entitlements.
+
+## Dashboard logout cleanup — 2026-11-13
+
+Removed the dashboard's red «Шығу» form and the now-unnecessary trailing profile-link margin. The profile link remains, and the existing profile «Аккаунттан шығу» POST form is the primary logout entry. Added only local account-row flex layout and long-name wrapping so alignment survives an unavailable Bootstrap CDN. No logout endpoint, auth/session logic, schema, account, entitlement, or progress changes. This is a small follow-up to the profile simplification (`UX-006`).
+
+Changed files for this follow-up: `lessons/templates/lessons/lesson_list.html`, `lessons/test_profile_ui.py`, `lessons/browser_checks.py`, this document, and `TESTING_AND_QUALITY.md`. [Verification results](TESTING_AND_QUALITY.md#dashboard-logout-verification--2026-11-13). No commit, push, or deployment performed.
+
+## Implemented learning-flow changes — 2026-11-12
+
+`BUG-004` now has working retake and next-lesson actions. Retakes preserve previous completion and scores. Quiz failure/retry and section switching avoid full-page reloads. A shared accessible top indicator and button feedback cover internal navigation, native forms, quiz, explanation/chat, motivation, and lead submission; failures/timeouts/history restoration release loading states. Timer and mistake-limit policy remain unchanged.
+
+This addresses parts of `UX-003`, `UX-006`, and `UX-009`; timed accommodations, full review/history, design-system consolidation, and other audit items remain open. Browser/device coverage and limits are recorded in the [report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md), with the server contract maintained [here](REALTIME_AND_QUIZ_CONTRACTS.md).
+
 ## Document status
 
 - **Purpose:** evidence-based UX/UI source of truth for the current Django product.

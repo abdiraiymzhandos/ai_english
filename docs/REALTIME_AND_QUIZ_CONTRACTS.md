@@ -35,50 +35,53 @@ Classroom instructions include lesson and roster names. Translator uses an inlin
 - Client-side 30-minute timers are not authoritative cost control. Server quotas/concurrency/minute accounting are required by `AI-002`/`SEC-011`.
 - Tests must mock external calls unless a credentialed manual test is explicitly authorized and documented.
 
-## Quiz identity and uniqueness
+## Quiz identity and uniqueness (updated 2026-11-13)
 
-- Authenticated identity: `str(request.user.id)`.
-- Guest identity: an ensured Django session key.
-- Database: one `QuizAttempt` per `(user_id, lesson)`.
-- Database: one `QuizAnswer` per `(attempt, question)`.
-- The submit view must load the question through both ID and current lesson.
-- The database cannot itself enforce question lesson equals attempt lesson; preserve application validation and tests.
+Implementation: `lessons/services/quiz.py`, `lessons/services/course_progress.py`, and the quiz views in `lessons/views.py`. Verification and deployment evidence: [learning fixes report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md).
 
-## Authoritative quiz state
+- Authenticated identity is `str(request.user.id)`; guest identity is an ensured Django session key.
+- One `QuizAttempt` per `(user_id, lesson)` and one current `QuizAnswer` per `(attempt, question)` remain database constraints.
+- Every run has an `attempt_token`, ordered `question_ids`, and a hash of normalized vocabulary pairs. Answer and restart POSTs require the token. A previous run/user/lesson token is rejected with HTTP 409.
+- Quiz start, restart, and answer routes enforce the existing lesson-detail access policy, including its existing Russian student policy. Free lesson IDs and entitlement flags are unchanged.
+- Current run state is never HTTP/service-worker cached. The worker only caches content-hashed public static assets and deletes old OqyAI page/API caches when it activates.
 
-- Score = count of stored correct answers.
-- Mistakes = count of stored incorrect answers.
-- Completion depends on distinct stored answers, not browser counters or arithmetic on legacy fields.
-- A duplicate submission returns existing state and must not change score, mistakes, progress, or unlocks.
-- A timeout stores at most one incorrect answer with an empty selection.
-- Three distinct mistakes reset current answer rows and attempt counters; no lesson unlock.
-- Passing requires all current lesson questions answered and fewer than three mistakes.
-- The next existing numeric lesson is added once to session unlock state; authenticated `current_lesson` advances only upward.
+## Permanent completion and current run
 
-## Known contract limitations
+- `QuizAttempt.is_passed` means the lesson has been passed at least once. Retakes and content changes never clear it.
+- `completed` describes the current run. JSON `passed` means this run is complete; `lesson_completed` describes the permanent pass.
+- `last_passed_score` and `last_passed_total` retain the latest successful result while practicing. This is not a complete attempt-history ledger.
+- `POST /restart-quiz/<lesson_id>/` clears current answers/counters, rotates the token, and binds current vocabulary. It preserves permanent completion and previously unlocked lessons.
+- Migration `0017_quiz_run_state` preserves existing aggregate pass flags/scores without inventing answers. Legacy totals remain unknown. Every existing run receives its own UUID.
+- An aggregate-only historical pass retains its saved score on start. Complete valid answer evidence can repair inconsistent completion/pass flags on start. Partial or absent evidence cannot create a pass.
 
-- Quiz start is a GET that can write questions/attempt state.
-- Quiz routes do not consistently enforce course entitlement.
-- Question generation is exact-delimiter, exists-then-create, non-versioned, and race-prone.
-- Historical pass records can lack `QuizAnswer` evidence.
-- Lesson IDs encode curriculum order/track/access.
-- Frontend does not use returned `next_lesson` for a continuation CTA and retake is broken after pass.
+## Authoritative scoring and progression
 
-These are backlog issues, not invariants to preserve.
+- Score and mistakes come from stored distinct answers belonging to this run's lesson and question IDs.
+- Duplicate submissions return saved state without incrementing counters. The browser advances from that authoritative state even after a lost response.
+- A timeout records one incorrect answer with an empty selection. The existing five-second browser timer and three-mistake limit are retained; there is still no new server-enforced per-question deadline.
+- Three distinct mistakes clear current answers/counters and rotate the run token. Permanent completion remains intact; a delayed old answer is rejected.
+- Passing requires every current question answered and fewer than three mistakes. It can occur only once per lesson for progress counting; successful retakes update the saved result.
+- Progress counts distinct permanent passes independently of payment eligibility. Session `passed_lessons` is an old unlock hint, never completion evidence.
+- Kazakh level boundaries are IDs 1–50, 51–100, 101–150, 151–200, 201–250. Missing IDs do not shift later lessons into an earlier level. Russian IDs 251+ are separate; the existing catalog still presents only the five Kazakh levels.
+- Next-lesson lookup stays within the current track. The final lesson can complete without a successor. Profile advancement is monotonic, using a conditional SQL update.
 
-## Required regression matrix
+## Current vocabulary contract
 
-| Case | Expected result |
-| --- | --- |
-| Same correct answer repeated | One answer, score one, no duplicate progress |
-| All unique correct answers | Pass once, unlock next once |
-| Cross-lesson question | Reject; attempt unchanged |
-| Third unique mistake | Reset answers/state; no unlock |
-| Duplicate timeout | One incorrect answer |
-| Concurrent attempt create | One attempt |
-| Unauthorized/locked lesson quiz | Deny after access-policy task |
-| Realtime token | Shared model, ephemeral secret, safety hash, no standard key |
-| Realtime error | Generic client response; redacted server detail |
-| TTS provider error/empty audio | Controlled exception; existing media preserved after future lifecycle fix |
+- Each non-empty vocabulary line must contain an English term and translation separated by an en dash, em dash, or spaced hyphen. Duplicate pairs are collapsed; invalid/oversized entries and fewer than four pairs produce a controlled content error.
+- Questions are selected by exact current vocabulary pairs and current lesson, not merely by the existence of stored question rows. Missing pairs are added under a lesson-row transaction lock.
+- Old and duplicate question rows remain stored, preserving history; only one matching row per pair is served. No question row is deleted or edited during start.
+- Correct answers and distinct distractors come from the selected lesson. A lesson with repeated translations can have fewer than four choices; placeholders and cross-lesson translations are not injected.
+- Vocabulary changes reject stale answer POSTs. Opening the quiz binds the new vocabulary and resets only the current run, preserving prior completion.
 
-Run the actual test command defined in [TESTING_AND_QUALITY.md](TESTING_AND_QUALITY.md).
+## Remaining limitations
+
+- Start is still a GET that can initialize/synchronize state for compatibility.
+- Curriculum metadata remains ID-based. Full versioned publishing and full attempt history are separate backlog work.
+- Local MySQL 8.0.46 migration/rollback and five concurrent-write tests pass. The actual production schema/version/data volume still requires staging rehearsal; SQLite alone does not verify row locks.
+- Browser networking, native Safari/WebView behavior, and production data require the checks listed in the report.
+
+## Regression coverage
+
+`lessons/test_quiz_integrity.py`, `lessons/test_learning_flow.py`, and `lessons/test_quiz_migration.py` cover idempotency, CSRF/access denial, last-lesson progress, legacy state, stale content, both tracks, distinct users, repeated retakes, lost-run tokens, malformed content, query budgets, and migration/rollback. `lessons/test_quiz_concurrency.py` exercises simultaneous starts, duplicate answers/final passes, and reset/restart races on real row-lock databases. `lessons/browser_checks.py` exercises browser behavior with synthetic data and mocked AI. `lessons/js_tests/service-worker.test.cjs` checks cache isolation.
+
+Commands and current results are in [testing and quality](TESTING_AND_QUALITY.md).

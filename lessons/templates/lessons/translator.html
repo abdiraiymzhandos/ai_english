@@ -1,0 +1,21 @@
+{% extends 'lessons/auth_base.html' %}
+{% load static %}
+{% block title %}AI аудармашы · OqyAI{% endblock %}
+{% block viewport %}<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/translator-assistant.css' %}">
+{% endblock %}
+{% block content %}<main class="profile-shell">
+<a class="continue-link" href="{% url 'profile' %}">← Профильге оралу</a>
+<section class="profile-panel learning"><h1>AI аудармашы</h1><p>Екі бағытта дауыспен аудару. Микрофон сессияны бастағанда қосылады.</p>
+<button id="open-translator" class="account-action" type="button">Аудармашыны ашу →</button>
+<p id="translator-page-status" role="status"></p></section></main>{% endblock %}
+{% block extra_js %}
+<script>window.translatorAssistantConfig = {
+ realtimeModel: "{{ translator_realtime_model|escapejs }}", checkAccessUrl: "{% url 'check_translator_access' %}", tokenUrl: "{% url 'mint_translator_token' %}",
+ isAuthenticated: true, hasTranslatorAccess: true, loginUrl: "{% url 'login' %}", csrfToken: "{{ csrf_token|escapejs }}"
+};</script>
+<script src="{% static 'js/translator-assistant.js' %}"></script>
+<script src="{% static 'js/translator-page.js' %}"></script>
+{% endblock %}

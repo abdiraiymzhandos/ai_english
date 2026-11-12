@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, advertisement, account_locked, vocabulary_list, register_lead, mint_realtime_token
-from .views import start_quiz, submit_answer, service_worker, pwa_manifest, privacy_policy, profile, check_translator_access, mint_translator_token
+from .views import start_quiz, restart_quiz, submit_answer, service_worker, pwa_manifest, privacy_policy, profile, translator, check_translator_access, mint_translator_token
 from .views_classroom import (
     classroom_dashboard,
     classroom_group_create,
@@ -22,6 +22,7 @@ from django.urls import reverse_lazy
 
 
 urlpatterns = [
+    path('translator/', translator, name='translator'),
     # PWA files - must be served from root
     path('sw.js', service_worker, name='service_worker'),
     path('manifest.json', pwa_manifest, name='pwa_manifest'),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('chat-with-gpt/<int:lesson_id>/', chat_with_gpt, name='chat_with_gpt'),
     path('motivational-message/', motivational_message, name='motivational_message'),
     path('start-quiz/<int:lesson_id>/', start_quiz, name='start_quiz'),
+    path('restart-quiz/<int:lesson_id>/', restart_quiz, name='restart_quiz'),
     path('submit-answer/<int:lesson_id>/', submit_answer, name='submit_answer'),
     path('advertisement/', advertisement, name='advertisement'),
     path('login/', LoginView.as_view(template_name='lessons/login.html', redirect_authenticated_user=True), name='login'),

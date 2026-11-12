@@ -231,6 +231,8 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 
 ### BUG-004 — Make quiz completion continue and retake correctly
 
+**Update:** Core retake/continuation implemented 2026-11-12; physical-device QA and analytics remain open. See the [implementation report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) and [current quiz contract](REALTIME_AND_QUIZ_CONTRACTS.md).
+
 - **Metadata:** Category learning UX; status Proposed; priority Next; severity P2; effort S; confidence High; type confirmed defect.
 - **Evidence:** Backend returns `next_lesson`; browser ignores it. Completion reload calls a passed attempt and renders completion again, so “retake” is not a retake.
 - **Impact:** Business—reduced lesson continuation/retention; user—dead end/confusing control; technical—frontend/backend contract unused.
@@ -317,6 +319,8 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 
 ### DATA-006 — Reconcile legacy quiz state, question versions, and restore invariants
 
+**Update:** Partially implemented 2026-11-12: legacy score preservation, content-bound run tokens, and migration/rollback tests; local MySQL concurrency and 503-row migration/rollback are verified; full history/import and production rehearsal remain open. See the [implementation report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) and [current quiz contract](REALTIME_AND_QUIZ_CONTRACTS.md).
+
 - **Metadata:** Category quiz/data/restore; status Proposed; priority Later; severity P2; effort L; confidence High; type confirmed legacy-integrity risk.
 - **Evidence:** Aggregate attempt fields coexist with answer-authoritative state; historical passes lack answer backfill; question generation can duplicate or become stale; tracked attempt data conflicts with current uniqueness and has no answer fixture.
 - **Impact:** Business—unreliable learning analytics; user—pass/progress can change unexpectedly; technical—restore, regrade, and content edits produce inconsistent state.
@@ -378,6 +382,8 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 - **Change management:** Inbox/job schema migration and worker deployment; dual-run/shadow without duplicate sends; rollback pauses consumer while retaining jobs; update architecture/environment/operations.
 
 ### PERF-002 — Bound queries, payloads, and catalog/vocabulary/message collections
+
+**Update:** Partially implemented 2026-11-12 for catalog/quiz queries and static/loading behavior; WhatsApp, global vocabulary, and production profiling remain open. See the [implementation report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) and [current quiz contract](REALTIME_AND_QUIZ_CONTRACTS.md).
 
 - **Metadata:** Category performance; status Proposed; priority Before growth; severity P2; effort M; confidence High; type future scaling risk with confirmed unbounded paths.
 - **Evidence:** WhatsApp loads all lead messages before slicing; vocabulary loads all course text/words; lesson stages issue multiple slices; profile/admin calculations and raw event history grow; no product pagination.
@@ -565,6 +571,8 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 
 ### CONTENT-003 — Version derived quiz, explanation, and prompt/content contracts
 
+**Update:** Partially implemented 2026-11-12 for quiz vocabulary hashes and stale-run handling; full publishing/explanation provenance remains open. See the [implementation report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) and [current quiz contract](REALTIME_AND_QUIZ_CONTRACTS.md).
+
 - **Metadata:** Category content architecture; status Proposed; priority Later; severity P2; effort L; confidence High; type confirmed staleness/change-risk issue.
 - **Evidence:** Questions derive once from exact vocabulary formatting; explanations lack source/prompt/model version; current voice prompt can ignore the lesson; no publish workflow ties derived artifacts to authored content.
 - **Impact:** Business—unsafe publishing and AI quality drift; user—stale/unrelated learning material; technical—cannot regenerate, compare, or roll back deterministically.
@@ -589,6 +597,9 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 
 ### UX-002 — Add role-aware activation and resume journeys
 
+2026-11-13 partial implementation: compact mobile profile with durable completion/continue action, collapsed personal details, and translator entry restricted to existing active customers. Related accessibility/component work remains partial (`UX-004`, `UX-006`). [Implementation and verification](UX_UI_AUDIT.md#mobile-profile-and-translator-entry--2026-11-13).
+
+
 - **Metadata:** Category UX/activation; status Proposed; priority Later; severity P2; effort M; confidence High; type missing product flow.
 - **Evidence:** Registration redirects to catalog; no onboarding completion, resume card/current stage expansion, teacher guided setup, or early-success instrumentation.
 - **Impact:** Business—lower first-lesson/classroom activation and retention; user—does not know next step; technical—progress exists but is not orchestrated.
@@ -600,6 +611,8 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 - **Change management:** Optional onboarding-state migration; staged events; rollback preserves direct navigation; update UX/project/analytics dictionary.
 
 ### UX-003 — Deliver mastery-oriented quiz review and continuation
+
+**Update:** Retake/continuation/loading subset implemented 2026-11-12; timing policy and mistake-review/history are unchanged. See the [implementation report](../OQYAI_BUGFIX_AND_PERFORMANCE_REPORT.md) and [current quiz contract](REALTIME_AND_QUIZ_CONTRACTS.md).
 
 - **Metadata:** Category UX/learning; status Proposed; priority Next; severity P2; effort M including `BUG-004`; confidence High; type learning/retention opportunity.
 - **Evidence:** Five-second timer, no accommodation, mistake explanation/history, answer review or next action; retake broken.
