@@ -43,12 +43,14 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 THREADS_ACCESS_TOKEN = os.getenv("THREADS_ACCESS_TOKEN")
 THREADS_USER_ID = os.getenv("THREADS_USER_ID")
 
+# GPT-6 Luna is a low-cost model for high-volume text generation.
+# OPENAI_MODEL in .env takes precedence over this default.
 OPENAI_MODEL = os.getenv(
     "OPENAI_MODEL",
-    "gpt-5-mini",
+    "gpt-6-luna",
 )
 
-# 1 = generate only
+# 1 = generate only (safe default)
 # 0 = generate + publish
 THREADS_DRY_RUN = (
     os.getenv("THREADS_DRY_RUN", "1") == "1"
@@ -56,46 +58,44 @@ THREADS_DRY_RUN = (
 
 
 # ============================================================
-# OQYAI
+# CONTENT / POST LIMIT
 # ============================================================
 
-APP_STORE_URL = (
-    "https://apps.apple.com/kz/app/oqyai/id6754454949"
-)
-
-GOOGLE_PLAY_URL = (
-    "https://play.google.com/store/apps/details"
-    "?id=com.oqyai.app"
-)
-
-APP_LINK_SUFFIX = (
-    f"\n\n📱 iPhone: {APP_STORE_URL}"
-    f"\n🤖 Android: {GOOGLE_PLAY_URL}"
-)
-
-
-# ============================================================
-# POST LIMIT
-# ============================================================
-
-# Threads text post target.
-# We intentionally keep safety margin below the real 500-char limit.
+# Keep a margin below Threads' 500-character text-post limit.
+# App-store URLs are intentionally NOT appended to every post.
+# Put the app links in the Threads profile bio and track bio-link clicks.
 MAX_POST_CHARACTERS = 460
+CONTENT_BUDGET = MAX_POST_CHARACTERS
+TARGET_CONTENT_CHARACTERS = 380
 
-APP_LINK_CHARACTERS = len(APP_LINK_SUFFIX)
+# A brand mention is allowed only when no recent post promoted OqyAI.
+PROMO_COOLDOWN_POSTS = 5
+PROMPT_HISTORY_LIMIT = 12
 
-# Budget for hook + lesson_body + cta combined (app links are added by code).
-CONTENT_BUDGET = (
-    MAX_POST_CHARACTERS - APP_LINK_CHARACTERS
+# Topic tags are supported by the Threads publishing API. Disable with
+# THREADS_ADD_TOPIC_TAG=0 if your API version/account rejects them.
+THREADS_ADD_TOPIC_TAG = (
+    os.getenv("THREADS_ADD_TOPIC_TAG", "1") == "1"
 )
 
-# We ask the model to aim slightly under CONTENT_BUDGET so that small
-# overshoots don't trigger a full (paid) regeneration.
-LENGTH_SAFETY_BUFFER = 25
+TOPIC_TAGS_BY_PILLAR = {
+    "KZ_HUMOR": "Comedy",
+    "ANECDOTE": "Stories",
+    "LOCAL_SUPPORT": "Kazakhstan",
+    "KZ_LIFE": "Lifestyle",
+    "DISCUSSION": "Culture",
+    "ENGLISH_BRIDGE": "Language Learning",
+}
 
-TARGET_CONTENT_CHARACTERS = (
-    CONTENT_BUDGET - LENGTH_SAFETY_BUFFER
-)
+# Weighted rotation: approximately 30/25/15/15/10/5 percent.
+PILLAR_WEIGHTS = {
+    "KZ_HUMOR": 0.30,
+    "ANECDOTE": 0.25,
+    "LOCAL_SUPPORT": 0.15,
+    "KZ_LIFE": 0.15,
+    "DISCUSSION": 0.10,
+    "ENGLISH_BRIDGE": 0.05,
+}
 
 
 # ============================================================
@@ -105,9 +105,15 @@ TARGET_CONTENT_CHARACTERS = (
 # Agent reads ONLY its own latest N published posts.
 RECENT_POST_LIMIT = 30
 
-# Structured outputs + the hook/lesson_body split (see below) remove most
-# retry causes, so we no longer need a large retry budget.
-MAX_GENERATION_ATTEMPTS = 4
+# Structured Outputs and local validation remove most retry causes,
+# so we no longer need a large retry budget.
+# One normal generation and at most one retry for a duplicate/invalid result.
+MAX_GENERATION_ATTEMPTS = 2
+
+# Hard cap on generated tokens: keeps accidental long answers inexpensive.
+OPENAI_MAX_OUTPUT_TOKENS = int(
+    os.getenv("OPENAI_MAX_OUTPUT_TOKENS", "450")
+)
 
 TOPIC_SIMILARITY_THRESHOLD = 0.82
 HOOK_SIMILARITY_THRESHOLD = 0.82
@@ -190,17 +196,34 @@ openai_client = OpenAI(
 POST_JSON_SCHEMA = {
     "type": "object",
     "properties": {
+        "pillar": {
+            "type": "string",
+            "enum": [
+                "KZ_HUMOR",
+                "ANECDOTE",
+                "LOCAL_SUPPORT",
+                "KZ_LIFE",
+                "DISCUSSION",
+                "ENGLISH_BRIDGE",
+            ],
+        },
         "topic": {"type": "string"},
         "format": {"type": "string"},
         "hook": {"type": "string"},
-        "lesson_body": {"type": "string"},
+        "body": {"type": "string"},
+        "promotion": {
+            "type": "string",
+            "enum": ["none", "soft"],
+        },
         "cta": {"type": "string"},
     },
     "required": [
+        "pillar",
         "topic",
         "format",
         "hook",
-        "lesson_body",
+        "body",
+        "promotion",
         "cta",
     ],
     "additionalProperties": False,
@@ -224,9 +247,10 @@ retry_strategy = Retry(
         503,
         504,
     ),
-    allowed_methods=frozenset(
-        {"GET", "POST"}
-    ),
+    # Threads publishing uses POST. Automatic retries can create duplicate
+    # containers/posts when the server succeeds but the response is lost.
+    # Retry only idempotent GET requests automatically.
+    allowed_methods=frozenset({"GET"}),
     respect_retry_after_header=True,
 )
 
@@ -857,237 +881,135 @@ def mark_post_failed(
 # ============================================================
 
 STATIC_PROMPT_HEADER = f"""
-Сен OqyAI үшін жоғары сапалы Threads контент-агентсің.
+Сен Қазақстандағы Threads аудиториясына арналған OqyAI контент-агентсің.
 
-OqyAI — қазақ тілінде сөйлейтін адамдарға
-ағылшын тілін үйрететін мобильді қосымша.
+OqyAI — қазақша сөйлейтін адамдарға ағылшын тілін үйрететін мобильді қосымша.
+Бірақ бұл аккаунттың басты мақсаты әр постта курс сату емес. Алдымен адамдар
+оқитын, күлетін, пікір жазатын және бөлісетін қазақша медиа-аккаунт қалыптастыр.
+OqyAI-ды тек шынайы әрі сирек контексте таныстыр.
 
-Сенің міндетің:
-әр іске қосылған сайын бір жаңа,
-пайдалы, қызық және табиғи
-English-learning пост жасау.
+НЕГІЗГІ ЕРЕЖЕЛЕР
+- Контенттің басым бөлігі қазақ тілінде, ауызекі әрі табиғи болсын.
+- Пост Threads-ке арнайы жазылсын; Instagram/TikTok жарнамасының мәтініндей болма.
+- Бір пост = бір идея. Күштеп ағылшын сабағын қоспа.
+- Жалған статистика, ойдан шығарылған нақты адам пікірі, жалған клиент оқиғасы,
+  жалған жетістік, тексерілмеген жаңалық немесе дәйексөз ойлап таппа.
+- Ойдан шығарылған анекдотты шынайы болған оқиға ретінде ұсынба.
+- Патриоттық контент мәдениет, тіл, отандық өнім, жергілікті кәсіпкер мен
+  қоғамдастықты шынайы қолдауға негізделсін; кінәлау/ұялту/мәжбүрлеу болмауы керек.
+- Этносқа, дінге, өңірге, жынысқа, мүгедектікке қатысты кемсітетін әзіл жасама.
+- Саяси үгіт, дау тудыратын жалған айыптау және трагедияны әзілге айналдыру жоқ.
+- Hashtag жазба. Артық emoji қолданба. URL ешқашан жазба.
+- Бірдей hook, сюжет, punchline немесе соңғы сұрақты қайталама.
 
-================================================
-VARIETY (жалпы ереже)
-================================================
+КОНТЕНТ ПИЛЛАРЛАРЫ
+1. KZ_HUMOR — Қазақстандағы ортақ күнделікті жағдайлар, мем, relatable юмор.
+2. ANECDOTE — қысқа анекдот, диалог, күтпеген финалы бар шағын оқиға.
+3. LOCAL_SUPPORT — қазақ тілі, Қазақстанда жасалған өнімдер, отандық стартаптар,
+   жергілікті адамдар мен бастамаларды шынайы қолдау.
+4. KZ_LIFE — студенттік өмір, жұмыс, отбасы, ақша, достар, қала/ауыл тұрмысы.
+5. DISCUSSION — адамдардың нақты тәжірибесін сұрайтын мәдениетті пікірталас.
+6. ENGLISH_BRIDGE — ағылшынға қатысты әзіл/оқиға/пайдалы ой. Тек сирек қолдан.
 
-Төменде осы агент бұрын жариялаған соңғы посттардың
-қысқаша тізімі беріледі. Жаңа пост сол тізіммен:
+ПОСТТЫҢ ҚҰРЫЛЫМЫ
+- hook: бірінші жолдағы қызықты, бірақ табиғи бастама.
+- body: негізгі оқиға, әзіл, ой немесе сұрақ. Hook-ты қайталама.
+- Соңында пікір сұрау қажет болса ғана бір қысқа сұрақ қой.
+- Әр постқа міндетті CTA қоспа.
+- Постты әдейі ұзартпа. Мақсатты ұзындық шамамен {TARGET_CONTENT_CHARACTERS} таңба,
+  абсолют максимум {CONTENT_BUDGET} таңба.
 
-- бірдей тақырып болмауы керек (мағынасы басқаша
-  жазылса да — мысалы "since vs for" орнына
-  "Present Perfect with since" жазба);
-- бірдей English word/grammar rule/phrasal verb
-  болмауы керек;
-- бірдей hook құрылымы болмауы керек;
-- бірдей CTA болмауы керек;
-- бірдей формат болмауы керек (соңғы бірнеше
-  форматты қатарынан қайталама).
+OQYAI ЖАРНАМАСЫ
+- Тікелей сату, баға, жеңілдік, App Store/Google Play URL, "сатып ал" деген CTA жоқ.
+- promotion="none" болса, cta бос жол болсын.
+- promotion="soft" тек осы іске қосуда рұқсат берілсе ғана қолданылсын.
+- Soft mention OqyAI-ды шынайы контексте бір рет атап, қысқа әрі сабырлы болсын.
+  Мысалы, өнім жасаушының шынайы тәжірибесі немесе ағылшын үйрену жайлы пост.
+- OqyAI-ды атап өтпес бұрын оның осы постқа табиғи қатысы бар екеніне көз жеткіз.
+- Әр алты посттың шамамен біреуінен жиі брендті атама.
 
-================================================
-CONTENT FORMATS
-================================================
-
-Мүмкін форматтар:
-
-- common mistake
-- mini quiz
-- vocabulary
-- confusing words
-- phrasal verb
-- idiom
-- natural English
-- short dialogue
-- real-life situation
-- grammar trick
-- pronunciation
-- collocations
-- sentence pattern
-- workplace English
-- travel English
-- slang
-- challenge
-- A/B choice
-- fill in the blank
-- say this / not this
-
-================================================
-HOOK
-================================================
-
-"hook" — постың бірінші сөйлемі.
-
-Hook:
-
-- қысқа;
-- табиғи;
-- curiosity тудырады;
-- нақты pain point береді;
-- адамды әрі қарай оқуға итермелейді.
-
-Арзан clickbait қолданба.
-
-Мысал стильдер (сөзбе-сөз қайталама):
-
-"Мына қатені сен де жасап жүрсің бе?"
-"Бұл екі сөзді жиі шатастырасың ба?"
-"Ағылшынша мұны бұлай айтпа."
-"Native speaker-лер мұны күнде қолданады."
-
-================================================
-LESSON_BODY
-================================================
-
-"lesson_body" — hook-тан КЕЙІНГІ негізгі мәтін.
-
-МАҢЫЗДЫ: lesson_body ішінде hook сөйлемін ЕШҚАШАН
-қайта жазба немесе қайталама — код hook пен
-lesson_body-ды өзі біріктіреді.
-
-ТЕК БІР English lesson бер.
-
-- ТЕК 1 ғана қысқа English example қолдан. Және ол өте қысқа болсын.
-
-Әр мысалдың мағынасын қазақша түсіндір.
-
-Практикалық және бірден қолдануға болатын болсын.
-
-- (Optional) Оқырманды жауап беруге ынталандыратын өте қысқа элемент қос (1 сөйлемнен аспасын).
-
-================================================
-CTA
-================================================
-
-OqyAI-ға қысқа және табиғи CTA қос.
-
-CTA:
-
-- агрессивті жарнама болмауы керек;
-- қысқа болуы керек (150 таңбадан аспасын);
-- әр постта өзгеруі керек;
-- соңғы CTA-ларға ұқсамауы керек.
-
-Мысал (дәл осы сөйлемді қайталама):
-
-"Осындай қысқа сабақтарды OqyAI-да күнде жалғастыра аласың."
-
-================================================
-APP LINKS
-================================================
-
-App link-терді СЕН ЖАЗБА (topic/hook/lesson_body/cta
-ешқайсысында URL болмасын). Код өзі кейін қосады.
-
-================================================
-LENGTH
-================================================
-
-hook + lesson_body + cta біріктірілгенде,
-шамамен {TARGET_CONTENT_CHARACTERS} character
-шамасында болуын мақсат ет
-(қатаң максимум: {CONTENT_BUDGET} character —
-бұдан асырма).
-
-App links бөлек {APP_LINK_CHARACTERS} character алады,
-оны сен есептемейсің.
-
-Ұзын түсіндірме жазба. Қысқа сөйлемдер қолдан.
-Ақпарат пен қысқалықтың арасында таңдау болса,
-әрқашан қысқалықты таңда.
-
-================================================
-LANGUAGE
-================================================
-
-- Негізінен қазақша.
-- English examples міндетті.
-- Табиғи қазақша, жасанды аударма стилі жоқ.
-- 0–3 emoji.
-- Hashtag қолданба.
-- Жалған факт/статистика ойлап таппа.
-- Бір постта бір негізгі идея болсын.
-- Артық сөз қоспа.
-
-================================================
 OUTPUT
-================================================
-
-Жауапты дәл мына өрістермен қайтар:
-topic, format, hook, lesson_body, cta.
+Тек JSON schema-дағы өрістерді қайтар. Markdown, түсініктеме және қосымша мәтін қоспа.
 """.strip()
 
 
+def extract_pillar(post):
+    """The pillar is stored in the existing content_format DB column."""
+    value = str(post.get("format", ""))
+    return value.split("|", 1)[0].strip().upper()
+
+
+def choose_target_pillar(recent_posts):
+    """Choose a weighted pillar while avoiding the two latest pillars."""
+    from collections import Counter
+
+    window = recent_posts[:20]
+    if not window:
+        return "KZ_HUMOR"
+
+    counts = Counter(extract_pillar(post) for post in window)
+    recent_two = {extract_pillar(post) for post in recent_posts[:2]}
+    total = max(len(window), 1)
+
+    candidates = [name for name in PILLAR_WEIGHTS if name not in recent_two]
+    if not candidates:
+        candidates = list(PILLAR_WEIGHTS)
+
+    def score(name):
+        observed_share = counts.get(name, 0) / total
+        target_share = PILLAR_WEIGHTS[name]
+        return target_share - observed_share
+
+    return max(candidates, key=score)
+
+
+def is_promotion_allowed(recent_posts):
+    """Allow a soft brand mention only after a five-post promotion cooldown."""
+    return not any(
+        str(post.get("cta", "")).strip()
+        for post in recent_posts[:PROMO_COOLDOWN_POSTS]
+    )
+
+
 def build_prompt_history(recent_posts):
-    """
-    Condensed one-line-per-post digest for the PROMPT only.
-
-    Full post text is intentionally NOT sent to OpenAI here — the
-    local duplicate/similarity check (check_duplicate) already
-    compares against the full stored text for free. Sending the
-    full text of up to RECENT_POST_LIMIT posts on every single
-    generation attempt would multiply token cost for no real benefit:
-    topic + format + hook + cta is already enough context for the
-    model to avoid repeating itself.
-    """
-
+    """Send a short digest; full text is checked locally for duplicates."""
     if not recent_posts:
-        return "Бұл агент әлі ешқандай пост жариялаған жоқ."
+        return "Бұл агент әлі пост жариялаған жоқ."
 
     lines = []
-
-    for index, post in enumerate(
-        reversed(recent_posts),
-        start=1,
-    ):
+    selected = list(reversed(recent_posts[:PROMPT_HISTORY_LIMIT]))
+    for index, post in enumerate(selected, start=1):
         lines.append(
-            f"{index}. [{post['format']}] "
-            f"{post['topic']} | "
-            f"hook: {post['hook']} | "
-            f"cta: {post['cta']}"
+            f"{index}. [{post['format']}] {post['topic']} | "
+            f"hook: {post['hook']} | cta: {post['cta']}"
         )
-
     return "\n".join(lines)
 
 
-def build_generation_prompt(
-    recent_posts,
-    rejected_reasons,
-):
-    """
-    STATIC_PROMPT_HEADER never changes -> it goes first, so repeated
-    calls can reuse OpenAI's cached prefix. Only the two blocks below
-    change from call to call.
-    """
-
-    history_block = build_prompt_history(
-        recent_posts
+def build_generation_prompt(recent_posts, rejected_reasons):
+    """Keep the fixed prompt first for prompt-cache reuse."""
+    target_pillar = choose_target_pillar(recent_posts)
+    promotion_allowed = is_promotion_allowed(recent_posts)
+    history_block = build_prompt_history(recent_posts)
+    rejected_block = (
+        "\n".join(f"- {reason}" for reason in rejected_reasons)
+        if rejected_reasons else "Жоқ."
     )
-
-    if rejected_reasons:
-
-        rejected_block = "\n".join(
-            f"- {reason}"
-            for reason in rejected_reasons
-        )
-
-    else:
-        rejected_block = "Жоқ."
 
     dynamic_section = f"""
 
-================================================
-СОҢҒЫ {len(recent_posts)} АГЕНТ ЖАРИЯЛАҒАН ПОСТ (қысқаша)
-================================================
+ОСЫ ПОСТҚА АРНАЛҒАН МІНДЕТТІ ПАРАМЕТРЛЕР
+- Таңдалған pillar: {target_pillar}. Дәл осы мәнді JSON-да қайтар.
+- Soft promotion рұқсат етілген бе: {"ИӘ" if promotion_allowed else "ЖОҚ"}.
+  Егер ЖОҚ болса, promotion="none" және cta="" міндетті.
+- Қысқа әрі түпнұсқа идея таңда. Бұрынғы посттарға ұқсатпа.
 
+СОҢҒЫ ПОСТТАР (ең көбі {PROMPT_HISTORY_LIMIT})
 {history_block}
 
-================================================
-БҰРЫН REJECT БОЛҒАН КАНДИДАТТАР (осы генерация ішінде)
-================================================
-
+ОСЫ ІСКЕ ҚОСУДА ҚАБЫЛДАНБАҒАН НҰСҚАЛАР
 {rejected_block}
 """
-
     return STATIC_PROMPT_HEADER + dynamic_section
 
 
@@ -1095,18 +1017,17 @@ def build_generation_prompt(
 # AI GENERATION
 # ============================================================
 
-def generate_candidate(
-    recent_posts,
-    rejected_reasons,
-):
-    prompt = build_generation_prompt(
-        recent_posts,
-        rejected_reasons,
-    )
-
+def generate_candidate(recent_posts, rejected_reasons):
+    prompt = build_generation_prompt(recent_posts, rejected_reasons)
     response = openai_client.responses.create(
         model=OPENAI_MODEL,
         input=prompt,
+        max_output_tokens=OPENAI_MAX_OUTPUT_TOKENS,
+        **(
+            {"reasoning": {"effort": os.getenv("OPENAI_REASONING_EFFORT", "none")}}
+            if OPENAI_MODEL.startswith("gpt-6")
+            else {}
+        ),
         text={
             "format": {
                 "type": "json_schema",
@@ -1115,122 +1036,103 @@ def generate_candidate(
                 "strict": True,
             }
         },
-        # We never need to retrieve/chain this response later, so we
-        # don't ask OpenAI to retain it.
         store=False,
     )
 
-    return parse_json_response(
-        response.output_text
-    )
+    usage = getattr(response, "usage", None)
+    if usage:
+        input_tokens = getattr(usage, "input_tokens", None)
+        output_tokens = getattr(usage, "output_tokens", None)
+        details = getattr(usage, "input_tokens_details", None)
+        cached_tokens = getattr(details, "cached_tokens", 0) if details else 0
+        logger.info(
+            "OpenAI usage: input=%s output=%s cached_input=%s",
+            input_tokens,
+            output_tokens,
+            cached_tokens,
+        )
+
+    return parse_json_response(response.output_text)
+
 
 
 # ============================================================
 # BUILD FINAL POST
 # ============================================================
 
-def build_final_post(
-    candidate,
-):
-    topic = str(
-        candidate.get("topic", "")
-    ).strip()
+def build_final_post(candidate, recent_posts=None):
+    pillar = str(candidate.get("pillar", "")).strip().upper()
+    topic = str(candidate.get("topic", "")).strip()
+    content_format = str(candidate.get("format", "")).strip()
+    hook = str(candidate.get("hook", "")).strip()
+    body = str(candidate.get("body", "")).strip()
+    promotion = str(candidate.get("promotion", "none")).strip().lower()
+    cta = str(candidate.get("cta", "")).strip()
 
-    content_format = str(
-        candidate.get("format", "")
-    ).strip()
-
-    hook = str(
-        candidate.get("hook", "")
-    ).strip()
-
-    lesson_body = str(
-        candidate.get("lesson_body", "")
-    ).strip()
-
-    cta = str(
-        candidate.get("cta", "")
-    ).strip()
-
-    if not topic:
-        raise ValueError("topic бос")
-
-    if not content_format:
-        raise ValueError("format бос")
-
-    if not hook:
-        raise ValueError("hook бос")
-
-    if not lesson_body:
-        raise ValueError("lesson_body бос")
-
-    if not cta:
-        raise ValueError("cta бос")
-
-    # AI is forbidden from generating URLs anywhere.
-    for field_name, field_value in (
-        ("hook", hook),
-        ("lesson_body", lesson_body),
-        ("cta", cta),
-    ):
-        if re.search(
-            r"https?://",
-            field_value,
-            flags=re.IGNORECASE,
-        ):
+    if pillar not in PILLAR_WEIGHTS:
+        raise ValueError(f"Белгісіз контент pillar: {pillar}")
+    if recent_posts is not None:
+        expected_pillar = choose_target_pillar(recent_posts)
+        if pillar != expected_pillar:
             raise ValueError(
-                f"{field_name} ішінде URL бар"
+                f"Pillar сәйкес емес: expected={expected_pillar}, got={pillar}"
             )
+        if promotion == "soft" and not is_promotion_allowed(recent_posts):
+            raise ValueError("OqyAI жарнамасына cooldown әлі аяқталған жоқ")
+    if not topic or not content_format or not hook or not body:
+        raise ValueError("topic, format, hook және body бос болмауы керек")
+    if promotion not in {"none", "soft"}:
+        raise ValueError("promotion тек none немесе soft болуы керек")
 
-    if len(cta) > 150:
+    # Do not allow URLs in generated text. The profile bio carries the app links.
+    for field_name, field_value in (("hook", hook), ("body", body), ("cta", cta)):
+        if re.search(r"(?:https?://|www\.)", field_value, flags=re.IGNORECASE):
+            raise ValueError(f"{field_name} ішінде URL бар")
+
+    brand_mentioned = bool(
+        re.search(r"oqy\s*ai", f"{hook} {body} {cta}", flags=re.IGNORECASE)
+    )
+    if brand_mentioned and promotion != "soft":
+        raise ValueError("OqyAI атауы тек promotion=soft кезінде қолданылуы керек")
+
+    if promotion == "none":
+        cta = ""
+    elif not cta:
+        raise ValueError("promotion=soft болғанда cta бос болмауы керек")
+
+    if len(cta) > 110:
         raise ValueError("cta тым ұзын")
 
-    # Defensive normalize: the model is instructed not to repeat the
-    # hook inside lesson_body, but if it does anyway, strip the
-    # duplicate instead of paying for a full retry.
-    if lesson_body.lower().startswith(hook.lower()):
-        lesson_body = lesson_body[len(hook):].lstrip(" \n.!?—-")
+    if body.lower().startswith(hook.lower()):
+        body = body[len(hook):].lstrip(" \n.!?—-")
+    if not body:
+        raise ValueError("body hook-ты алып тастағаннан кейін бос қалды")
 
-    if not lesson_body:
-        raise ValueError(
-            "lesson_body hook-ты алып тастағаннан кейін бос қалды"
-        )
-
-    # Code builds post_body, not the model — this removes the old
-    # "post_body hook-тан басталмайды" failure class entirely.
-    post_body = f"{hook}\n{lesson_body}".strip()
-
-    final_post = (
-        f"{post_body}\n\n"
-        f"{cta}"
-        f"{APP_LINK_SUFFIX}"
-    )
+    final_post = f"{hook}\n{body}".strip()
+    if cta:
+        final_post += f"\n\n{cta}"
 
     final_characters = len(final_post)
-
     if final_characters > MAX_POST_CHARACTERS:
         raise ValueError(
-            (
-                f"Final post too long: "
-                f"{final_characters} chars "
-                f"(max {MAX_POST_CHARACTERS})"
-            )
+            f"Final post too long: {final_characters} chars "
+            f"(max {MAX_POST_CHARACTERS})"
         )
 
-    if APP_STORE_URL not in final_post:
-        raise ValueError("App Store URL жоқ")
-
-    if GOOGLE_PLAY_URL not in final_post:
-        raise ValueError("Google Play URL жоқ")
+    # Store the pillar in the existing content_format column, avoiding a DB migration.
+    stored_format = f"{pillar}|{content_format}|promo:{promotion}"[:100]
 
     return {
         "topic": topic,
-        "format": content_format,
+        "format": stored_format,
+        "pillar": pillar,
+        "topic_tag": TOPIC_TAGS_BY_PILLAR.get(pillar),
         "hook": hook,
         "cta": cta,
         "text": final_post,
         "characters": final_characters,
     }
+
 
 
 # ============================================================
@@ -1384,7 +1286,8 @@ def generate_unique_post():
             )
 
             final_post = build_final_post(
-                candidate
+                candidate,
+                recent_posts=recent_posts,
             )
 
             duplicate, reason = check_duplicate(
@@ -1439,6 +1342,7 @@ def generate_unique_post():
 
 def publish_to_threads(
     text,
+    topic_tag=None,
 ):
 
     # --------------------------------------------------------
@@ -1456,13 +1360,32 @@ def publish_to_threads(
         "access_token": THREADS_ACCESS_TOKEN,
     }
 
-    logger.info("Creating Threads container...")
+    if THREADS_ADD_TOPIC_TAG and topic_tag:
+        create_data["topic_tag"] = topic_tag
+
+    logger.info(
+        "Creating Threads container (topic_tag=%s)...",
+        create_data.get("topic_tag", "disabled"),
+    )
 
     response = http.post(
         create_url,
         data=create_data,
         timeout=30,
     )
+
+    # If Meta explicitly rejects the optional topic tag with HTTP 400,
+    # retry once without it. Never retry uncertain 5xx/network failures.
+    if response.status_code == 400 and "topic_tag" in create_data:
+        logger.warning(
+            "Threads rejected topic_tag; retrying once without the tag."
+        )
+        create_data.pop("topic_tag", None)
+        response = http.post(
+            create_url,
+            data=create_data,
+            timeout=30,
+        )
 
     logger.info(
         "Create status: %s",
@@ -1663,7 +1586,8 @@ def run_agent():
     try:
 
         result = publish_to_threads(
-            final_post["text"]
+            final_post["text"],
+            topic_tag=final_post.get("topic_tag"),
         )
 
         # 8. Mark published.

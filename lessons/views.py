@@ -620,7 +620,7 @@ def explain_section(request, lesson_id):
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
             resp = client.responses.create(
-                model="gpt-5.5",
+                model="gpt-6-astra",
                 input=prompt,                      # сіз құрастырған prompt
                 reasoning={"effort": "low"},       # жылдамырақ жауап үшін
                 text={"verbosity": "low"},         # аудиоға ыңғайлы қысқа стиль
@@ -629,7 +629,7 @@ def explain_section(request, lesson_id):
             if not explanation_text:
                 # Сирек жағдайда бос келсе, чатқа фолбэк жасаймыз
                 fallback = client.chat.completions.create(
-                    model="gpt-5",
+                    model="gpt-6-astra",
                     messages=[{"role": "user", "content": prompt}],
                 )
                 explanation_text = fallback.choices[0].message.content.strip()
