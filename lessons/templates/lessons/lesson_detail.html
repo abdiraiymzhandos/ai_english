@@ -267,70 +267,6 @@
       }
     }
 
-    /* Quiz */
-    /* Quiz controls remain usable while external styles are unavailable. */
-    #quiz-container [hidden] { display: none !important; }
-    #quiz-container > button, #quiz-summary .btn, #quiz-retry-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 10px 16px;
-      margin: 4px 0;
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      background: var(--hover-bg);
-      color: var(--text);
-      font: inherit;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    #quiz-summary:not([hidden]) { display: flex; flex-wrap: wrap; gap: 12px; }
-    #quiz-result { flex-basis: 100%; }
-    #quiz-container button:focus-visible, #quiz-container a:focus-visible {
-      outline: 3px solid var(--accent); outline-offset: 3px;
-    }
-    #quiz-container #answer-buttons .btn-success { background: #166534; color: white; }
-    #quiz-container #answer-buttons .btn-danger { background: #b91c1c; color: white; }
-    #quiz-container button:disabled { cursor: wait; }
-
-    #quiz-container {
-      background: var(--hover-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 30px;
-      margin-top: 40px;
-    }
-
-    #question-text {
-      color: var(--text);
-      font-weight: 600;
-      font-size: 2rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      margin-bottom: 2rem;
-      line-height: 1.4;
-    }
-
-    #answer-buttons .btn {
-      background: var(--hover-bg);
-      color: var(--text);
-      font-weight: 500;
-      font-size: 1.2rem;
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 15px 25px;
-      margin-bottom: 15px;
-      transition: all 0.3s ease;
-      width: 100%;
-      text-align: left;
-    }
-
-    #answer-buttons .btn:hover {
-      background: var(--active-bg);
-      transform: translateX(10px);
-      border-color: var(--accent);
-    }
-
     /* Chat */
     #chat-open-btn {
       position: fixed;
@@ -583,31 +519,6 @@
         height: 10px;
     }
 
-    /* Progress Bar */
-    #progress-bar {
-      background: var(--hover-bg);
-    }
-
-    #progress {
-      height: 100%;
-      background: linear-gradient(90deg, var(--success) 0%, var(--accent) 100%);
-      transition: width 0.3s ease;
-    }
-
-    /* Stats */
-    #timer, #score, #attempts {
-      color: var(--text);
-      font-weight: 500;
-      font-size: 1.1rem;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      margin: 10px 0;
-      display: inline-block;
-      padding: 8px 15px;
-      background: var(--hover-bg);
-      border-radius: 8px;
-      margin-right: 10px;
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
       .container { padding: 15px; }
@@ -727,13 +638,6 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* Quiz Container Styles for Light Theme */
-    [data-theme="light"] #quiz-container {
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
     [data-theme="light"] #answer-buttons .btn {
         background: rgba(255, 255, 255, 0.95);
         border: 1px solid rgba(0, 0, 0, 0.1);
@@ -756,6 +660,7 @@
         border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
   </style>
+<link rel="stylesheet" href="{% static 'css/quiz.css' %}">
 </head>
 <body class="container py-4">
   <!-- Theme Toggle Button -->
@@ -1018,28 +923,50 @@
        data-restart-url="{% url 'restart_quiz' lesson.id %}"
        data-submit-url="{% url 'submit_answer' lesson.id %}"
        data-lesson-url="{% url 'lesson_detail' 0 %}">
-    <p id="quiz-previous-score" {% if quiz_previous_score == None %}hidden{% endif %}>Алдыңғы нәтиже: {{ quiz_previous_score }}</p>
-    <button id="start-quiz-btn" type="button" class="btn btn-success btn-lg" data-retake="{{ quiz_passed|yesno:'true,false' }}">
-      {% if quiz_passed %}🔄 Қайта тапсыру (Retake Quiz){% else %}🎯 Тестті бастау{% endif %}
-    </button>
-    <p id="quiz-error" class="text-danger" role="alert" hidden></p>
-    <button id="quiz-retry-btn" type="button" class="btn btn-primary" hidden>Қайта көру</button>
-    <div id="quiz-content" class="p-4" hidden>
-      <h3 id="question-text" class="mb-3" tabindex="-1"></h3>
-      <div id="progress-bar" class="progress mb-3" aria-hidden="true">
-        <div id="progress" class="progress-bar bg-success" style="width: 0%;"></div>
+    <section class="quiz-launch" aria-labelledby="quiz-launch-title">
+      <div class="quiz-launch-heading">
+        <span class="quiz-target" aria-hidden="true">◎</span>
+        <h2 id="quiz-launch-title">Біліміңізді тексеріңіз</h2>
       </div>
-      <div id="answer-buttons" class="d-grid gap-2"></div>
-      <p id="timer" class="text-danger mt-3">⏳ 5 секунд</p>
-      <p id="score" class="mt-2">🏆 Ұпай: 0</p>
-      <p id="attempts">❌ Қателер: 0/3</p>
-    </div>
-    <div id="quiz-summary" class="p-4" hidden>
-      <h3 id="quiz-result" class="text-success" role="status"></h3>
-      <button id="retake-quiz-btn" type="button" class="btn btn-primary">🔄 Қайта тапсыру (Retake Quiz)</button>
-      <a id="next-lesson-link" class="btn btn-success" hidden>Келесі сабақ →</a>
-      <a href="{% url 'lesson_list' %}" class="btn btn-outline-primary">Сабақтар</a>
-    </div>
+      <div class="quiz-rules">
+        <span><i class="quiz-clock" aria-hidden="true"></i>5 секунд</span>
+        <span class="quiz-lives" role="img" aria-label="3 мүмкіндік">♥♥♥</span>
+        {% if quiz_question_count %}<span>{{ quiz_question_count }} сұрақ</span>{% endif %}
+      </div>
+      <p id="quiz-previous-score" {% if quiz_previous_score == None %}hidden{% endif %}>
+        Алдыңғы нәтиже <strong id="quiz-previous-value">{{ quiz_previous_score|default_if_none:"" }}{% if quiz_previous_total != None %} / {{ quiz_previous_total }}{% endif %}</strong>
+      </p>
+      <button id="start-quiz-btn" type="button" data-retake="{{ quiz_passed|yesno:'true,false' }}">
+        {% if quiz_passed %}Тестті қайта тапсыру{% else %}Тестті бастау{% endif %}
+      </button>
+    </section>
+    <dialog id="quiz-dialog" aria-label="Сөздік тесті">
+      <div class="quiz-frame">
+        <header class="quiz-header">
+          <div class="quiz-topline"><strong class="quiz-brand"><i aria-hidden="true">O</i>OqyAI</strong><span id="question-count">Сөздік тесті</span><button id="close-quiz-btn" type="button" aria-label="Тестті жабу">×</button></div>
+          <div id="timer" role="progressbar" aria-label="Қалған уақыт" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5" aria-valuetext="5 секунд" hidden><span id="timer-fill"></span></div>
+          <div class="quiz-stats"><span id="score">✓ Ұпай: 0</span><span id="attempts" role="img" aria-label="3 мүмкіндік қалды"><i>♥</i><i>♥</i><i>♥</i></span></div>
+        </header>
+        <p id="quiz-loading" role="status" hidden>Тест жүктелуде…</p>
+        <div id="quiz-content" hidden>
+          <div class="quiz-prompt"><span>Аудармасын таңдаңыз</span><h3 id="question-text" lang="en" tabindex="-1"></h3></div>
+          <div id="answer-buttons" aria-label="Жауаптар"></div>
+        </div>
+        <p id="quiz-feedback" role="status"></p>
+        <div id="quiz-summary" hidden>
+          <span class="result-emblem" aria-hidden="true"></span>
+          <h3 id="quiz-result" role="status"></h3>
+          <p id="quiz-result-detail"></p>
+          <button id="retake-quiz-btn" type="button">Тестті қайта тапсыру</button>
+          <a id="next-lesson-link" hidden>Келесі сабақ →</a>
+          <a href="{% url 'lesson_list' %}">Сабақтар</a>
+        </div>
+        <div class="quiz-recovery">
+          <p id="quiz-error" role="alert" hidden></p>
+          <button id="quiz-retry-btn" type="button" hidden>Қайта көру</button>
+        </div>
+      </div>
+    </dialog>
   </div>
   <script src="{% static 'js/quiz.js' %}" defer></script>
 

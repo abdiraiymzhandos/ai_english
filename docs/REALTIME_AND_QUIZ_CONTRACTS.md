@@ -73,6 +73,16 @@ Implementation: `lessons/services/quiz.py`, `lessons/services/course_progress.py
 - Correct answers and distinct distractors come from the selected lesson. A lesson with repeated translations can have fewer than four choices; placeholders and cross-lesson translations are not injected.
 - Vocabulary changes reject stale answer POSTs. Opening the quiz binds the new vocabulary and resets only the current run, preserving prior completion.
 
+## Mobile quiz presentation — 2026-11-15
+
+The lesson quiz uses a native modal, full viewport on mobile with safe-area padding and a bounded desktop layout. The lesson remains scroll-locked until close; question choices scroll internally when long. Inline rules replace the confirmation popup. Existing question choices are rendered unchanged (including fewer than four choices for repeated translations).
+
+The five-second browser timer arms after two animation frames once the modal and choices are rendered, and stops during requests/feedback. The fill follows the question deadline, with one-second steps under reduced motion. Returning to the tab reconciles elapsed time and submits an expired question once. The tab retains the deadline for the same attempt token and question across reloads. Page-history restoration reloads authoritative state. Close cancels timers and ignores late responses by epoch without undoing accepted server answers. Tokens, CSRF, exact-payload retry, server scoring, three-mistake reset, permanent completion, and next-lesson guards remain unchanged. No backend or schema changes. See [implementation checkpoint and verification](QUIZ_MOBILE_REDESIGN_PROGRESS.md).
+
+### Answer feedback and lives (2026-11-19)
+
+After validating and recording a submission, the server returns `correct_answer` for that question. A replay returns the same correction and the original `selected_answer`. The client uses these fields to color the choices for 500 ms on success and 1,250 ms on a mistake or timeout. Start and restart responses continue to provide unlabeled choices. Hearts reflect the server's mistake count. On the third mistake the server resets the run and also returns `finished_score` and `finished_count` for the result screen. The successor ID remains available in `next_lesson`; `can_continue` controls the next-lesson link using the lesson page's access policy. The single horizontal bar shows remaining time. The question counter shows the current position and total as text.
+
 ## Remaining limitations
 
 - Start is still a GET that can initialize/synchronize state for compatibility.

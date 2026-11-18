@@ -26,6 +26,7 @@ class QuizIntegrityTests(TestCase):
         UserProfile.objects.create(user=self.user)
         self.client.login(username="student", password="pass12345")
         self.lesson = Lesson.objects.create(
+            pk=1,  # Exercise a free lesson even when MySQL sequences advance between tests.
             title="Lesson 1",
             content="Content",
             vocabulary="\n".join(f"word{i} – meaning{i}" for i in range(10)),
@@ -33,6 +34,7 @@ class QuizIntegrityTests(TestCase):
             dialogue="Dialogue",
         )
         self.next_lesson = Lesson.objects.create(
+            pk=2,
             title="Lesson 2",
             content="Content",
             vocabulary="next – next",
@@ -53,6 +55,18 @@ class QuizIntegrityTests(TestCase):
         payload = {"question_id": question.id, "answer": answer, "attempt_token": self.state["attempt_token"]}
         payload.update(extra)
         return self.client.post(reverse("submit_answer", args=[self.lesson.id]), payload)
+
+    def test_reveal_uses_the_recorded_choice_on_replay(self):
+        question = self.questions[0]
+        self.assertNotIn("correct_answer", self.state["questions"][0])
+        recorded = self.submit(question, "wrong").json()
+        replay = self.submit(question, question.kazakh_translation).json()
+        for result in (recorded, replay):
+            self.assertFalse(result["correct"])
+            self.assertEqual(result["correct_answer"], question.kazakh_translation)
+            self.assertEqual((result["score"], result["attempts"]), (0, 1))
+        self.assertEqual(replay["selected_answer"], "wrong")
+        self.assertFalse(replay["accepted"])
 
     def csrf_client(self):
         client = Client(enforce_csrf_checks=True)

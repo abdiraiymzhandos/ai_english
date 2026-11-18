@@ -369,8 +369,13 @@ def lesson_detail(request, lesson_id):
     }
     identity = str(request.user.pk) if request.user.is_authenticated else request.session.session_key
     saved_quiz = QuizAttempt.objects.filter(user_id=identity, lesson=lesson).values(
-        "is_passed", "score", "last_passed_score",
+        "is_passed", "score", "last_passed_score", "last_passed_total",
     ).first() if identity else None
+
+    try:
+        quiz_question_count = len(vocabulary_pairs(lesson))
+    except QuizContentError:
+        quiz_question_count = None
 
     return render(request, 'lessons/lesson_detail.html', {
         'lesson': lesson,
@@ -378,6 +383,8 @@ def lesson_detail(request, lesson_id):
         'voice_access_active': voice_access_active,
         'voice_access_expires': voice_access_expires,
         'quiz_passed': bool(saved_quiz and saved_quiz['is_passed']),
+        'quiz_question_count': quiz_question_count,
+        'quiz_previous_total': saved_quiz['last_passed_total'] if saved_quiz else None,
         'quiz_previous_score': (saved_quiz['last_passed_score'] if saved_quiz['last_passed_score'] is not None
                                 else saved_quiz['score']) if saved_quiz and saved_quiz['is_passed'] else None,
     })
@@ -755,9 +762,18 @@ def _stale_quiz_response():
     return JsonResponse({"error": "Тест жаңарды. Тестті қайта ашыңыз.", "code": "stale_attempt"}, status=409)
 
 
+def _quiz_next_action(request, next_id):
+    """Keep the curriculum successor in the API, and gate its result-screen link."""
+    return {
+        "next_lesson": next_id,
+        "can_continue": next_id is not None and lesson_access_denial(request, Lesson(pk=next_id)) is None,
+    }
+
+
 def _unlock_after_quiz_pass(request, user_id, lesson):
     next_id = next_lesson_id(lesson)
     passed = set(QuizAttempt.objects.filter(user_id=user_id, is_passed=True).values_list("lesson_id", flat=True))
+    request._passed_lesson_ids = passed
     request.session["passed_lessons"] = sorted(unlocked_lesson_ids(passed))
     if request.user.is_authenticated:
         # Conditional update never moves backwards, including concurrent passes.
@@ -796,7 +812,7 @@ def start_quiz(request, lesson_id):
                     _unlock_after_quiz_pass(request, user_id, lesson)
             return JsonResponse(state_payload(
                 attempt, answers=answers, questions=question_data(questions),
-                next_lesson=next_lesson_id(lesson) if attempt.is_passed else None,
+                **_quiz_next_action(request, next_lesson_id(lesson) if attempt.is_passed else None),
             ))
     except QuizContentError as exc:
         return JsonResponse({"error": str(exc), "code": "invalid_vocabulary"}, status=400)
@@ -862,11 +878,11 @@ def submit_answer(request, lesson_id):
             return _stale_quiz_response()
         if attempt.completed:
             return JsonResponse(state_payload(attempt, correct=False, accepted=False, already_passed=True,
-                                              next_lesson=next_lesson_id(lesson)))
+                                              **_quiz_next_action(request, next_lesson_id(lesson))))
         existing = attempt.answers.filter(question=question).first()
         if existing:
             return JsonResponse(state_payload(attempt, correct=existing.is_correct, accepted=False,
-                                              already_answered=True, selected_answer=existing.selected_answer))
+                                              already_answered=True, correct_answer=question.kazakh_translation, selected_answer=existing.selected_answer))
         correct = not timed_out and selected == question.kazakh_translation
         QuizAnswer.objects.create(attempt=attempt, question=question, selected_answer=selected, is_correct=correct)
         answers = answer_state(attempt)
@@ -875,7 +891,8 @@ def submit_answer(request, lesson_id):
             reset_run(attempt)
             attempt.save(update_fields=["attempt_token", "score", "attempts", "completed"])
             return JsonResponse(state_payload(attempt, answers=(set(), 0, 0), correct=correct,
-                                              accepted=True, restart_required=True))
+                                              accepted=True, restart_required=True, finished_score=score,
+                                              finished_count=len(ids), correct_answer=question.kazakh_translation))
         attempt.score, attempt.attempts = score, mistakes
         next_id = None
         if len(ids) == len(attempt.question_ids):
@@ -888,7 +905,7 @@ def submit_answer(request, lesson_id):
         else:
             attempt.save(update_fields=["score", "attempts"])
         return JsonResponse(state_payload(attempt, answers=answers, correct=correct, accepted=True,
-                                          already_answered=False, restart_required=False, next_lesson=next_id))
+                                          already_answered=False, restart_required=False, correct_answer=question.kazakh_translation, **_quiz_next_action(request, next_id)))
 
 
 def account_locked(request):

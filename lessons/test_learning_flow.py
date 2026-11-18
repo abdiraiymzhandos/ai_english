@@ -223,10 +223,22 @@ class LearningFlowTests(TestCase):
     def test_missing_lesson_id_does_not_block_next_existing_lesson(self):
         self.next_lesson.delete()
         next_lesson = make_lesson(4)
-        self.assertEqual(self.complete()['next_lesson'], 4)
+        result = self.complete()
+        self.assertEqual(result['next_lesson'], 4)
+        self.assertTrue(result['can_continue'])
         self.assertIn(4, self.client.get(reverse('lesson_list')).context['passed_lessons'])
         self.assertEqual(self.client.get(reverse('lesson_detail', args=[4])).status_code, 200)
         self.assertEqual(self.start(next_lesson).status_code, 200)
+
+    def test_result_omits_next_action_when_successor_requires_payment(self):
+        self.next_lesson.delete()
+        make_lesson(4)
+        self.profile.is_paid = False
+        self.profile.save()
+        result = self.complete()
+        self.assertEqual(result['next_lesson'], 4)
+        self.assertFalse(result['can_continue'])
+        self.assertFalse(self.start().json()['can_continue'])
 
     def test_quiz_access_matches_lesson_page_for_guests_unpaid_locked_and_teacher(self):
         locked = make_lesson(4)
@@ -269,6 +281,10 @@ class LearningFlowTests(TestCase):
     def test_parser_variants_duplicates_and_invalid_content(self):
         self.lesson.vocabulary = 'one – бір\ntwo — екі\nthree - үш\nfour – төрт\none – бір'
         self.lesson.save()
+        detail = self.client.get(reverse('lesson_detail', args=[1]))
+        self.assertEqual(detail.context['quiz_question_count'], 4)
+        self.assertIsNone(detail.context['quiz_previous_score'])
+        self.assertFalse(QuizAttempt.objects.filter(lesson=self.lesson).exists())
         first = self.start().json()
         second = self.start().json()
         self.assertEqual(len(first['questions']), 4)
@@ -277,6 +293,7 @@ class LearningFlowTests(TestCase):
         self.lesson.vocabulary += '\nmissing translation'
         self.lesson.save()
         self.assertEqual(self.start().status_code, 400)
+        self.assertIsNone(self.client.get(reverse('lesson_detail', args=[1])).context['quiz_question_count'])
 
     def test_vocabulary_supports_full_unicode_on_the_database_connection(self):
         self.lesson.vocabulary = 'smile – күлімдеу 😊\nwave – қол бұлғау 👋\nrun – жүгіру\nread – оқу'
@@ -295,9 +312,14 @@ class LearningFlowTests(TestCase):
 
     def test_passed_lesson_renders_previous_score_and_retake_button(self):
         self.complete()
+        self.lesson.vocabulary += '\nextra – қосымша'
+        self.lesson.save(update_fields=['vocabulary'])
         response = self.client.get(reverse('lesson_detail', args=[1]))
-        self.assertContains(response, 'Retake Quiz')
+        self.assertContains(response, 'Тестті қайта тапсыру')
         self.assertEqual(response.context['quiz_previous_score'], 4)
+        self.assertEqual(response.context['quiz_previous_total'], 4)
+        self.assertContains(response, '5 сұрақ')
+        self.assertContains(response, '<strong id="quiz-previous-value">4 / 4</strong>', html=True)
 
     def test_dashboard_does_not_write_session_or_fetch_lesson_bodies(self):
         self.client.get(reverse('lesson_list'))

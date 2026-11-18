@@ -79,6 +79,7 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
     def answer(self, correct=True):
         word = self.element('question-text').text
         choice = word.replace('word', 'meaning')
+        self.wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '#answer-buttons button').is_enabled())
         buttons = self.browser.find_elements(By.CSS_SELECTOR, '#answer-buttons button')
         button = next(button for button in buttons if (button.text == choice) == correct)
         button.click()
@@ -103,7 +104,10 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         ''')
         self.start_quiz()
         self.complete()
-        self.assertIn('4', self.element('quiz-result').text)
+        self.assertIn('4', self.element('quiz-result-detail').text)
+        self.assertFalse(self.element('timer').is_displayed())
+        self.assertTrue(self.element('next-lesson-link').is_displayed())
+        self.browser.save_screenshot('/tmp/oqyai-refined-pass.png')
         self.assertTrue(self.element('next-lesson-link').get_attribute('href').endswith('/lesson/2/'))
         self.assertEqual(self.browser.execute_script('return document.activeElement.id'), 'retake-quiz-btn')
         print('BROWSER_QUIZ_TRANSITION_MS', self.browser.execute_script('return window.quizLatencies'))
@@ -112,17 +116,31 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
             self.browser.save_screenshot(os.environ['OQYAI_BROWSER_SCREENSHOT'])
         self.element('retake-quiz-btn').send_keys(Keys.ENTER)
         self.wait.until(lambda _: self.element('quiz-content').is_displayed())
-        self.assertEqual(self.element('score').text, '🏆 Ұпай: 0')
-        self.assertIn('5', self.element('timer').text)
+        self.assertEqual(self.element('score').text, '✓ Ұпай: 0')
+        self.assertEqual(self.element('timer').get_attribute('aria-valuenow'), '5')
         for index in range(3):
             word = self.answer(correct=False)
-            self.wait.until(lambda _: self.element('question-text').text != word or self.element('quiz-error').is_displayed())
-        self.assertIn('3', self.element('quiz-error').text)
+            if index == 2:
+                WebDriverWait(self.browser, 2, poll_frequency=0.03).until(
+                    lambda d: len(d.find_elements(By.CSS_SELECTOR, '#attempts .spent')) == 3
+                )
+                self.assertTrue(self.browser.find_element(By.CSS_SELECTOR, '.quiz-answer.btn-danger').is_displayed())
+                self.assertTrue(self.browser.find_element(By.CSS_SELECTOR, '.quiz-answer.btn-success').is_displayed())
+            self.wait.until(lambda _: self.element('question-text').text != word or self.element('quiz-summary').is_displayed())
+        self.assertEqual(self.element('quiz-dialog').get_attribute('data-result'), 'fail')
+        self.assertFalse(self.element('timer').is_displayed())
+        self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR, '#attempts i:not(.spent)')), 0)
+        self.browser.save_screenshot('/tmp/oqyai-refined-fail.png')
         self.browser.get(self.live_server_url + '/')
         self.assertIn('1/3', self.browser.find_element(By.CSS_SELECTOR, '.progress-text').text)
         self.browser.get(self.live_server_url + '/lesson/1/')
-        self.assertIn('Retake Quiz', self.element('start-quiz-btn').text)
-        self.assertIn('4', self.element('quiz-previous-score').text)
+        self.assertIn('қайта тапсыру', self.element('start-quiz-btn').text)
+        self.assertEqual(self.element('quiz-previous-value').text, '4 / 4')
+        self.browser.execute_script("window.scrollTo(0, document.documentElement.scrollHeight)")
+        self.browser.find_element(By.CSS_SELECTOR, '.quiz-launch').screenshot('/tmp/oqyai-polish-retake.png')
+        self.click('start-quiz-btn')
+        self.wait.until(lambda _: self.element('question-text').text == 'word1_0')
+        self.assertEqual(self.element('score').text, '✓ Ұпай: 0')
 
     def test_lost_answer_response_retries_idempotently_and_advances(self):
         self.start_quiz()
@@ -141,7 +159,7 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         self.wait.until(lambda _: self.element('quiz-retry-btn').is_displayed())
         self.click('quiz-retry-btn')
         self.wait.until(lambda _: self.element('question-text').text == 'word1_1')
-        self.assertEqual(self.element('score').text, '🏆 Ұпай: 1')
+        self.assertEqual(self.element('score').text, '✓ Ұпай: 1')
         self.assertTrue(self.browser.find_element(By.CSS_SELECTOR, '#answer-buttons button').is_enabled())
 
     def test_five_second_timeout_counts_once_and_resume_after_history_restore(self):
@@ -151,11 +169,11 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         elapsed = time.perf_counter() - begin
         self.assertGreaterEqual(elapsed, 4.5)
         self.assertLess(elapsed, 7)
-        self.assertIn('1/3', self.element('attempts').text)
+        self.assertEqual(self.element('attempts').get_attribute('aria-label'), '2 мүмкіндік қалды')
         self.browser.execute_script("window.dispatchEvent(new PageTransitionEvent('pagehide')); window.dispatchEvent(new PageTransitionEvent('pageshow', {persisted: true}));")
         self.wait.until(lambda _: self.browser.find_element(By.CSS_SELECTOR, '#answer-buttons button').is_enabled())
-        self.assertEqual(self.element('score').text, '🏆 Ұпай: 0')
-        self.assertIn('1/3', self.element('attempts').text)
+        self.assertEqual(self.element('score').text, '✓ Ұпай: 0')
+        self.assertEqual(self.element('attempts').get_attribute('aria-label'), '2 мүмкіндік қалды')
 
     def test_shared_loading_timeout_concurrency_failure_and_restoration(self):
         result = self.browser.execute_async_script('''
@@ -267,15 +285,19 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
                 finish(); return result;
             ''')
             self.assertEqual(result, {'animation': 'none', 'pointer': 'none', 'height': '3px'})
+            self.assertEqual(self.browser.execute_script("return getComputedStyle(document.querySelector('#attempts i')).transitionDuration"), '0s')
+            self.start_quiz()
+            self.wait.until(lambda _: self.element('timer').get_attribute('aria-valuenow') == '4')
+            self.assertEqual(self.browser.execute_script("return document.getElementById('timer-fill').style.transform"), 'scaleX(0.8)')
             colors = self.browser.execute_script('''
-                const button = document.createElement('button'); button.className = 'btn btn-success';
+                const button = document.createElement('button'); button.className = 'quiz-answer btn-success';
                 document.getElementById('answer-buttons').append(button);
                 const correct = getComputedStyle(button).backgroundColor;
-                button.className = 'btn btn-danger';
+                button.className = 'quiz-answer btn-danger';
                 const incorrect = getComputedStyle(button).backgroundColor;
                 button.remove(); return {correct, incorrect};
             ''')
-            self.assertEqual(colors, {'correct': 'rgb(22, 101, 52)', 'incorrect': 'rgb(185, 28, 28)'})
+            self.assertEqual(colors, {'correct': 'rgb(215, 246, 223)', 'incorrect': 'rgb(255, 226, 229)'})
         finally:
             self.browser.execute_cdp_cmd('Emulation.setEmulatedMedia', {'features': []})
 
@@ -411,3 +433,212 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
             self.wait.until(lambda d:'/login/' in d.current_url)
         finally:
             self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+
+
+    def test_quiz_viewport_choices_close_and_scroll_restore(self):
+        try:
+            for width,height in ((320,568),(375,667),(390,844),(430,932),(320,480),(1024,768)):
+                self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {'width':width,'height':height,'deviceScaleFactor':1,'mobile':width<768})
+                # Each viewport exercises a fresh learner's five-second question.
+                self.browser.delete_all_cookies()
+                self.browser.get(self.live_server_url + '/lesson/1/')
+                launch = self.browser.find_element(By.CSS_SELECTOR, '.quiz-launch')
+                self.assertTrue(self.browser.execute_script("""const el=arguments[0], r=el.getBoundingClientRect();
+                  return r.left>=0 && r.right<=innerWidth && el.scrollWidth<=el.clientWidth &&
+                    r.height<=innerHeight && document.getElementById('start-quiz-btn').offsetHeight>=44;""", launch))
+                self.browser.execute_script("window.scrollTo(0, document.documentElement.scrollHeight)")
+                self.assertTrue(self.browser.execute_script("""
+                    const btn = document.getElementById('start-quiz-btn'), r = btn.getBoundingClientRect();
+                    return [r.left + 10, r.right - 10].every(x =>
+                      btn.contains(document.elementFromPoint(x, r.top + r.height / 2)));
+                """))
+                previous = self.browser.execute_script("""
+                    const before = scrollY;
+                    document.getElementById('start-quiz-btn').click();
+                    return before;
+                """)
+                self.wait.until(lambda d:d.find_element(By.ID,'question-text').text=='word1_0')
+                self.wait.until(lambda d:d.find_element(By.CSS_SELECTOR,'#answer-buttons button').is_enabled())
+                self.assertTrue(self.browser.execute_script("return document.getElementById('quiz-dialog').open"))
+                self.assertTrue(self.browser.execute_script("""return [...document.querySelectorAll('#question-text,#answer-buttons button,.quiz-header,#close-quiz-btn')].every(el=>{
+                  const r=el.getBoundingClientRect();return r.top>=0 && r.bottom<=innerHeight && r.left>=0 && r.right<=innerWidth && el.scrollWidth<=el.clientWidth;
+                })"""))
+                self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR,'#answer-buttons button')),4)
+                self.browser.save_screenshot('/tmp/oqyai-quiz-%sx%s.png' % (width,height))
+                self.click('close-quiz-btn')
+                self.assertAlmostEqual(self.browser.execute_script('return scrollY'), previous, delta=2, msg=(width, height))
+                self.assertEqual(self.browser.execute_script('return document.activeElement.id'),'start-quiz-btn')
+                self.assertFalse(self.browser.execute_script("return document.body.classList.contains('quiz-page-locked')"))
+        finally:
+            self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+
+    def test_quiz_slow_load_background_and_duplicate_taps(self):
+        self.browser.execute_script("""
+          const realFetch=window.fetch;
+          window.submits=0;
+          window.fetch=async (...args)=>{
+            if(String(args[0]).includes('/start-quiz/')) await new Promise(r=>setTimeout(r,1200));
+            if(String(args[0]).includes('/submit-answer/')) { window.submits++; await new Promise(r=>setTimeout(r,800)); }
+            return realFetch(...args);
+          };
+        """)
+        self.click('start-quiz-btn')
+        self.assertTrue(self.element('quiz-loading').is_displayed())
+        self.wait.until(lambda d:d.find_elements(By.CSS_SELECTOR,'#answer-buttons button') and d.find_element(By.CSS_SELECTOR,'#answer-buttons button').is_enabled())
+        self.assertEqual(self.element('timer').get_attribute('aria-valuenow'), '5')
+        self.browser.execute_script("Object.defineProperty(document,'hidden',{configurable:true,value:true}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.assertFalse(self.browser.find_element(By.CSS_SELECTOR, '#answer-buttons button').is_enabled())
+        time.sleep(1.1)
+        self.browser.execute_script("Object.defineProperty(document,'hidden',{configurable:true,value:false}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.assertEqual(self.element('question-text').text,'word1_0')
+        self.wait.until(lambda d:d.find_element(By.CSS_SELECTOR,'#answer-buttons button').is_enabled())
+        self.assertLessEqual(int(self.element('timer').get_attribute('aria-valuenow')), 4)
+        self.browser.execute_script("const opts=[...document.querySelectorAll('#answer-buttons button')]; const good=opts.find(b=>b.textContent==='meaning1_0'); for(let i=0;i<10;i++) good.click(); opts.find(b=>b!==good).click();")
+        frozen = self.element('timer-fill').get_attribute('style')
+        time.sleep(0.35)
+        self.assertEqual(self.element('timer-fill').get_attribute('style'), frozen)
+        self.wait.until(lambda d:d.find_element(By.ID,'question-text').text=='word1_1')
+        self.assertEqual(self.browser.execute_script('return window.submits'),1)
+        self.assertEqual(self.element('score').text, '✓ Ұпай: 1')
+        self.assertFalse(self.element('quiz-summary').is_displayed())
+        self.assertEqual(self.element('timer').get_attribute('aria-valuenow'), '5')
+
+    def test_single_timer_tracks_question_deadline(self):
+        from .models import Lesson
+
+        Lesson.objects.filter(pk=1).update(vocabulary='garden – бақша\nriver – өзен\ncloud – бұлт\nforest – орман')
+        self.browser.refresh()
+        launch = self.browser.find_element(By.CSS_SELECTOR, '.quiz-launch')
+        self.assertIn('4 сұрақ', launch.text)
+        self.assertFalse(self.element('quiz-previous-score').is_displayed())
+        self.browser.execute_script("window.scrollTo(0, document.documentElement.scrollHeight)")
+        launch.screenshot('/tmp/oqyai-polish-start.png')
+        self.browser.execute_script("""
+            const fill = document.getElementById('timer-fill');
+            window.watched = {samples: [], posts: []};
+            new MutationObserver(() => {
+              if (document.getElementById('question-text').textContent === 'garden') {
+                watched.samples.push([performance.now(), fill.getBoundingClientRect().width / fill.parentNode.clientWidth]);
+              }
+            }).observe(fill, {attributes: true, attributeFilter: ['style']});
+            const fetchQuiz = window.fetch;
+            window.fetch = (...args) => {
+              if (String(args[0]).includes('/submit-answer/')) {
+                watched.posts.push([performance.now(), args[1].body.get('timed_out')]);
+              }
+              return fetchQuiz(...args);
+            };
+        """)
+        self.click('start-quiz-btn')
+        self.wait.until(lambda _: self.element('timer').is_displayed())
+        self.assertEqual(self.element('timer').text, '')
+        self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR, '#quiz-dialog [role="progressbar"]')), 1)
+        self.assertEqual(self.element('timer').size['height'], 9)
+        self.assertEqual(self.element('question-count').text, '1 / 4 сұрақ')
+        self.browser.save_screenshot('/tmp/oqyai-polish-active.png')
+        self.wait.until(lambda _: self.element('timer').get_attribute('aria-valuenow') == '1')
+        self.browser.save_screenshot('/tmp/oqyai-polish-expiry.png')
+        self.wait.until(lambda _: self.element('question-text').text == 'river')
+        self.assertEqual(self.element('timer').get_attribute('aria-valuenow'), '5')
+        self.assertEqual(self.element('attempts').get_attribute('aria-label'), '2 мүмкіндік қалды')
+        samples, posts = self.browser.execute_script('return [watched.samples, watched.posts]')
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(posts[0][1], 'true')
+        self.assertAlmostEqual(posts[0][0] - samples[0][0], 5000, delta=180)
+        fractions = [sample[1] for sample in samples]
+        self.assertGreater(fractions[0], .99)
+        self.assertEqual(fractions[-1], 0)
+        self.assertEqual(fractions, sorted(fractions, reverse=True))
+        self.assertGreater(len(set(fractions)), 30)
+
+    def test_reload_resumes_same_question_deadline(self):
+        self.start_quiz()
+        self.wait.until(lambda _: self.element('timer').get_attribute('aria-valuenow') == '3')
+        self.browser.refresh()
+        self.start_quiz()
+        self.wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '#answer-buttons button').is_enabled())
+        self.assertLessEqual(int(self.element('timer').get_attribute('aria-valuenow')), 3)
+        self.wait.until(lambda _: self.element('question-text').text == 'word1_1')
+        self.assertEqual(self.element('attempts').get_attribute('aria-label'), '2 мүмкіндік қалды')
+
+    def test_expired_background_question_submits_once_on_return(self):
+        self.start_quiz()
+        self.wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '#answer-buttons button').is_enabled())
+        self.browser.execute_script("""
+            const fetchQuiz = window.fetch;
+            window.timeoutPosts = 0;
+            window.quizWasHidden = false;
+            document.addEventListener('visibilitychange', () => { if (document.hidden) quizWasHidden = true; });
+            window.fetch = (...args) => {
+              if (String(args[0]).includes('/submit-answer/') && args[1].body.get('timed_out') === 'true') timeoutPosts++;
+              return fetchQuiz(...args);
+            };
+        """)
+        original = self.browser.current_window_handle
+        self.browser.switch_to.new_window('tab')
+        try:
+            time.sleep(5.2)
+        finally:
+            self.browser.close()
+            self.browser.switch_to.window(original)
+        WebDriverWait(self.browser, 3).until(lambda _: self.element('question-text').text == 'word1_1')
+        self.assertTrue(self.browser.execute_script('return quizWasHidden'))
+        self.assertEqual(self.browser.execute_script('return timeoutPosts'), 1)
+        self.assertEqual(self.element('attempts').get_attribute('aria-label'), '2 мүмкіндік қалды')
+
+    def test_quiz_long_answers_scroll_internally_and_escape_closes(self):
+        self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {'width':320,'height':480,'deviceScaleFactor':1,'mobile':True})
+        try:
+            self.browser.execute_script("""
+              const realFetch=window.fetch;
+              window.fetch=async (...args)=>{
+                const response=await realFetch(...args);
+                if(!String(args[0]).includes('/start-quiz/')) return response;
+                const data=await response.json();
+                data.questions[0].english_word='LongVocabulary'.repeat(7);
+                data.questions[0].choices=Array.from({length:4},(_,i)=>String(i)+'Ұзақ аударма '.repeat(18));
+                return new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json'}});
+              };
+            """)
+            self.click('start-quiz-btn')
+            self.wait.until(lambda d:d.find_elements(By.CSS_SELECTOR,'#answer-buttons button') and d.find_element(By.CSS_SELECTOR,'#answer-buttons button').is_enabled())
+            self.assertTrue(self.browser.execute_script("const a=document.getElementById('answer-buttons');return a.scrollHeight>a.clientHeight && a.scrollWidth<=a.clientWidth"))
+            self.browser.execute_script("document.getElementById('answer-buttons').scrollTop=9999")
+            self.assertTrue(self.browser.execute_script("const r=document.querySelector('.quiz-header').getBoundingClientRect();return r.top>=0 && r.bottom<innerHeight"))
+            self.browser.save_screenshot('/tmp/oqyai-quiz-long.png')
+            self.element('close-quiz-btn').send_keys(Keys.ESCAPE)
+            self.assertFalse(self.browser.execute_script("return document.getElementById('quiz-dialog').open"))
+        finally:
+            self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+
+    def test_answer_reveal_and_wrong_retry_spend_one_heart(self):
+        self.start_quiz()
+        self.assertTrue(self.element('timer-fill').is_displayed())
+        self.assertFalse(self.browser.find_elements(By.ID, 'progress-bar'))
+        self.answer()
+        WebDriverWait(self.browser, 2, poll_frequency=0.03).until(
+            lambda d: d.find_elements(By.CSS_SELECTOR, '.quiz-answer.btn-success')
+        )
+        self.browser.save_screenshot('/tmp/oqyai-refined-correct.png')
+        self.wait.until(lambda _: self.element('question-text').text == 'word1_1')
+        # Lose the first response after the server records the wrong answer.
+        self.browser.execute_script("""
+          const realFetch = window.fetch;
+          window.fetch = async (...args) => {
+            const response = await realFetch(...args);
+            if (String(args[0]).includes('/submit-answer/')) {
+              window.fetch = realFetch;
+              throw new Error('Simulated lost acknowledgement');
+            }
+            return response;
+          };
+        """)
+        self.answer(correct=False)
+        self.wait.until(lambda _: self.element('quiz-retry-btn').is_displayed())
+        self.click('quiz-retry-btn')
+        self.wait.until(lambda d: d.find_elements(By.CSS_SELECTOR, '.quiz-answer.btn-danger'))
+        self.assertEqual(self.browser.find_element(By.CSS_SELECTOR,'.quiz-answer.btn-success').text,'meaning1_1')
+        self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR,'#attempts .spent')),1)
+        self.browser.save_screenshot('/tmp/oqyai-refined-wrong.png')
+        self.wait.until(lambda _: self.element('question-text').text == 'word1_2')
+        self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR,'#attempts .spent')),1)

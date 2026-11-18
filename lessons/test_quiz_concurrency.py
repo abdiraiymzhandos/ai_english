@@ -106,3 +106,21 @@ class QuizConcurrencyTests(TransactionTestCase):
         attempt = QuizAttempt.objects.get()
         self.assertFalse(attempt.is_passed)
         self.assertEqual((attempt.score, attempt.attempts, attempt.answers.count()), (0, 0, 0))
+
+    def test_racing_different_choices_both_report_the_stored_outcome(self):
+        state = self.start()
+        question = self.lesson.quiz_questions.first()
+        choices = [question.kazakh_translation, 'different choice']
+        results = self.parallel([
+            lambda client=client, choice=choice: client.post(
+                reverse('submit_answer', args=[1]), self.payload(state, question, choice)
+            ) for client, choice in zip(self.clients, choices)
+        ])
+        stored = QuizAnswer.objects.get()
+        for status, body in results:
+            self.assertEqual(status, 200)
+            self.assertEqual(body['correct'], stored.is_correct)
+            self.assertEqual(body['correct_answer'], question.kazakh_translation)
+            self.assertEqual(body['answered_count'], 1)
+            self.assertEqual(body['attempts'], int(not stored.is_correct))
+        self.assertEqual(sum(body['accepted'] for _, body in results), 1)
