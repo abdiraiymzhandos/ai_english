@@ -977,12 +977,13 @@ def service_worker(request):
 
 def pwa_manifest(request):
     """Serve manifest.json from root path for PWA"""
-    manifest_path = os.path.join(settings.BASE_DIR, 'staticfiles', 'manifest.json')
+    from django.contrib.staticfiles import finders
+    manifest_path = finders.find('manifest.json') if settings.DEBUG else os.path.join(settings.STATIC_ROOT, 'manifest.json')
     try:
-        with open(manifest_path, 'r') as f:
+        with open(manifest_path, encoding='utf-8') as f:
             content = f.read()
         return HttpResponse(content, content_type='application/manifest+json')
-    except FileNotFoundError:
+    except (FileNotFoundError, TypeError):
         return HttpResponse('Manifest not found', status=404)
 
 

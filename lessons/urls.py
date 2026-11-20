@@ -16,15 +16,16 @@ from .views_classroom import (
     classroom_student_photo,
     mint_realtime_classroom_token,
 )
-from django.conf import settings
-from django.conf.urls.static import static
 from django.urls import reverse_lazy
+from django.templatetags.static import static
+from django.views.generic.base import RedirectView
 
 
 urlpatterns = [
     path('translator/', translator, name='translator'),
     # PWA files - must be served from root
     path('sw.js', service_worker, name='service_worker'),
+    path('favicon.ico', RedirectView.as_view(url=static('images/icon-72x72.png'))),
     path('manifest.json', pwa_manifest, name='pwa_manifest'),
 
     path('', lesson_list, name='lesson_list'),

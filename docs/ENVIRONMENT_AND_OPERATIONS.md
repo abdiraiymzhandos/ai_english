@@ -1,5 +1,9 @@
 # Environment And Operations
 
+## Home Screen branding release check
+
+The lesson catalog, individual lessons and account pages share `lessons/includes/app_branding.html`. After collecting static files and reloading the web app, check `/static/manifest.json`, `/static/images/icon-180x180.png` and `/favicon.ico`. In iPhone Safari, remove the old “Сабақтар” Home Screen shortcut and add the site again from an individual lesson. Verify the suggested name **OqyAI**, the official square icon and a launch at `/`. The regression suite is `lessons.test_pwa_branding`.
+
 ## Verified learning release environment — 2026-11-13
 
 The learning patch explicitly sets MySQL connection `OPTIONS.charset` to `utf8mb4`. This fixes reproduced four-byte Unicode errors from Django 5.1's previous connection default; it does **not** convert any database/table/column charset. Inspect the deployed schema before release.
