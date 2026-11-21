@@ -267,3 +267,15 @@ class StudentPhoto(models.Model):
 
     def __str__(self):
         return f"{self.student.full_name} photo"
+
+
+class RegistrationNotification(models.Model):
+    """One delivery job per signup. Message text is assembled only at delivery."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    status = models.CharField(max_length=12, default='pending')
+    attempts = models.PositiveSmallIntegerField(default=0)
+    next_attempt = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['status', 'next_attempt'])]

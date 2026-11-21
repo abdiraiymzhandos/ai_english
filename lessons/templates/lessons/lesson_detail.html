@@ -3,6 +3,14 @@
 <html lang="kk">
 <head>
   {% include "lessons/includes/loading.html" %}
+  {% if collect_product_analytics %}<script>
+    // Media may fail before deferred scripts execute.
+    window.oqyEarlyMediaError = function (event) {
+      const audio = event.target.closest?.('audio');
+      if (audio) audio.dataset.earlyMediaError = '1';
+    };
+    document.addEventListener('error', window.oqyEarlyMediaError, true);
+  </script>{% endif %}
   <meta charset="UTF-8">
   {% include "lessons/includes/app_branding.html" %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -937,6 +945,7 @@
       <p id="quiz-previous-score" {% if quiz_previous_score == None %}hidden{% endif %}>
         Алдыңғы нәтиже <strong id="quiz-previous-value">{{ quiz_previous_score|default_if_none:"" }}{% if quiz_previous_total != None %} / {{ quiz_previous_total }}{% endif %}</strong>
       </p>
+      {% if subscription_offer %}<a data-analytics-action="subscription_cta_clicked" href="{{ subscription_offer.url }}">{{ subscription_offer.cta }} →</a>{% endif %}
       <button id="start-quiz-btn" type="button" data-retake="{{ quiz_passed|yesno:'true,false' }}">
         {% if quiz_passed %}Тестті қайта тапсыру{% else %}Тестті бастау{% endif %}
       </button>
@@ -959,8 +968,9 @@
           <h3 id="quiz-result" role="status"></h3>
           <p id="quiz-result-detail"></p>
           <button id="retake-quiz-btn" type="button">Тестті қайта тапсыру</button>
-          <a id="next-lesson-link" hidden>Келесі сабақ →</a>
-          <a href="{% url 'lesson_list' %}">Сабақтар</a>
+          <a id="subscription-result" data-analytics-action="subscription_cta_clicked" hidden></a>
+          <a data-analytics-action="next_lesson_clicked" id="next-lesson-link" hidden>Келесі сабақ →</a>
+          <a data-analytics-action="quiz_catalog_clicked" href="{% url 'lesson_list' %}">Сабақтар</a>
         </div>
         <div class="quiz-recovery">
           <p id="quiz-error" role="alert" hidden></p>

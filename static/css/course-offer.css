@@ -1,0 +1,17 @@
+* {box-sizing:border-box}
+body {margin:0;background:#f0f1fc;color:#24213e;font:16px/1.55 system-ui,sans-serif}
+.offer {max-width:640px;margin:auto;padding:clamp(18px,5vw,40px)}
+header {display:flex;align-items:center;justify-content:space-between;gap:12px}
+header a {display:inline-flex;align-items:center;min-height:44px;color:#4c3982}
+h1 {font-size:clamp(2rem,6vw,3.5rem);letter-spacing:-.045em;line-height:1.08;margin:32px 0}
+.progress {color:#534192;font-weight:700;margin-bottom:-12px}
+section {background:white;border-radius:24px;padding:clamp(20px,5vw,36px);box-shadow:0 4px 0 #dedbef}
+h2 {font-size:1.1rem;margin:0}
+.price {font-size:clamp(2.2rem,8vw,3.5rem);line-height:1.2;font-weight:800;letter-spacing:-.05em;margin:10px 0 0}
+p {margin:6px 0 14px}
+ul {border-top:1px solid #e5e1ee;padding:16px 0 6px 22px}
+li {padding:4px}
+li::marker {color:#6953bd}
+button {width:100%;min-height:52px;padding:12px;border:none;border-radius:14px;background:#6041b2;color:white;font:700 1rem/1.35 system-ui;cursor:pointer;box-shadow:0 3px 0 #412e74}
+button:active {transform:translateY(2px)}
+.note {margin:15px 0 0;color:#585568;font-size:.88rem}

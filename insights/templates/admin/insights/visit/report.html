@@ -1,0 +1,53 @@
+{% extends "admin/base_site.html" %}{% load tz static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/funnel-admin.css' %}">{% endblock %}
+{% block content %}{% timezone "Asia/Almaty" %}
+<div class="analytics">
+<form method="post" class="filters" id="crm-filters">{% csrf_token %}
+<label>Кезең <select name="preset">{% for k,v in presets %}<option value="{{ k }}" {% if k == preset %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+<label>Басы <input type="date" name="start" value="{{ params.start }}"></label>
+<label>Соңы <input type="date" name="end" value="{{ params.end }}"></label>
+<label>Есеп <select name="mode"><option value="activity">Кезеңдегі белсенділік</option><option value="cohort" {% if mode == 'cohort' %}selected{% endif %}>Тіркелгендер тобы</option></select></label>
+<label>Оқушы тізімі <select name="segment">{% for k,v in segments %}<option value="{{ k }}" {% if k == params.segment %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+<label>Іздеу <input type="search" maxlength="150" name="q" value="{{ params.q }}" placeholder="{% if can_view %}Аты, телефоны немесе ID{% else %}ID{% endif %}"></label>
+<label>Сұрыптау <select name="sort">{% for k,v in sorts %}<option value="{{ k }}" {% if k == params.sort %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+{% if can_debug %}<label><input type="checkbox" name="internal" value="1" {% if params.internal %}checked{% endif %}> Ішкі аккаунттарды қосу</label>{% endif %}
+{% if can_export %}<label><input type="checkbox" name="contacts" value="1" {% if params.contacts %}checked{% endif %}> Клиенттердің аты мен телефон нөмірін қосу</label>{% endif %}
+<button class="button default">Есепті көрсету</button><button class="button" name="export" value="xlsx">Excel есебін жүктеу</button>
+</form>
+{% if error %}<p role="alert">{{ error }}</p>{% else %}
+<p>{{ start|date:"Y-m-d" }} – {{ end|date:"Y-m-d" }} · Asia/Almaty. Бақылау шегі {{ cutoff|date:"Y-m-d H:i" }}. Соңғы оқиға {{ fresh|date:"Y-m-d H:i"|default:"—" }}.</p>
+{% if mode == 'cohort' %}<p>Осы аралықта тіркелгендердің бүгінге дейінгі жолы.</p>{% else %}<p>Осы аралықтағы әрекеттер. Сапарларға қонақтар да кіреді.</p>{% endif %}
+<p>Ішкі аккаунттар {% if include_internal %}қосылды{% else %}есептен шығарылды{% endif %}. Іздеу және клиент сүзгісі тізімге, Users және User_Journeys парақтарына қолданылады. Жалпы көрсеткіштер бүкіл таңдалған кезеңді қамтиды.</p>
+<div class="cards">{% for code,label,n in segment_cards %}<section><span class="segment-{{ code }}">{{ label }}</span><strong>{{ n }}</strong></section>{% endfor %}</div>
+<p>Байланысу кезегі қазіргі қолжетімділік, сақталған сабақ нәтижелері және есеп жасалғанға дейін сақталған сатып алу әрекеттері бойынша анықталады.</p>
+<div class="cards">{% for label,value in cards %}<section><span>{{ label }}</span><strong>{{ value }}</strong></section>{% endfor %}</div>
+<h2>Оқу мен сатып алу кезеңдері</h2><p>Әр жолға алдыңғы кезеңдерден ретімен өткен оқушылар кіреді.</p>
+<div class="wide"><table><thead><tr><th>Кезең</th><th>Адам</th><th>Алдыңғыдан</th><th>Бастапқыдан</th><th>Алдыңғы кезеңнен азаю</th></tr></thead>
+<tbody>{% for row in funnel %}<tr><td>{{ row.label }}</td><td>{{ row.count }}</td><td>{% if row.previous != None %}{% widthratio row.previous 1 100 %}%{% else %}—{% endif %}</td><td><meter value="{{ row.count }}" max="{{ funnel.0.count|default:1 }}"></meter> {% if row.initial != None %}{% widthratio row.initial 1 100 %}%{% endif %}</td><td>{{ row.drop }} {% if row.drop_rate != None %}({% widthratio row.drop_rate 1 100 %}%){% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% if biggest_drop.drop %}<p>Ең көп азаю «{{ biggest_drop.label }}» кезеңіне өтерде байқалды: {{ biggest_drop.drop }} адам.</p>{% endif %}
+<h2>Күндік белсенділік</h2>
+{% if chart.peak %}<figure class="daily-chart"><figcaption>Белсенді аккаунттар · <span>Ұсынысты көргендер</span> · ең жоғарысы {{ chart.peak }}</figcaption>
+<svg viewBox="-3 0 1006 100" preserveAspectRatio="none" role="img" aria-label="Белсенді аккаунттар мен ұсынысты көргендердің күндік өзгерісі">
+<path d="M0 96H1000" stroke="currentColor" opacity=".25" /><polyline points="{{ chart.active }}" /><polyline class="offer-line" points="{{ chart.view }}" /></svg>
+<div>{{ chart.start|date:"Y-m-d" }} — {{ chart.end|date:"Y-m-d" }}</div></figure>{% endif %}<div class="wide"><table><tr><th>Күн</th><th>Тіркелді</th><th>Белсенді</th><th>Тегін курсты аяқтады</th><th>Ұсыныс</th><th>Расталған төлем</th></tr>
+{% for day,reg,active,free,view,paid in trend %}<tr><td>{{ day|date:"Y-m-d" }}</td><td>{{ reg }}</td><td><meter max="{{ totals.active|default:1 }}" value="{{ active }}"></meter> {{ active }}</td><td>{{ free }}</td><td>{{ view }}</td><td>{{ paid }}</td></tr>{% empty %}<tr><td>Дерек жоқ</td></tr>{% endfor %}</table></div>
+<h2>Қолданушылар қайдан келді</h2><div class="wide"><table><tr><th>Көз</th><th>Науқан</th><th>Тіркелді</th><th>1-сабақ</th><th>3 сабақ</th><th>Ұсыныс</th><th>Басу</th><th>Төлем</th><th>Конверсия</th></tr>
+{% for source,campaign,reg,one,three,view,click,paid,rate in sources %}<tr><td>{{ source }}</td><td>{{ campaign }}</td><td>{{ reg }}</td><td>{{ one }}</td><td>{{ three }}</td><td>{{ view }}</td><td>{{ click }}</td><td>{{ paid }}</td><td>{% if rate != None %}{% widthratio rate 1 100 %}%{% else %}—{% endif %}</td></tr>{% endfor %}</table></div>
+<h2 id="users">Оқушылардың жолы</h2><p>Оқиға жоқ болса, әрекет жасалмады деп қорытынды жасауға болмайды. Прогресс бағандары қазіргі күйді көрсетеді.</p>
+<div class="wide"><table><tr><th>Клиент</th><th>Сегмент және кезек</th><th>Соңғы кезең</th><th>Соңғы белсенділік</th><th>Соңғы бет және әрекет</th></tr>
+{% for u in people %}<tr><td>{% if can_view %}<strong>{{ u.name }}</strong>{% if u.phone %}<br>{{ u.phone }} · {{ u.phone_status }}
+<button type="button" data-copy="{{ u.phone }}">Көшіру</button>{% if u.whatsapp %} <a href="https://wa.me/{{ u.whatsapp }}" rel="noopener noreferrer" target="_blank">WhatsApp</a>{% endif %}{% endif %}
+{% if u.profile_id and perms.lessons.view_userprofile or u.profile_id and perms.lessons.change_userprofile %}<a href="{% url 'admin:lessons_userprofile_change' u.profile_id %}">Профиль</a>{% endif %}{% endif %}
+{% if params.q %}<button form="crm-filters" formaction="#journey" name="user" value="{{ u.id }}">Жолы · №{{ u.id }}</button>{% else %}<a href="?{{ navigation }}&amp;user={{ u.id }}#journey">Жолы · №{{ u.id }}</a>{% endif %}</td>
+<td><b class="segment-{{ u.segment }}">{{ u.segment_label }}</b><br>{{ u.priority }}</td><td>{{ u.stage }}</td><td>{{ u.last|date:"Y-m-d H:i"|default:"—" }}</td><td>{{ u.page }} {{ u.action }} {{ u.action_at|date:"m-d H:i" }}</td></tr>{% empty %}<tr><td>Оқушы табылмады</td></tr>{% endfor %}</table></div>
+{% if people.has_previous %}<button form="crm-filters" name="p" value="{{ people.previous_page_number }}">← Алдыңғы</button>{% endif %} {{ people.number }} / {{ people.paginator.num_pages }} {% if people.has_next %}<button form="crm-filters" name="p" value="{{ people.next_page_number }}">Келесі →</button>{% endif %}
+<span id="copy-result" role="status"></span>
+<script defer src="{% static 'js/analytics-admin.js' %}"></script>
+{% if selected %}<h2 id="journey">{{ selected.name }} · №{{ selected.id }}</h2>
+<p>Тіркелген күні {{ selected.joined|date:"Y-m-d H:i" }} · {{ selected.segment_label }} · {{ selected.priority }} · Қазіргі ақылы қолжетімділік {{ selected.access|yesno:"бар,жоқ" }} · Расталған сатып алу {{ selected.confirmed_at|date:"Y-m-d H:i"|default:"дерек жоқ" }} · Науқан {{ selected.campaign|default:"—" }} · Көз {{ selected.source }} · Тіл {{ selected.tracks|default:"—" }} · Сапарлар {{ selected.visits }} · Қайтып келуі {{ selected.returned|yesno:"тіркелген,тіркелмеген" }} · Болжамды белсенді минут {{ selected.minutes|floatformat:1 }}</p>
+<p>Бірінші және соңғы әрекет {{ selected.first|date:"Y-m-d H:i" }} — {{ selected.last|date:"Y-m-d H:i" }}. Қазіргі сабақ {{ selected.current }}. Соңғы аяқталған сабақ (қаз / орыс) {{ selected.highest_kk|default:"—" }} / {{ selected.highest_ru|default:"—" }}. Аяқталған тегін сабақтар {{ selected.free_kk }} / {{ selected.free_ru }}.</p>
+<p>Ұсыныс {{ selected.view|yesno:"бар,дерек жоқ" }} · Сатып алу батырмасы {{ selected.click|yesno:"бар,дерек жоқ" }} · WhatsApp {{ selected.wa|yesno:"бар,дерек жоқ" }} · Бақылау шегіне дейінгі төлем {{ selected.verified|yesno:"расталды,расталмаған" }}</p>
+<ol>{% for stamp,label,path,lesson,context in timeline %}<li>{{ stamp|date:"Y-m-d H:i:s" }} — {{ label }} · {{ path }} {{ context.section }} {{ context.phase }} {{ context.error }}</li>{% endfor %}</ol>
+{% if timeline.has_previous %}<button form="crm-filters" name="t" value="{{ timeline.previous_page_number }}" formaction="?user={{ selected.id }}#journey">← Алдыңғы оқиғалар</button>{% endif %}
+{% if timeline.has_next %}<button form="crm-filters" name="t" value="{{ timeline.next_page_number }}" formaction="?user={{ selected.id }}#journey">Келесі оқиғалар →</button>{% endif %}{% endif %}{% endif %}</div>
+{% endtimezone %}{% endblock %}

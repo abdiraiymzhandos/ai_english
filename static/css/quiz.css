@@ -162,3 +162,11 @@ body.quiz-page-locked { position: fixed; width: 100%; overflow: hidden; }
 @media(prefers-reduced-motion:reduce) {
   #quiz-container * { animation: none!important; transition: none!important; }
 }
+#quiz-summary #subscription-result { grid-row: 4; background: #6940c5; color: white; font-weight: 750; }
+#quiz-summary:has(#subscription-result:not([hidden])) #retake-quiz-btn {color:#563686;background:#f4eefe}
+@media (max-height:570px) {
+  #quiz-summary:has(#subscription-result:not([hidden])) {gap:6px;padding:12px;line-height:1.3}
+  #quiz-summary:has(#subscription-result:not([hidden])) .result-emblem {width:32px;height:32px;font-size:22px;border-radius:10px}
+  #quiz-summary:has(#subscription-result:not([hidden])) #quiz-result {font-size:21px;line-height:1.15}
+  #quiz-summary:has(#subscription-result:not([hidden])) #quiz-result-detail {font-size:14px;margin:0}
+}

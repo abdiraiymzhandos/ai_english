@@ -568,7 +568,7 @@ def _resolve_reply_language(lead):
 
 
 def _build_payment_reply(lead):
-    amount = getattr(settings, "COURSE_PRICE_KZT", 25000)
+    amount = settings.COURSE_PRICE_KZT
     phone = getattr(settings, "KASPI_RECEIVER_PHONE", "+77472445338")
     name = getattr(settings, "KASPI_RECEIVER_NAME", "Әбдірайым Жақсылық Байсафарұлы")
     if _resolve_reply_language(lead) == "ru":
@@ -696,7 +696,7 @@ def _build_sales_system_prompt(language_hint):
         "Business facts:\n"
         "- OqyAI is an AI-powered English learning platform for Kazakh/Russian speakers.\n"
         "- Product: 250 ready-made English lessons.\n"
-        "- Price: 25000 KZT.\n"
+        f"- Price: {settings.COURSE_PRICE_KZT} KZT.\n"
         "- Access duration: 1 year.\n"
         "- Good for beginners.\n"
         "- It helps with grammar, vocabulary, speaking practice, and structured learning.\n"
@@ -892,7 +892,7 @@ def create_receipt_from_message(lead, message):
 
 
 def evaluate_receipt(receipt):
-    expected_amount = getattr(settings, "COURSE_PRICE_KZT", 25000)
+    expected_amount = settings.COURSE_PRICE_KZT
     expected_phone = getattr(settings, "KASPI_RECEIVER_PHONE", "+77472445338")
     expected_name = getattr(settings, "KASPI_RECEIVER_NAME", "Әбдірайым Жақсылық Байсафарұлы")
 

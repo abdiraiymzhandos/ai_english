@@ -27,6 +27,7 @@ This index defines documentation ownership after the 2026-07-10 repository audit
 
 | Document | Status | Responsibility | Related documents |
 | --- | --- | --- | --- |
+| [Sales funnel and analytics](SALES_ANALYTICS.md) | Owner and operations guide | Dashboard, pricing, payment evidence, XLSX, privacy, retention and release |
 | [Admin access operations](../ADMIN_ACCESS_OPERATIONS.md) | Current concise runbook | Existing access flags/admin behavior; canonical domain rules remain in architecture/backlog | [Architecture and codebase](ARCHITECTURE_AND_CODEBASE.md), [backlog](BACKLOG.md) |
 | [Classroom architecture](../CLASSROOM_ARCHITECTURE.md) | Current specialized map; feature experimental | Classroom files/flows; security/privacy findings live in security/UX audits | [Security audit](SECURITY_AUDIT.md), [UX/UI audit](UX_UI_AUDIT.md) |
 | [Classroom MVP notes](../CLASSROOM_MVP_NOTES.md) | Deprecated historical record | No current facts; link to replacements | [Classroom architecture](../CLASSROOM_ARCHITECTURE.md), [feature roadmap](FEATURE_ROADMAP.md) |

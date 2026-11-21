@@ -1,3 +1,4 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/loading.css' %}">
 <script src="{% static 'js/loading.js' %}" defer></script>
+{% if collect_product_analytics %}<script defer src="{% static 'js/product-analytics.js' %}" data-csrf="{{ csrf_token }}" data-actor="{{ analytics_actor }}" data-endpoint="{% url 'analytics_ingest' %}"></script>{% endif %}

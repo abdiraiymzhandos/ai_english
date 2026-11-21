@@ -473,6 +473,7 @@
         </div>
     </div>
 
+    {% if subscription_offer %}<a class="btn btn-primary" data-analytics-action="subscription_cta_clicked" href="{{ subscription_offer.url }}">{{ subscription_offer.cta }} →</a>{% endif %}
     <!-- Magic Button - How to Use Guide -->
     <div class="text-center my-4">
         <button id="guide-btn" class="btn rounded-pill magic-button">

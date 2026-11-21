@@ -37,3 +37,4 @@ pydub==0.25.1
 ffmpeg-python==0.2.0
 pypdf>=5.1.0,<6
 pytesseract==0.3.13
+openpyxl==3.1.5

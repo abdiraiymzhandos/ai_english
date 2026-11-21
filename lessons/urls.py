@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, advertisement, account_locked, vocabulary_list, register_lead, mint_realtime_token
+from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, account_locked, vocabulary_list, register_lead, mint_realtime_token
 from .views import start_quiz, restart_quiz, submit_answer, service_worker, pwa_manifest, privacy_policy, profile, translator, check_translator_access, mint_translator_token
 from .views_classroom import (
     classroom_dashboard,
@@ -21,7 +21,12 @@ from django.templatetags.static import static
 from django.views.generic.base import RedirectView
 
 
+from insights.offer import advertisement, purchase_handoff
+from insights.views import ingest
+
 urlpatterns = [
+    path("analytics/events/", ingest, name="analytics_ingest"),
+    path("advertisement/purchase/", purchase_handoff, name="purchase_handoff"),
     path('translator/', translator, name='translator'),
     # PWA files - must be served from root
     path('sw.js', service_worker, name='service_worker'),

@@ -15,7 +15,11 @@ def _bounded_timeout(timeout):
     return max(1, min(timeout_value, 15))
 
 
-def send_telegram_message(text: str, *, timeout: int = 15) -> bool:
+class RetryableTelegramFailure(Exception):
+    """A connection was never established or Telegram explicitly rate-limited the send."""
+
+
+def send_telegram_message(text: str, *, timeout: int = 15, signal_retry=False) -> bool:
     token = (getattr(settings, "TELEGRAM_BOT_TOKEN", "") or "").strip()
     chat_id = (getattr(settings, "TELEGRAM_CHAT_ID", "") or "").strip()
     if not token or not chat_id:
@@ -34,8 +38,12 @@ def send_telegram_message(text: str, *, timeout: int = 15) -> bool:
         )
     except requests.RequestException as exc:
         logger.warning("Telegram message request failed: %s", type(exc).__name__)
+        if signal_retry and isinstance(exc, requests.ConnectTimeout):
+            raise RetryableTelegramFailure from None
         return False
 
+    if signal_retry and response.status_code == 429:
+        raise RetryableTelegramFailure
     if not 200 <= response.status_code < 300:
         logger.warning("Telegram message request returned HTTP %s.", response.status_code)
         return False

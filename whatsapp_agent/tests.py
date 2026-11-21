@@ -28,7 +28,7 @@ from whatsapp_agent.services import (
     APP_BASE_URL="https://www.oqyai.kz",
     KASPI_RECEIVER_PHONE="+77472445338",
     KASPI_RECEIVER_NAME="Әбдірайым Жақсылық Байсафарұлы",
-    COURSE_PRICE_KZT=25000,
+    COURSE_PRICE_KZT=15000,
     OPENAI_API_KEY="test-openai-key",
 )
 class WhatsAppWebhookTests(TestCase):

@@ -20,6 +20,8 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db import transaction
 
+from insights.offer import boundary_offer, offer_url, formatted_price
+from insights.tracking import schedule_event, event_key, quiz_event
 from .forms import CustomRegisterForm
 from .models import UserProfile
 from django.contrib.auth import login
@@ -33,7 +35,7 @@ from english_course.realtime import (
     realtime_token_error_response,
 )
 from english_course.utils.realtime_tts import synthesize_audio_realtime_mp3
-from .services.registration_notifications import send_registration_notification
+from .services.registration_notifications import enqueue_registration_notification
 from .services.course_progress import (
     FREE_LESSON_IDS, course_stages, lesson_access_denial, next_lesson_id,
     passed_lesson_ids, unlocked_lesson_ids,
@@ -46,7 +48,7 @@ from .services.quiz import (
 
 logger = logging.getLogger(__name__)
 
-UPSELL_WHATSAPP_NUMBER = "77781029394"
+UPSELL_WHATSAPP_NUMBER = settings.COURSE_WHATSAPP_NUMBER
 
 
 # def _content_creator_instructions(lesson: Lesson) -> str:
@@ -321,10 +323,10 @@ def register(request):
                 user = form.save()
                 phone = form.cleaned_data.get('phone')
                 role = form.cleaned_data.get('role') or "student"
-                profile = UserProfile.objects.create(user=user, phone=phone, role=role)
-                transaction.on_commit(
-                    lambda: send_registration_notification(user, profile)
-                )
+                UserProfile.objects.create(user=user, phone=phone, role=role)
+                schedule_event(request, "signup_completed", page="register", path="/register/",
+                               key=event_key("signup", user.pk), subject=user)
+                enqueue_registration_notification(user)
             login(request, user)
             return redirect('lesson_list')
     else:
@@ -342,6 +344,8 @@ def lesson_list(request):
         unlocked = FREE_LESSON_IDS
     return render(request, "lessons/lesson_list.html", {
         "stages": stages,
+        "course_price": formatted_price(),
+        "subscription_offer": boundary_offer(request, 3) or boundary_offer(request, 253),
         "passed_lessons": unlocked,  # Existing template name means accessible IDs.
         "is_guest": not request.user.is_authenticated,
         "user_is_authenticated": request.user.is_authenticated,
@@ -359,7 +363,7 @@ def lesson_detail(request, lesson_id):
 
     denial = lesson_access_denial(request, lesson)
     if denial:
-        return redirect("advertisement" if denial == "payment_required" else "lesson_list")
+        return redirect(offer_url("ru" if lesson_id >= 251 else "kk") if denial == "payment_required" else "lesson_list")
 
     # 🔥 Сабақтың түсіндірмелерін сессиядан алу
     explanations_qs = Explanation.objects.filter(lesson=lesson)
@@ -384,24 +388,10 @@ def lesson_detail(request, lesson_id):
         'voice_access_expires': voice_access_expires,
         'quiz_passed': bool(saved_quiz and saved_quiz['is_passed']),
         'quiz_question_count': quiz_question_count,
+        'subscription_offer': boundary_offer(request, lesson_id),
         'quiz_previous_total': saved_quiz['last_passed_total'] if saved_quiz else None,
         'quiz_previous_score': (saved_quiz['last_passed_score'] if saved_quiz['last_passed_score'] is not None
                                 else saved_quiz['score']) if saved_quiz and saved_quiz['is_passed'] else None,
-    })
-
-
-def advertisement(request):
-    """
-    Бұл бетте оқушыға маңызды ақпарат пен жарнама көрсетіледі:
-      - Оқу ақысы: 15000 теңге, 1 жылға
-      - Өте пайдалы сабақтар, ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы
-      - WhatsApp сілтемесі: 87781029394
-    """
-    return render(request, 'lessons/advertisement.html', {
-        'price': '15000 теңге',
-        'duration': '1 жылға',
-        'whatsapp': '77781029394',
-        'message': 'Өте пайдалы! Ағылшын мұғалімдері мен ақылды жасанды интеллект арқылы үйретеміз.'
     })
 
 
@@ -762,16 +752,24 @@ def _stale_quiz_response():
     return JsonResponse({"error": "Тест жаңарды. Тестті қайта ашыңыз.", "code": "stale_attempt"}, status=409)
 
 
-def _quiz_next_action(request, next_id):
+def _quiz_next_action(request, next_id, completed_lesson=None):
     """Keep the curriculum successor in the API, and gate its result-screen link."""
     return {
         "next_lesson": next_id,
+        "subscription_offer": boundary_offer(request, completed_lesson),
         "can_continue": next_id is not None and lesson_access_denial(request, Lesson(pk=next_id)) is None,
     }
 
 
 def _unlock_after_quiz_pass(request, user_id, lesson):
     next_id = next_lesson_id(lesson)
+    # Serialize first passes across different lessons for one learner. The last
+    # commit can then observe all three free passes even with two devices.
+    if request.user.is_authenticated:
+        UserProfile.objects.select_for_update().filter(user_id=request.user.pk).values_list('pk', flat=True).first()
+    else:
+        from django.contrib.sessions.models import Session
+        Session.objects.select_for_update().filter(pk=user_id).values_list('pk', flat=True).first()
     passed = set(QuizAttempt.objects.filter(user_id=user_id, is_passed=True).values_list("lesson_id", flat=True))
     request._passed_lesson_ids = passed
     request.session["passed_lessons"] = sorted(unlocked_lesson_ids(passed))
@@ -810,9 +808,11 @@ def start_quiz(request, lesson_id):
                 attempt.save(update_fields=['completed', 'is_passed', 'score', 'attempts', 'last_passed_score', 'last_passed_total'])
                 if first_pass:
                     _unlock_after_quiz_pass(request, user_id, lesson)
+            if not attempt.completed:
+                quiz_event(request, "quiz_started", lesson.pk, attempt.attempt_token)
             return JsonResponse(state_payload(
                 attempt, answers=answers, questions=question_data(questions),
-                **_quiz_next_action(request, next_lesson_id(lesson) if attempt.is_passed else None),
+                **_quiz_next_action(request, next_lesson_id(lesson) if attempt.is_passed else None, lesson.pk if attempt.is_passed else None),
             ))
     except QuizContentError as exc:
         return JsonResponse({"error": str(exc), "code": "invalid_vocabulary"}, status=400)
@@ -840,6 +840,8 @@ def restart_quiz(request, lesson_id):
             attempt.question_ids = [q.pk for q in questions]
             attempt.vocabulary_hash = vocabulary_digest(pairs)
             attempt.save()
+            quiz_event(request, "quiz_restarted", lesson.pk, attempt.attempt_token)
+            quiz_event(request, "quiz_started", lesson.pk, attempt.attempt_token)
             return JsonResponse(state_payload(attempt, answers=(set(), 0, 0), questions=question_data(questions)))
     except QuizContentError as exc:
         return JsonResponse({"error": str(exc), "code": "invalid_vocabulary"}, status=400)
@@ -878,7 +880,7 @@ def submit_answer(request, lesson_id):
             return _stale_quiz_response()
         if attempt.completed:
             return JsonResponse(state_payload(attempt, correct=False, accepted=False, already_passed=True,
-                                              **_quiz_next_action(request, next_lesson_id(lesson))))
+                                              **_quiz_next_action(request, next_lesson_id(lesson), lesson.pk)))
         existing = attempt.answers.filter(question=question).first()
         if existing:
             return JsonResponse(state_payload(attempt, correct=existing.is_correct, accepted=False,
@@ -888,6 +890,7 @@ def submit_answer(request, lesson_id):
         answers = answer_state(attempt)
         ids, score, mistakes = answers
         if mistakes >= 3:
+            quiz_event(request, "quiz_failed", lesson.pk, attempt.attempt_token)
             reset_run(attempt)
             attempt.save(update_fields=["attempt_token", "score", "attempts", "completed"])
             return JsonResponse(state_payload(attempt, answers=(set(), 0, 0), correct=correct,
@@ -901,11 +904,18 @@ def submit_answer(request, lesson_id):
             attempt.last_passed_score = score
             attempt.last_passed_total = len(attempt.question_ids)
             attempt.save(update_fields=["score", "attempts", "completed", "is_passed", "last_passed_score", "last_passed_total"])
+            quiz_event(request, "quiz_completed", lesson.pk, attempt.attempt_token)
             next_id = _unlock_after_quiz_pass(request, user_id, lesson) if first_pass else next_lesson_id(lesson)
+            if first_pass:
+                quiz_event(request, "lesson_completed", lesson.pk, user_id)
+                if lesson.pk in FREE_LESSON_IDS:
+                    start = 1 if lesson.pk < 251 else 251
+                    if set(range(start, start + 3)) <= passed_lesson_ids(request):
+                        quiz_event(request, "free_course_completed", start + 2, user_id)
         else:
             attempt.save(update_fields=["score", "attempts"])
         return JsonResponse(state_payload(attempt, answers=answers, correct=correct, accepted=True,
-                                          already_answered=False, restart_required=False, correct_answer=question.kazakh_translation, **_quiz_next_action(request, next_id)))
+                                          already_answered=False, restart_required=False, correct_answer=question.kazakh_translation, **_quiz_next_action(request, next_id, lesson.pk if attempt.completed else None)))
 
 
 def account_locked(request):

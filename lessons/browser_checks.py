@@ -46,7 +46,7 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         cls.browser.execute_cdp_cmd('Network.enable', {})
         cls.browser.execute_cdp_cmd('Network.setBlockedURLs', {'urls': [
             '*://cdn.jsdelivr.net/*', '*://cdnjs.cloudflare.com/*', '*://fonts.googleapis.com/*',
-            '*://fonts.gstatic.com/*', '*://www.googletagmanager.com/*',
+            '*://fonts.gstatic.com/*', '*://www.googletagmanager.com/*', '*://wa.me/*',
         ]})
         cls.browser.set_script_timeout(10)
         print('BROWSER_VERSION', cls.browser.capabilities['browserVersion'])
@@ -89,6 +89,145 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         for _ in range(4):
             word = self.answer()
             self.wait.until(lambda _: self.element('question-text').text != word or self.element('quiz-summary').is_displayed())
+
+    def test_owner_analytics_filters_and_mobile_journey(self):
+        from django.contrib.auth.models import User, Permission
+        self.login_profile_user()
+        user = User.objects.get(username='mobile-learner-with-a-long-username')
+        user.is_staff = True
+        user.save(update_fields=['is_staff'])
+        user.user_permissions.add(Permission.objects.get(codename='view_visit'))
+        learner = User.objects.create_user('crm-browser-learner')
+        self.browser.get(self.live_server_url + '/admin/insights/visit/?preset=today&mode=cohort')
+        self.assertIn('Сатылым аналитикасы', self.browser.title)
+        for width in (320, 390, 1024):
+            self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+                'width':width,'height':740,'deviceScaleFactor':1,'mobile':width<768})
+            self.assertTrue(self.browser.execute_script("""
+                return document.documentElement.scrollWidth<=innerWidth &&
+                       document.querySelector('button[value=xlsx]').offsetWidth > 0
+            """))
+        self.browser.find_element(By.CSS_SELECTOR,'a[href*="user="][href$="#journey"]').click()
+        self.wait.until(lambda _: self.element('journey').is_displayed())
+        self.assertIn(str(learner.pk), self.element('journey').text)
+        self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+            'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
+
+    def test_threads_signup_checkout_return_campaign_and_workbook(self):
+        from io import BytesIO
+        from openpyxl import load_workbook
+        from django.contrib.auth.models import User
+        from insights.models import Event, PendingEvent, Visit
+        from insights.tracking import drain
+        self.browser.get('about:blank')
+        self.browser.execute_cdp_cmd('Storage.clearDataForOrigin', {'origin': self.live_server_url, 'storageTypes': 'all'})
+        self.browser.get(self.live_server_url + '/?utm_source=threads&utm_medium=social&utm_campaign=test')
+        self.wait.until(lambda _: Visit.objects.filter(user=None, source='threads', medium='social', campaign='test').exists())
+        self.browser.get(self.live_server_url + '/register/')
+        for field,value in [('username','threads-learner'),('phone','7012345678'),('password1','StudyCourse9876'),('password2','StudyCourse9876')]:
+            self.element('id_' + field).send_keys(value)
+        self.browser.execute_script("document.querySelector('[name=role][value=student]').click()")
+        self.browser.find_element(By.CSS_SELECTOR, '.register-form button').click()
+        self.wait.until(lambda _: self.browser.current_url == self.live_server_url + '/')
+        user = User.objects.get(username='threads-learner')
+        self.browser.get(self.live_server_url + '/lesson/1/')
+        self.wait.until(lambda _: Event.objects.filter(kind='lesson_opened',user=user).exists())
+        self.browser.get(self.live_server_url + '/advertisement/')
+        self.wait.until(lambda _: Event.objects.filter(kind='paywall_viewed',visit__source='threads',user=user).exists())
+        self.browser.find_element(By.CSS_SELECTOR,'form button').click()
+        self.wait.until(lambda _: PendingEvent.objects.filter(kind='whatsapp_opened', user=user).exists())
+        self.wait.until(lambda d: not d.current_url.startswith(self.live_server_url))
+        self.browser.get(self.live_server_url + '/?utm_source=tiktok&utm_campaign=return')
+        self.wait.until(lambda _: Visit.objects.filter(user=user,source='tiktok').exists())
+        drain()
+        self.assertTrue(Event.objects.filter(kind='whatsapp_opened',user=user,visit__source='threads').exists())
+        self.client.force_login(User.objects.create_superuser('workbook-owner'))
+        response = self.client.post('/admin/insights/visit/', {'preset':'today','mode':'cohort','export':'xlsx'})
+        book = load_workbook(BytesIO(b''.join(response.streaming_content)))
+        columns, row = list(book['Users'].values)
+        values = dict(zip(columns,row))
+        self.assertEqual((values['First recorded source'],values['Campaign'],values['Customer segment (now)']),
+                         ('threads','test','HOT'))
+        self.assertEqual(list(book['Sources'].values)[1][:3], ('threads','test',1))
+
+    def test_observable_audio_failures(self):
+        from insights.models import Event
+        from .models import Explanation
+        Explanation.objects.create(lesson_id=1,section='grammar',text='test',audio_url='/missing-test-audio.mp3')
+        self.browser.get(self.live_server_url + '/lesson/1/')
+        errors = Event.objects.filter(kind='audio_error', lesson=1)
+        self.wait.until(lambda _: errors.filter(context__section='grammar',context__phase='preload').exists())
+        attempt = self.browser.execute_cdp_cmd('Runtime.evaluate', {
+            'userGesture': True, 'awaitPromise': True, 'returnByValue': True,
+            'expression': """(async () => {
+                const audio = document.createElement('audio');
+                audio.preload = 'none';
+                document.querySelector('#vocabulary-section').append(audio);
+                audio.src = '/missing-playback-test.mp3';
+                try { await audio.play(); return 'played'; } catch (error) { return error.name; }
+            })()""",
+        })
+        self.assertEqual(attempt['result'].get('value'), 'NotSupportedError')
+        self.wait.until(lambda _: errors.filter(context__section='vocabulary',context__phase='playback').exists())
+        self.browser.execute_script("""
+          document.querySelector('#grammar-section source').dispatchEvent(new Event('error'));
+          const marker = document.createElement('button');
+          marker.dataset.analyticsAction = 'quiz_catalog_clicked';
+          document.body.append(marker);
+          marker.click();
+        """)
+        self.wait.until(lambda _: Event.objects.filter(kind='quiz_catalog_clicked').exists())
+        self.assertEqual(errors.filter(context__section='grammar').count(), 1)
+
+    def test_subscription_result_offer_and_whatsapp_handoff(self):
+        from insights.models import Event, PendingEvent, Purchase
+        from insights.tracking import drain
+        from .models import QuizAttempt, UserProfile
+        self.login_profile_user(translator=False)
+        uid = UserProfile.objects.get().user_id
+        for pk in (1, 2):
+            QuizAttempt.objects.create(user_id=str(uid), lesson_id=pk, is_passed=True, completed=True)
+        self.browser.get(self.live_server_url + '/lesson/3/')
+        self.click('start-quiz-btn')
+        self.wait.until(lambda _: self.element('question-text').text == 'word3_0')
+        self.complete()
+        self.assertIn('3 сабақты', self.element('quiz-result').text)
+        self.wait.until(lambda _: Event.objects.filter(kind='subscription_cta_viewed', user_id=uid).exists())
+        for width, height in ((320,480),(375,667),(390,844),(430,932)):
+            self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+                'width':width,'height':height,'deviceScaleFactor':1,'mobile':True})
+            geometry = self.browser.execute_script("""
+                const e=document.querySelector('#subscription-result'), r=e.getBoundingClientRect();
+                const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+                return {top:r.top, bottom:r.bottom, left:r.left, right:r.right, height:innerHeight,
+                        width:innerWidth, hit:hit?.id, visible:e.contains(hit)};
+            """)
+            self.assertTrue(geometry['top'] >= 0 and geometry['bottom'] <= geometry['height']
+                            and geometry['left'] >= 0 and geometry['right'] <= geometry['width']
+                            and geometry['visible'], geometry)
+        screenshot_dir = os.environ.get('OQYAI_FUNNEL_SCREENSHOTS')
+        if screenshot_dir:
+            self.browser.save_screenshot(os.path.join(screenshot_dir, 'oqyai-free-course-result.png'))
+        self.click('subscription-result')
+        self.wait.until(lambda _: Event.objects.filter(kind='paywall_viewed',user_id=uid).exists())
+        self.assertTrue(Event.objects.filter(kind='subscription_cta_clicked',user_id=uid).exists())
+        for width in (320,375,390,430,1024):
+            self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+                'width':width,'height':667,'deviceScaleFactor':1,'mobile':width<768})
+            self.assertTrue(self.browser.execute_script("""
+                const b=document.querySelector('form button'), r=b.getBoundingClientRect();
+                return document.documentElement.scrollWidth<=innerWidth && r.height>=44 &&
+                       r.left>=0 && r.right<=innerWidth;
+            """))
+            if screenshot_dir and width == 390:
+                self.browser.save_screenshot(os.path.join(screenshot_dir, 'oqyai-annual-course-offer.png'))
+        self.browser.find_element(By.CSS_SELECTOR,'form button').click()
+        self.wait.until(lambda _: PendingEvent.objects.filter(kind='whatsapp_opened').exists())
+        drain()
+        self.assertTrue(Event.objects.filter(kind='paywall_purchase_clicked',user_id=uid).exists())
+        self.assertFalse(Purchase.objects.exists())
+        self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+            'width':390,'height':844,'deviceScaleFactor':1,'mobile':True})
 
     def test_mobile_pass_next_retake_failed_retake_and_keyboard(self):
         self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR, 'script[src$="loading.js"]')), 1)

@@ -16,7 +16,7 @@ This is a concise operator-facing map of existing access state. It is not a paym
 | `lock_until` / `is_locked()` | Device middleware account lock |
 | `UserDevice` | Cookie-derived device rows; not a trustworthy identity control |
 
-Admin actions in `lessons/admin.py` can mark course access, grant/revoke dated voice/translator access, and unlock accounts. They do not create an order, payment, entitlement audit, reviewer record, or reason.
+Admin actions in `lessons/admin.py` can mark course access, grant/revoke dated voice/translator access, and unlock accounts. The verified course payment action records the first unpaid-to-paid transition and its reviewer. Ordinary access edits are separate. See the [sales and analytics guide](docs/SALES_ANALYTICS.md).
 
 ## Safe operational rules
 

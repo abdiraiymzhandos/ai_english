@@ -1,0 +1,52 @@
+LABELS = {
+    'session_started': 'Сапар басталды', 'page_view': 'Бет қаралды',
+    'signup_completed': 'Тіркелді', 'login_completed': 'Аккаунтқа кірді',
+    'logout_clicked': 'Аккаунттан шықты', 'course_dashboard_opened': 'Сабақтар тізімін ашты',
+    'lesson_opened': 'Сабақты ашты', 'lesson_completed': 'Сабақты алғаш аяқтады',
+    'quiz_started': 'Тест басталды', 'quiz_restarted': 'Тест қайта басталды',
+    'quiz_completed': 'Тесттен өтті', 'quiz_failed': 'Тесттен өтпеді',
+    'quiz_catalog_clicked': 'Тесттен сабақтарға оралды', 'next_lesson_clicked': 'Келесі сабақты таңдады', 'audio_play': 'Аудионы қосты',
+    'audio_error': 'Аудио ойнату қатесі', 'free_course_completed': 'Үш тегін сабақты аяқтады',
+    'subscription_cta_viewed': 'Жазылым батырмасын көрді',
+    'subscription_cta_clicked': 'Жазылым батырмасын басты', 'paywall_viewed': 'Ұсынысты көрді',
+    'paywall_purchase_clicked': 'Сатып алуды таңдады', 'whatsapp_opened': 'WhatsApp-қа бағытталды',
+    'purchase_completed': 'Сатып алу расталды', 'activity': 'Белсенділік белгісі',
+}
+PAGES = {'lesson_list', 'lesson_detail', 'login', 'register', 'profile', 'advertisement',
+         'vocabulary_list', 'privacy_policy', 'account_locked', 'translator'}
+CLIENT = {
+    'page_view': PAGES, 'activity': PAGES,
+    'audio_play': {'lesson_detail'}, 'audio_error': {'lesson_detail'},
+    'quiz_catalog_clicked': {'lesson_detail'}, 'next_lesson_clicked': {'lesson_detail'},
+    'subscription_cta_viewed': {'lesson_detail', 'lesson_list'},
+    'subscription_cta_clicked': {'lesson_detail', 'lesson_list'},
+}
+PAGE_EVENTS = {'lesson_detail': 'lesson_opened', 'lesson_list': 'course_dashboard_opened',
+               'advertisement': 'paywall_viewed'}
+
+DEFINITIONS = {
+    'session_started': 'First observed activity in a new visit after the inactivity threshold or an account change.',
+    'page_view': 'A displayed, allowlisted HTML page. A restored browser-history entry is a new view.',
+    'signup_completed': 'The registration transaction created both account and profile.',
+    'login_completed': 'Django established an authenticated session, including automatic login after signup.',
+    'logout_clicked': 'Django emitted its logout signal on the logout route.',
+    'course_dashboard_opened': 'A recorded view of the course catalog at the homepage.',
+    'lesson_opened': 'A recorded view of the lesson document. Time studying or reading is unknown.',
+    'quiz_started': 'The server first served an unfinished quiz run. Resuming the same attempt is deduplicated.',
+    'quiz_restarted': 'The restart endpoint replaced the previous attempt token.',
+    'quiz_completed': 'The server accepted the final answer of a passing attempt, including retakes.',
+    'quiz_failed': 'The server recorded the third mistake and reset the attempt.',
+    'lesson_completed': 'The submitted answer committed the first durable pass for this learner and lesson.',
+    'free_course_completed': 'All three lesson IDs in one track have durable passes at a newly earned completion.',
+    'next_lesson_clicked': 'The learner clicked the authorized next-lesson control on the result screen.',
+    'quiz_catalog_clicked': 'The learner clicked the link back to the catalog from the quiz result.',
+    'audio_play': 'The lesson audio element emitted a playback-start event.',
+    'audio_error': 'An audio or source element reported a failure, including observable preload errors. Playback phase requires an observed play event. Section, phase and error category are allowlisted; cause of abandonment is unknown.',
+    'subscription_cta_viewed': 'At least half of a continuation control intersected the visible viewport.',
+    'subscription_cta_clicked': 'The learner clicked the continuation offer in the catalog, lesson or result.',
+    'paywall_viewed': 'A recorded view of the course subscription page.',
+    'paywall_purchase_clicked': 'The server accepted the purchase form with its issued handoff token.',
+    'whatsapp_opened': 'The server issued the WhatsApp handoff redirect. Application launch or delivery is unobservable.',
+    'purchase_completed': 'Staff explicitly confirmed payment while activating an unpaid account. First verified activation per user.',
+    'activity': 'A throttled presence signal following input or navigation. No keys, coordinates or input values are sent.',
+}

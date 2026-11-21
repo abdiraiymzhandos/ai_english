@@ -62,6 +62,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'insights',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -84,6 +85,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'lessons.middleware.DeviceLockMiddleware',
+    'insights.tracking.VisitorCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'english_course.urls'
@@ -97,6 +99,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'insights.tracking.template_context',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -267,4 +270,8 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 APP_BASE_URL = os.getenv("APP_BASE_URL", "https://www.oqyai.kz").rstrip("/")
 KASPI_RECEIVER_PHONE = os.getenv("KASPI_RECEIVER_PHONE", "+77472445338")
 KASPI_RECEIVER_NAME = os.getenv("KASPI_RECEIVER_NAME", "Әбдірайым Жақсылық Байсафарұлы")
-COURSE_PRICE_KZT = int(os.getenv("COURSE_PRICE_KZT", "25000"))
+COURSE_PRICE_KZT = int(os.getenv("COURSE_PRICE_KZT", "15000"))
+
+PRODUCT_ANALYTICS = os.getenv("PRODUCT_ANALYTICS", "1") == "1"
+ANALYTICS_RETENTION_DAYS = int(os.getenv("ANALYTICS_RETENTION_DAYS", "180"))
+COURSE_WHATSAPP_NUMBER = "77781029394"

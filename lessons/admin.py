@@ -22,10 +22,11 @@ class UserProfileAdmin(admin.ModelAdmin):
         self.message_user(request, "Таңдалған аккаунттар құлтаудан шығарылды.")
     unlock_accounts.short_description = "Таңдалған аккаунттарды құлтаудан шығару"
 
+    @admin.action(permissions=['change'], description="Тексерілген курс төлемін растау және ақылы қолжетімділік беру")
     def mark_as_paid(self, request, queryset):
-        updated = queryset.update(is_paid=True)
-        self.message_user(request, f"{updated} аккаунт ақылы ретінде белгіленді.")
-    mark_as_paid.short_description = "Таңдалғандарды ақылы қолданушы ету"
+        from insights.purchases import confirm_course_payment
+        count = confirm_course_payment(request.user, queryset)
+        self.message_user(request, f"Расталған жаңа төлемдер: {count}")
 
     def grant_voice_access_30_days(self, request, queryset):
         count = 0

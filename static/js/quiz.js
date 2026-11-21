@@ -142,12 +142,22 @@
       byId('quiz-result-detail').textContent = `${state.total_questions} сұрақтың ${state.score} жауабы дұрыс`;
       start.dataset.retake = 'true'; start.textContent = 'Тестті қайта тапсыру';
       feedback.textContent = '';
+      const offer = state.subscription_offer;
+      const subscribe = byId('subscription-result');
+      subscribe.hidden = !offer;
+      if (offer) {
+        byId('quiz-result').textContent = offer.title;
+        byId('quiz-result-detail').textContent = offer.detail;
+        subscribe.href = offer.url;
+        subscribe.textContent = offer.cta;
+      }
       const next = byId('next-lesson-link');
       next.hidden = !state.can_continue;
       if (state.can_continue) next.href = root.dataset.lessonUrl.replace('/0/', `/${state.next_lesson}/`);
-      retake.focus({preventScroll: true});
+      (offer ? subscribe : retake).focus({preventScroll: true});
     }
     function showFailure(score) {
+      byId('subscription-result').hidden = true;
       dialog.dataset.result = 'fail';
       track.hidden = true;
       content.hidden = true;
