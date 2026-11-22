@@ -90,6 +90,67 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
             word = self.answer()
             self.wait.until(lambda _: self.element('question-text').text != word or self.element('quiz-summary').is_displayed())
 
+    def test_locked_account_layout_and_recovery(self):
+        from datetime import timedelta
+        from django.conf import settings
+        from django.utils import timezone
+        from .models import UserProfile
+        self.login_profile_user()
+        profile = UserProfile.objects.get()
+        profile.lock()
+        self.browser.get(self.live_server_url + '/profile/')
+        self.wait.until(lambda d: d.current_url.endswith('/account-locked/'))
+        self.assertEqual(self.browser.find_element(By.TAG_NAME, 'h1').text, 'Аккаунтыңыз уақытша құлыпталды')
+        self.assertIn(timezone.localtime(profile.lock_until).strftime('%H:%M:%S'),
+                      self.browser.find_element(By.TAG_NAME,'time').text)
+        self.assertEqual(self.browser.find_element(By.CSS_SELECTOR,'.support').get_attribute('href'),
+                         'https://wa.me/' + settings.COURSE_WHATSAPP_NUMBER)
+        for width in (320,375,390,430,1024):
+            self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+                'width':width, 'height':800, 'deviceScaleFactor':1, 'mobile':width<768})
+            self.assertTrue(self.browser.execute_script("""
+                const links = [...document.querySelectorAll('footer a')].map(a=>a.getBoundingClientRect());
+                return document.documentElement.scrollWidth <= innerWidth &&
+                    getComputedStyle(document.querySelector('article')).borderRadius !== '0px' &&
+                    links.every(r=>r.width>=44 && r.height>=44 && r.left>=0 && r.right<=innerWidth) &&
+                    (links[0].bottom<=links[1].top || links[0].right<=links[1].left);
+            """))
+        self.browser.execute_script("document.querySelector('.support').focus()")
+        self.browser.switch_to.active_element.send_keys(Keys.TAB)
+        self.assertEqual(self.browser.switch_to.active_element.get_attribute('href'),self.live_server_url+'/login/')
+        self.assertGreater(int(self.element('countdown').get_attribute('data-end')),
+                           int(self.element('countdown').get_attribute('data-now')))
+        # The displayed clock advances using monotonic elapsed time, independent of the device wall clock.
+        old_text = self.element('countdown').text
+        self.browser.execute_script("""
+            const original = performance.now.bind(performance);
+            performance.now = () => original() + 120000;
+        """)
+        self.wait.until(lambda _: self.element('countdown').text != old_text)
+        UserProfile.objects.filter(pk=profile.pk).update(lock_until=timezone.now()-timedelta(seconds=1))
+        self.browser.refresh()
+        self.assertFalse(self.browser.find_elements(By.ID,'countdown'))
+        self.browser.find_element(By.CSS_SELECTOR,'.login').click()
+        self.wait.until(lambda d: d.current_url.endswith('/login/'))
+        self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+            'width':390, 'height':844, 'deviceScaleFactor':1, 'mobile':True})
+
+    def test_locked_countdown_recovers_without_manual_refresh(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from .models import UserProfile
+        self.login_profile_user()
+        profile = UserProfile.objects.get()
+        UserProfile.objects.filter(pk=profile.pk).update(lock_until=timezone.now()+timedelta(seconds=4))
+        self.browser.get(self.live_server_url + '/profile/')
+        self.wait.until(lambda _: self.element('countdown').is_displayed())
+        self.wait.until(lambda d: 'Алдыңғы шектеу аяқталды' in d.find_element(By.TAG_NAME,'main').text)
+        self.assertFalse(self.browser.find_elements(By.ID,'countdown'))
+        profile.refresh_from_db()
+        self.assertIsNone(profile.lock_until)
+        self.assertFalse(profile.user.devices.exists())
+        self.assertTrue(self.browser.find_element(By.CSS_SELECTOR,'a.login').is_displayed())
+
     def test_owner_analytics_filters_and_mobile_journey(self):
         from django.contrib.auth.models import User, Permission
         self.login_profile_user()

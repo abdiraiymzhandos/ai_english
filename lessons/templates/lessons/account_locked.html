@@ -1,75 +1,47 @@
-<!DOCTYPE html>
-{% load static %}
+{% load static i18n tz l10n %}<!doctype html>
 <html lang="kk">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  {% include "lessons/includes/app_branding.html" %}
+  <title>Аккаунт қауіпсіздігі · OqyAI</title>
+  <link rel="stylesheet" href="{% static 'css/account-locked.css' %}">
   {% include "lessons/includes/loading.html" %}
-    <meta charset="UTF-8">
-    {% include "lessons/includes/app_branding.html" %}
-    <title>Аккаунт құлтаулы</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: url('{% static "images/abstract.jpg" %}') no-repeat center center/cover;
-            color: white;
-            min-height: 100vh;
-            margin: 0;
-            padding: 2rem;
-            font-family: Arial, sans-serif;
-        }
-        .login-button {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-        }
-        .content {
-            max-width: 700px;
-            margin: 10% auto 0;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 2rem;
-            border-radius: 15px;
-        }
-        .content h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        .content p {
-            font-size: 1.1rem;
-        }
-        .content a {
-            color: #00d4ff;
-            text-decoration: underline;
-        }
-    </style>
+  {% if deadline %}<script defer src="{% static 'js/account-locked.js' %}"></script>{% endif %}
 </head>
 <body>
-
-    <!-- Кіру батырмасы -->
-    <div class="login-button">
-        <a href="{% url 'login' %}" class="btn btn-outline-light">Кіру</a>
-    </div>
-
-    <!-- Мәтін -->
-    <div class="content">
-        <h1>Аккаунтыңыз 5 күнге құлтаулы</h1>
-
-        {% if lock_until %}
-            {% if remaining_days and remaining_days > 0 %}
-                <p>Сіздің аккаунтыңыз қауіпсіздік мақсатында құлтауға алынған.</p>
-                <p><strong>Қайта ашылуына {{ remaining_days }} күн қалған.</strong></p>
-                <p>Дәл ашылатын уақыты: <strong>{{ lock_until|date:"d.m.Y H:i" }}</strong></p>
-            {% else %}
-                <p>Қайта ашылатын уақыты жетті, бірақ әлі ашылмаған сияқты. Әкімшіге хабарласыңыз немесе қайта кіріп көріңіз.</p>
-            {% endif %}
+  <main>
+    <div class="brand"><img src="{% static 'images/icon-72x72.png' %}" width="34" height="34" alt="">OqyAI</div>
+    <article>
+      <header>
+        <span class="lock-mark" aria-hidden="true"><i></i></span>
+        {% if deadline %}
+          <h1>Аккаунтыңыз уақытша құлыпталды</h1>
+          <p>Бұл аккаунтқа рұқсат етілген құрылғылар санынан көп құрылғыдан кіру әрекеті анықталды. Қауіпсіздік үшін аккаунтыңыз уақытша шектелді.</p>
+        {% elif resolved %}
+          <h1>Қайта кіріп көріңіз</h1><p>Алдыңғы шектеу аяқталды. Аккаунтқа кіру беті арқылы оралыңыз.</p>
+        {% elif user.is_authenticated %}
+          <h1>Аккаунтыңыз ашық</h1><p>Қазір аккаунтыңызға құрылғы шектеуі қолданылмайды.</p>
+        {% else %}
+          <h1>Аккаунт күйін тексеру</h1><p>Күйін көру үшін аккаунтыңызға кіріңіз.</p>
         {% endif %}
-
-        <p>Қосымша сұрақтарыңыз болса, әкімшіге хабарласыңыз: 
-            <a href="tel:+77781029394">+77781029394</a>
-        </p>
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      </header>
+      {% if deadline %}{% language "kk" %}{% timezone "Asia/Almaty" %}
+      <section class="status" aria-labelledby="unlock-label">
+        <h2 id="unlock-label">Аккаунт автоматты түрде ашылады</h2>
+        <time datetime="{{ deadline|date:'c' }}">{{ deadline|date:"j E Y, H:i:s" }}</time>
+        <small>Қазақстан уақыты</small>
+        <p class="remaining">Қалған уақыт: <strong id="countdown" data-end="{{ end_ms|unlocalize }}" data-now="{{ now_ms|unlocalize }}">{{ remaining }}</strong></p>
+      </section>
+      <dl><div><dt>Құрылғы шегі</dt><dd>{{ max_devices }}</dd></div><div><dt>Құлыптау мерзімі</dt><dd>{{ lock_days }} күн</dd></div></dl>
+      <p>Құлыптау мерзімі аяқталғаннан кейін бұрынғы құрылғылар тізімі автоматты түрде тазаланып, аккаунтыңыз қайта ашылады.</p>
+      {% endtimezone %}{% endlanguage %}{% endif %}
+      <footer>
+        <h2>{% if deadline %}Аккаунтыңызды мерзімінен бұрын ашу қажет пе?{% else %}Көмек қажет пе?{% endif %}</h2>
+        <div class="actions"><a class="support" href="https://wa.me/{{ support_number }}">Қолдау қызметіне жазу <span aria-hidden="true">↗</span></a>
+        <a class="login" href="{% url 'login' %}">Кіру бетіне қайту</a></div>
+      </footer>
+    </article>
+  </main>
 </body>
 </html>

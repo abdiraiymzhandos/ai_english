@@ -1,4 +1,6 @@
 import logging
+from datetime import timedelta
+from math import ceil
 import os
 import re
 import uuid
@@ -23,7 +25,9 @@ from django.db import transaction
 from insights.offer import boundary_offer, offer_url, formatted_price
 from insights.tracking import schedule_event, event_key, quiz_event
 from .forms import CustomRegisterForm
-from .models import UserProfile
+from .models import ACCOUNT_LOCK_DAYS, UserProfile
+from .middleware import LOCK_NOTICE
+from .services.device_access import expire_profile
 from django.contrib.auth import login
 
 from asgiref.sync import async_to_sync
@@ -918,23 +922,36 @@ def submit_answer(request, lesson_id):
                                           already_answered=False, restart_required=False, correct_answer=question.kazakh_translation, **_quiz_next_action(request, next_id, lesson.pk if attempt.completed else None)))
 
 
+@never_cache
+@require_GET
 def account_locked(request):
-    """
-    Аккаунт құлтаулы болған жағдайда қолданушыға хабар беретін бет.
-    Егер профильде lock_until мәні болса, қалған құлтау уақытын есептеп көрсетеді.
-    """
-    lock_until = None
-    remaining_time = None
+    notice = request.session.get(LOCK_NOTICE)
+    learners = UserProfile.objects.filter(user__is_active=True, user__is_staff=False,
+                                          user__is_superuser=False).only('lock_until')
     if request.user.is_authenticated:
-        profile = getattr(request.user, 'profile', None)
-        if profile and profile.is_locked():
-            lock_until = profile.lock_until
-            remaining_time = (lock_until - timezone.now()).days
-    context = {
-        'lock_until': lock_until,
-        'remaining_days': remaining_time,
-    }
-    return render(request, 'lessons/account_locked.html', context)
+        profile = learners.filter(user=request.user).first()
+    elif notice:
+        # Server-managed session, bound to the specific lock, including after a manual unlock.
+        profile = learners.filter(pk=notice[0], lock_until=notice[1]).first()
+    else:
+        profile = None
+    now = timezone.now()
+    deadline = profile.lock_until if profile else None
+    expired = deadline is not None and deadline <= now
+    if expired:
+        expire_profile(profile.pk, expected_deadline=deadline)
+        deadline = None
+    if notice and not deadline:
+        request.session.pop(LOCK_NOTICE, None)
+    minutes = ceil((deadline - now) / timedelta(minutes=1)) if deadline else 0
+    days, minutes = divmod(minutes, 1440)
+    hours, minutes = divmod(minutes, 60)
+    return render(request, 'lessons/account_locked.html', {
+        'deadline': deadline, 'end_ms': int(deadline.timestamp() * 1000) if deadline else None,
+        'now_ms': int(now.timestamp() * 1000), 'remaining': f'{days} күн {hours} сағат {minutes} минут',
+        'max_devices': settings.MAX_ACCOUNT_DEVICES, 'lock_days': ACCOUNT_LOCK_DAYS,
+        'support_number': settings.COURSE_WHATSAPP_NUMBER, 'resolved': bool(notice or expired),
+    })
 
 
 @login_required

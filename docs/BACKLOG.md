@@ -219,6 +219,8 @@ Only one recommendation is active: `SEC-001`. Later ordering can change when pro
 
 ### BUG-003 — Replace device-cookie lock failure with recoverable device management
 
+**Update, 2026-11-23.** Automatic registry reset at expiry, configurable two-identity admission, restricted admin recovery and the Kazakh lock screen are implemented locally. The owner approves production cleanup and rollout separately. See [device lock operations](../ADMIN_ACCESS_OPERATIONS.md#device-lock-rollout-and-recovery). Native identification and learner self-service device management remain outside this release.
+
 - **Metadata:** Category auth/UX; status Proposed; priority Next; severity P2; effort M; confidence High; type confirmed defect/design weakness.
 - **Evidence:** Middleware logs out before redirect; lock view only reads expiry for authenticated user; missing cookie creates devices, copied cookie bypasses; existing `last_seen` is not refreshed.
 - **Impact:** Business—support burden; user—five-day self-denial with no detail/recovery; technical—multiple DB queries each request and race risk.

@@ -1,0 +1,17 @@
+{% extends "admin/change_form.html" %}
+{% block content %}
+{% if original %}
+<section class="module" aria-labelledby="device-policy-title">
+  <h2 id="device-policy-title">Аккаунт қауіпсіздігі</h2>
+  <div class="form-row">Тіркелген құрылғылар: <strong>{{ device_total }}</strong> ·
+    {% if locked %}Құлыптаулы{% else %}Құлып белсенді емес{% endif %}
+  </div>
+  {% if can_unlock %}
+  <form class="form-row" method="post" action="{% url 'admin:lessons_userprofile_unlock' original.pk %}">
+    {% csrf_token %}<button type="submit" class="button">Құлыпты ашу және құрылғыларды тазалау</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{{ block.super }}
+{% endblock %}

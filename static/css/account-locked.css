@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #20223a; background: radial-gradient(ellipse at top left, #e8efff, transparent 60%), #f5f6fc;
+  font: 1rem/1.55 system-ui, sans-serif; min-height: 100vh; }
+main { width: min(100%, 43rem); margin: 0 auto; padding: clamp(1rem, 5vw, 3rem) max(1rem, env(safe-area-inset-left)); }
+.brand { display: flex; gap: .65rem; align-items: center; font-size: 1.35rem; font-weight: 750; margin-bottom: 1rem; }
+.brand img { border-radius: .55rem; }
+article { background: #fff; border: 1px solid #e1e4ef; border-radius: 1.6rem; padding: clamp(1.15rem, 5vw, 3rem);
+  box-shadow: 0 1rem 3rem #26375d10; }
+.lock-mark { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 1.1rem;
+  background: linear-gradient(135deg, #dfddff, #def2f5); }
+.lock-mark i { position: relative; width: 1.35rem; height: 1.06rem; margin-top: .5rem; border: 2px solid #403c80; border-radius: .25rem; }
+.lock-mark i::before { content: ''; position: absolute; width: .65rem; height: .55rem; border: 2px solid #403c80;
+  border-bottom: 0; border-radius: .5rem .5rem 0 0; bottom: 100%; left: 50%; transform: translateX(-50%); }
+h1 { font-size: clamp(1.65rem, 5vw, 2.6rem); line-height: 1.13; letter-spacing: -.035em; margin: 1.2rem 0 .8rem; }
+p { color: #51556b; margin: .65rem 0; }
+h2 { font-size: 1rem; line-height: 1.4; margin: 0; }
+.status { padding: 1.15rem; margin-top: 1.5rem; border-radius: 1rem; color: #332d67; background: #f1f0fc; }
+time, small { display: block; }
+time { font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 700; margin-top: .4rem; }
+.remaining { border-top: 1px solid #d7d5eb; margin: .85rem 0 0; padding-top: .75rem; color: #3e395a; font-variant-numeric: tabular-nums; }
+dl { display: flex; gap: 2rem; flex-wrap: wrap; margin: 1rem 0; }
+dt, small { font-size: .85rem; color: #56556c; }
+dd { margin: 0; font-weight: 650; }
+footer { margin-top: 1.4rem; border-top: 1px solid #e1e4ef; padding-top: 1.2rem; }
+.actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .9rem; }
+.actions a { display: flex; justify-content: center; align-items: center; gap: .5rem; min-height: 44px;
+  padding: .6rem 1rem; border-radius: .65rem; text-align: center; text-decoration: none; font-weight: 650; }
+.support { background: #46418a; color: white; }
+.login { color: #393663; background: #f3f3f9; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid #246b99; outline-offset: 3px; }
+@media (max-width: 30rem) { .actions { display: grid; } }

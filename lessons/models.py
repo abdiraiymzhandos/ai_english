@@ -101,6 +101,9 @@ class Explanation(models.Model):
         return f"{self.lesson.title} - {self.section}"
 
 
+ACCOUNT_LOCK_DAYS = 5
+
+
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ("student", "Оқушы"),
@@ -133,15 +136,15 @@ class UserProfile(models.Model):
         return self.can_use_classroom_teacher_features() and self.has_active_voice_access()
 
     def unlock(self):
+        from .services.device_access import unlock_profile
+        removed = unlock_profile(self.pk)
         self.lock_until = None
-        self.save()
-        # Барлық құрылғыларды өшіреміз:
-        from .models import UserDevice
-        UserDevice.objects.filter(user=self.user).delete()
+        return removed
 
-    def lock(self, days=5):
-        self.lock_until = timezone.now() + timedelta(days=days)
-        self.save()
+    def lock(self, days=ACCOUNT_LOCK_DAYS):
+        if not self.is_locked():
+            self.lock_until = timezone.now() + timedelta(days=days)
+            self.save(update_fields=['lock_until'])
 
     def get_highest_lesson_reached(self):
         """Қолданушының ең жоғары өткен сабағын есептейді"""
@@ -162,13 +165,13 @@ class UserProfile(models.Model):
         """Дауыс сабағына қол жеткізу береді"""
         self.has_voice_access = True
         self.voice_access_until = timezone.now() + timedelta(days=days)
-        self.save()
+        self.save(update_fields=['has_voice_access', 'voice_access_until'])
 
     def revoke_voice_access(self):
         """Дауыс сабағынан қол жеткізуді алып тастайды"""
         self.has_voice_access = False
         self.voice_access_until = None
-        self.save()
+        self.save(update_fields=['has_voice_access', 'voice_access_until'])
 
     def has_active_translator_access(self):
         """Аудармашы көмекшісіне қол жеткізу бар ма деп тексереді"""
@@ -182,13 +185,13 @@ class UserProfile(models.Model):
         """Аудармашы көмекшісіне қол жеткізу береді"""
         self.has_translator_access = True
         self.translator_access_until = timezone.now() + timedelta(days=days)
-        self.save()
+        self.save(update_fields=['has_translator_access', 'translator_access_until'])
 
     def revoke_translator_access(self):
         """Аудармашы көмекшісіне қол жеткізуді алып тастайды"""
         self.has_translator_access = False
         self.translator_access_until = None
-        self.save()
+        self.save(update_fields=['has_translator_access', 'translator_access_until'])
 
     def __str__(self):
         return f"{self.user.username} профилі"
