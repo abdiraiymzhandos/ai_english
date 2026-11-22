@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.timezone import localtime
 from .models import Lesson, UserProfile, UserDevice, Lead
 
 
@@ -57,11 +58,11 @@ class UserProfileAdmin(admin.ModelAdmin):
             return "❌ Жоқ"
         if obj.has_active_voice_access():
             if obj.voice_access_until:
-                return f"✅ Белсенді ({obj.voice_access_until.strftime('%d.%m.%Y')} дейін)"
+                return f"✅ Белсенді ({localtime(obj.voice_access_until).strftime('%d.%m.%Y')} дейін)"
             else:
                 return "✅ Белсенді (мерзімсіз)"
         else:
-            return f"⏰ Мерзімі бітті ({obj.voice_access_until.strftime('%d.%m.%Y')})"
+            return f"⏰ Мерзімі бітті ({localtime(obj.voice_access_until).strftime('%d.%m.%Y')})"
     voice_access_status.short_description = "Дауыс сабағы"
 
     def grant_translator_access_30_days(self, request, queryset):
@@ -93,11 +94,11 @@ class UserProfileAdmin(admin.ModelAdmin):
             return "❌ Жоқ"
         if obj.has_active_translator_access():
             if obj.translator_access_until:
-                return f"✅ Белсенді ({obj.translator_access_until.strftime('%d.%m.%Y')} дейін)"
+                return f"✅ Белсенді ({localtime(obj.translator_access_until).strftime('%d.%m.%Y')} дейін)"
             else:
                 return "✅ Белсенді (мерзімсіз)"
         else:
-            return f"⏰ Мерзімі бітті ({obj.translator_access_until.strftime('%d.%m.%Y')})"
+            return f"⏰ Мерзімі бітті ({localtime(obj.translator_access_until).strftime('%d.%m.%Y')})"
     translator_access_status.short_description = "Аудармашы көмекшісі"
 
     def highest_lesson_reached(self, obj):
@@ -105,7 +106,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     highest_lesson_reached.short_description = "Ең жоғары өткен сабақ"
 
     def date_joined(self, obj):
-        return obj.user.date_joined.strftime("%Y-%m-%d %H:%M")
+        return localtime(obj.user.date_joined).strftime("%Y-%m-%d %H:%M")
     date_joined.short_description = "Тіркелген уақыты"
 
 

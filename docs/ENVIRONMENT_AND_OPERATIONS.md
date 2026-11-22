@@ -1,5 +1,97 @@
 # Environment And Operations
 
+## Timezone and worker cutover
+
+The owner observed Django's UTC display and an outdated host `Asia/Almaty` offset of +06:00 for November 2026. Settings now call `zoneinfo.reset_tzpath(())` and clear the zone cache during initialization, before Django loads the apps and reports. WSGI, ASGI, management commands and worker threads use `tzdata==2026.6`. Fresh processes need no shell override. Django displays business times in Asia/Almaty. The database connection remains UTC with `USE_TZ=True`. This release makes no schema or timestamp changes. PythonAnywhere's system clock and host log settings remain UTC. The Django process has its own display timezone. [Python zoneinfo data sources](https://docs.python.org/3.10/library/zoneinfo.html#data-sources)
+
+### Local verification
+
+Run from the local Django checkout. The worker tests use disposable databases and mock Telegram. They exercise both Unix shutdown signals, independent polling, cleanup, retry on a later poll and durable claim handling. The production command rejects SQLite by default. Its `--allow-sqlite` flag permits a local database and does not mock outbound delivery. Use the test commands below for a safe rehearsal.
+
+```bash
+cd ~/english_platform/english_course
+../venv/bin/python -m pip install tzdata==2026.6
+export USE_MYSQL=0 OPENAI_API_KEY=test-placeholder
+../venv/bin/python manage.py check
+../venv/bin/python manage.py makemigrations --check --dry-run
+../venv/bin/python manage.py migrate --plan
+../venv/bin/python manage.py test insights.test_business_time insights.test_background_worker lessons.tests --noinput
+../venv/bin/python manage.py test --noinput
+git diff --check
+```
+
+To repeat the Chromium check, use the installed Selenium, Chrome and driver in the verified local environment.
+
+```bash
+export PYTHONPATH="$HOME/.local/lib/python3.10/site-packages"
+export OQYAI_CHROMIUM="$HOME/.cache/selenium/chrome/linux64/157.0.8103.78/chrome"
+export OQYAI_CHROMEDRIVER="$HOME/.cache/selenium/chromedriver/linux64/157.0.8103.78/chromedriver"
+USE_MYSQL=0 ../venv/bin/python manage.py test lessons.browser_checks.LearningBrowserChecks.test_owner_analytics_filters_and_mobile_journey --noinput
+```
+
+For MySQL, export the `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST` and `MYSQL_PORT` of a disposable instance with privileges on the synthetic database and its Django test database. With those values set, run `USE_MYSQL=1 ../venv/bin/python manage.py test --noinput`. The local verification used an isolated Unix socket with networking disabled.
+
+### Publish the reviewed change
+
+Only the owner performs these steps after reviewing the working tree. Run on local `main`.
+
+```bash
+cd ~/english_platform/english_course
+git status --short --branch
+git diff
+git add -- ENVIRONMENT_DEPLOYMENT.md docs/{ENVIRONMENT_AND_OPERATIONS,SALES_ANALYTICS}.md \
+  english_course/settings.py requirements.txt insights/{admin,reports,tracking,test_business_time,test_background_worker}.py \
+  insights/management/commands/{process_analytics,run_background_worker}.py \
+  lessons/{admin,browser_checks,tests}.py lessons/services/registration_notifications.py \
+  lessons/management/commands/process_registration_notifications.py
+git diff --cached
+git diff --cached --check
+git commit -m "fix: use Kazakhstan business time and manage both queues in one worker"
+git push origin main
+```
+
+### PythonAnywhere preflight
+
+Keep the existing external worker running during preflight. In the production Bash console, use the same checkout and virtualenv as the web app. The three previously applied migrations remain sufficient.
+
+```bash
+cd /home/abdiraiymzhandos/ai_english
+git status --short --branch
+git pull --ff-only origin main
+git rev-parse --short HEAD
+venv/bin/python -m pip install tzdata==2026.6
+env -u PYTHONTZPATH venv/bin/python manage.py shell -c 'from datetime import datetime, timezone; import zoneinfo, tzdata; from django.conf import settings; from django.db import connection; from django.utils.timezone import localtime; t=datetime(2026,11,22,0,11,42,tzinfo=timezone.utc); print(settings.TIME_ZONE,settings.USE_TZ,connection.vendor,connection.timezone_name,tzdata.__version__,zoneinfo.TZPATH,localtime(t)); assert (settings.TIME_ZONE,settings.USE_TZ,connection.vendor,connection.timezone_name,tzdata.__version__,zoneinfo.TZPATH)==("Asia/Almaty",True,"mysql","UTC","2026.6",()); assert localtime(t).isoformat()=="2026-11-22T05:11:42+05:00"'
+venv/bin/python manage.py check
+venv/bin/python manage.py makemigrations --check --dry-run
+venv/bin/python manage.py migrate --plan
+venv/bin/python manage.py run_background_worker --help
+```
+
+Confirm the expected commit, successful checks and empty migration plan before cutover. Under **Web**, reload the app to load the new settings. No production migration or record rewrite is part of this release.
+
+### Replace the existing Always-on Task
+
+1. In **Tasks → Always-on tasks**, pause the existing task and wait for its process to stop. Keep the external script available for rollback. Use the same task slot throughout.
+2. Edit that task to the following exact command, then start/unpause it.
+
+   ```text
+   /home/abdiraiymzhandos/ai_english/venv/bin/python -u /home/abdiraiymzhandos/ai_english/manage.py run_background_worker
+   ```
+
+3. Check for **Running** and `OqyAI background worker started (mysql)` in its log. Existing MySQL and Telegram configuration supplies the settings. No extra arguments are required. Optional positive integer arguments are `--notification-interval 15 --notification-limit 100 --analytics-interval 60 --analytics-limit 5000`. Intervals are seconds following completion of that queue's previous batch.
+4. Register one controlled test learner. Confirm one Telegram registration message in the usual format, a `process_registration_notifications processed` log entry, and the learner in the default seven-day report. Allow a further alert poll and verify the message count remains one. Allow an analytics poll before opening the report so the dashboard's own drain cannot mask a worker problem. Check for a nonzero `process_analytics processed` entry when pending events are available.
+5. To verify durable evidence for that controlled learner, substitute its numeric admin ID below. A sent job with one attempt is expected on an ordinary successful delivery. The signup milestone may already have been materialized by normal traffic. Empty polls are intentionally quiet.
+
+   ```bash
+   venv/bin/python manage.py shell -c 'from lessons.models import RegistrationNotification as J; from insights.models import Event, PendingEvent; uid=int(input("Test user ID: ")); print("alert",list(J.objects.filter(user_id=uid).values_list("status","attempts"))); print("signup events",Event.objects.filter(user_id=uid,kind="signup_completed").count(),"pending",PendingEvent.objects.filter(user_id=uid).count())'
+   ```
+
+6. Only after verification, optionally archive the obsolete script with `mv -i ~/oqyai_worker.py ~/oqyai_worker.py.pre-repository`. The new command has no dependency on it. Pending jobs stay in the database during the transition. Retain the existing approved retention schedule.
+
+**Rollback.** Pause the replacement and wait for it to stop. If archived, restore the file with `mv -i ~/oqyai_worker.py.pre-repository ~/oqyai_worker.py`. Restore the same task's command to `/home/abdiraiymzhandos/ai_english/venv/bin/python -u /home/abdiraiymzhandos/oqyai_worker.py`, then start it and check its log. Existing claimed/ambiguous notifications retain their review semantics. Leave the queue and delivery statuses intact. This worker rollback can be performed independently of the web timezone fix.
+
+**Future releases.** Reload the web app and restart the Always-on Task after changes to shared code, settings or worker dependencies. Each long-running process initializes Django once. SIGTERM/SIGINT interrupt idle waits, finish the current item and leave unclaimed work queued. A forced kill during an external send can still require manual delivery review. [PythonAnywhere Always-on tasks](https://help.pythonanywhere.com/pages/AlwaysOnTasks/)
+
 ## Home Screen branding release check
 
 The lesson catalog, individual lessons and account pages share `lessons/includes/app_branding.html`. After collecting static files and reloading the web app, check `/static/manifest.json`, `/static/images/icon-180x180.png` and `/favicon.ico`. In iPhone Safari, remove the old “Сабақтар” Home Screen shortcut and add the site again from an individual lesson. Verify the suggested name **OqyAI**, the official square icon and a launch at `/`. The regression suite is `lessons.test_pwa_branding`.

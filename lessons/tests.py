@@ -65,14 +65,12 @@ class RegistrationNotificationTests(TestCase):
         mock_post.assert_called_once()
         request_data = mock_post.call_args.kwargs["data"]
         text = request_data["text"]
-        self.assertIn("teacher_user", text)
-        self.assertIn("📞 Телефон: +77011234567", text)
-        self.assertIn("👥 Рөлі: Мұғалім", text)
-        self.assertIn("💬 WhatsApp: https://wa.me/77011234567", text)
-        self.assertIn(
+        self.assertEqual(text, "\n".join([
+            "🆕 Жаңа OqyAI тіркелуі", "", "👤 Username: teacher_user",
+            "📞 Телефон: +77011234567", "👥 Рөлі: Мұғалім",
+            "💬 WhatsApp: https://wa.me/77011234567",
             f"🔗 Admin: https://admin.example.test{reverse('admin:auth_user_change', args=[user.pk])}",
-            text,
-        )
+        ]))
         self.assertTrue(request_data["disable_web_page_preview"])
 
     @override_settings(

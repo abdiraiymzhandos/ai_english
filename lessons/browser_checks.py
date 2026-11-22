@@ -98,8 +98,12 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         user.save(update_fields=['is_staff'])
         user.user_permissions.add(Permission.objects.get(codename='view_visit'))
         learner = User.objects.create_user('crm-browser-learner')
-        self.browser.get(self.live_server_url + '/admin/insights/visit/?preset=today&mode=cohort')
+        self.browser.get(self.live_server_url + '/admin/insights/visit/')
         self.assertIn('Сатылым аналитикасы', self.browser.title)
+        preset = self.browser.find_element(By.NAME, 'preset')
+        self.assertEqual(preset.get_attribute('value'), 'seven_inclusive')
+        self.assertIn('Соңғы 7 күн (бүгінді қоса)', preset.text)
+        self.assertIn('Соңғы 7 толық күн', preset.text)
         for width in (320, 390, 1024):
             self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
                 'width':width,'height':740,'deviceScaleFactor':1,'mobile':width<768})

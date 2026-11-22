@@ -3,6 +3,7 @@ from insights.tracking import drain
 
 
 class Command(BaseCommand):
+    stealth_options = ('stop_requested',)  # Optional callback for the long-running worker.
     help = 'Materialize committed server milestones in timestamp order.'
 
     def add_arguments(self, parser):
@@ -11,4 +12,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['limit'] <= 0:
             raise CommandError('Choose a positive limit')
-        self.stdout.write(str(drain(options['limit'])))
+        self.stdout.write(str(drain(options['limit'], stop_requested=options.get('stop_requested'))))

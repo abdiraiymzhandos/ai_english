@@ -137,12 +137,14 @@ def schedule_event(request, kind, *, page, path, lesson=None, track='', key=None
         log.warning('Analytics enqueue failed for %s', kind)
 
 
-def drain(limit=100, visitor=None):
+def drain(limit=100, visitor=None, *, stop_requested=None):
     processed = 0
     pending = PendingEvent.objects.all()
     if visitor is not None:
         pending = pending.filter(visitor=visitor)
     for pk in pending.order_by('at','pk').values_list('pk',flat=True)[:limit]:
+        if stop_requested and stop_requested():
+            break
         with transaction.atomic():
             row = PendingEvent.objects.select_for_update().filter(pk=pk).first()
             if row is None:

@@ -8,7 +8,7 @@ from django.template.response import TemplateResponse
 
 from .crm import FILTERS, SEGMENT_LABELS, SORTS
 from .models import PendingEvent, Visit
-from .reports import METRICS, PRESETS, RATES, ReportError, report
+from .reports import DEFAULT_PRESET, METRICS, PRESETS, RATES, ReportError, report
 from .taxonomy import LABELS
 from .tracking import drain
 from .workbook import workbook
@@ -48,7 +48,7 @@ class AnalyticsAdmin(admin.ModelAdmin):
             self.admin_site.each_context(request), title='OqyAI — Сатылым аналитикасы', opts=self.model._meta,
             presets=PRESETS.items(), segments=FILTERS.items(), sorts=SORTS.items(),
             can_view=can_view, can_export=can_export, can_debug=can_debug,
-            params=params, preset=params.get('preset', 'seven'), mode=params.get('mode', 'activity'),
+            params=params, preset=params.get('preset', DEFAULT_PRESET), mode=params.get('mode', 'activity'),
         )
         try:
             drain(100)

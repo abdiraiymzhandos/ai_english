@@ -12,8 +12,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import zoneinfo
 
 from dotenv import load_dotenv
+
+# All Django entry points load settings before importing models and reports.
+# An empty search path selects the pinned tzdata wheel even on older hosts.
+zoneinfo.reset_tzpath(())
+zoneinfo.ZoneInfo.clear_cache()
 
 
 
@@ -191,7 +197,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Almaty'
 
 USE_I18N = True
 

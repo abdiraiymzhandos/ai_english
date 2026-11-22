@@ -65,10 +65,12 @@ def enqueue_registration_notification(user):
         logger.warning("Registration notification enqueue failed: %s", type(exc).__name__)
 
 
-def process_registration_notifications(limit):
+def process_registration_notifications(limit, *, stop_requested=None):
     jobs = RegistrationNotification.objects.filter(status='pending', next_attempt__lte=timezone.now())
     processed = 0
     for pk in list(jobs.order_by('next_attempt', 'pk').values_list('pk', flat=True)[:limit]):
+        if stop_requested and stop_requested():
+            break
         # Commit the claim before any external side effect. A crashed claim needs manual review.
         if not jobs.filter(pk=pk).update(status='sending', attempts=F('attempts') + 1, updated_at=timezone.now()):
             continue

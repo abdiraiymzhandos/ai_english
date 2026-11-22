@@ -1,7 +1,6 @@
 """Shared dashboard/workbook dataset. All intervals are half-open UTC instants."""
 from collections import Counter, defaultdict
-from datetime import date, datetime, time, timedelta
-from zoneinfo import ZoneInfo
+from datetime import date, datetime, time, timedelta, timezone as dt_timezone
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Max, OuterRef, Q, Subquery
@@ -12,9 +11,12 @@ from . import crm
 from .models import Event, Purchase, Visit
 from .taxonomy import LABELS
 
-ZONE = ZoneInfo('Asia/Almaty')
-PRESETS = {'seven':'Соңғы 7 толық күн', 'today':'Бүгін', 'yesterday':'Кеше', 'fourteen':'Соңғы 14 толық күн',
-           'thirty':'Соңғы 30 толық күн', 'month':'Осы ай', 'previous':'Өткен ай', 'custom':'Өзге аралық'}
+ZONE = timezone.get_default_timezone()
+DEFAULT_PRESET = 'seven_inclusive'
+WINDOW_DAYS = {'seven': 7, 'fourteen': 14, 'thirty': 30}
+PRESETS = {f'{key}_inclusive': f'Соңғы {days} күн (бүгінді қоса)' for key, days in WINDOW_DAYS.items()}
+PRESETS.update({'seven':'Соңғы 7 толық күн', 'today':'Бүгін', 'yesterday':'Кеше', 'fourteen':'Соңғы 14 толық күн',
+           'thirty':'Соңғы 30 толық күн', 'month':'Осы ай', 'previous':'Өткен ай', 'custom':'Өзге аралық'})
 STAGES = ['Алғашқы сабақты ашты','Бірінші сабақты аяқтады','Екінші сабақты аяқтады','Үшінші сабақты аяқтады',
           'Ұсынысты көрді','Сатып алуды таңдады','WhatsApp-қа бағытталды','Сатып алуы расталды']
 METRICS = [
@@ -36,7 +38,7 @@ class ReportError(ValueError):
 
 def options(params, now):
     today = now.astimezone(ZONE).date()
-    preset = params.get('preset','seven')
+    preset = params.get('preset', DEFAULT_PRESET)
     mode = params.get('mode','activity')
     if preset not in PRESETS or mode not in ('activity','cohort'):
         raise ReportError('Есеп түрін және аралықты таңдаңыз.')
@@ -53,8 +55,9 @@ def options(params, now):
         b = today.replace(day=1)-timedelta(days=1)
         a = b.replace(day=1)
     else:
-        b = today-timedelta(days=1)
-        a = today-timedelta(days={'seven':7,'fourteen':14,'thirty':30}[preset])
+        key = preset.removesuffix('_inclusive')
+        b = today if key != preset else today - timedelta(days=1)
+        a = b - timedelta(days=WINDOW_DAYS[key] - 1)
     if b < a or (b-a).days >= 731 or b == date.max:
         raise ReportError('Басы соңынан кейін болмауы керек. 731 күнге дейін таңдаңыз.')
     return a,b,mode
@@ -110,11 +113,11 @@ def report(params, *, include_internal=False, contacts=False):
     a,b,mode = options(params,now)
     if params.get('sort', 'priority') not in crm.SORTS or params.get('segment', '') not in crm.FILTERS:
         raise ReportError('Клиент сүзгісін және сұрыптау ретін таңдаңыз.')
-    start = datetime.combine(a,time.min,ZONE)
-    end = datetime.combine(b+timedelta(days=1),time.min,ZONE)
+    start = datetime.combine(a,time.min,ZONE).astimezone(dt_timezone.utc)
+    end = datetime.combine(b+timedelta(days=1),time.min,ZONE).astimezone(dt_timezone.utc)
     cutoff = now if mode == 'cohort' else min(now,end)
     User = get_user_model()
-    registered = User.objects.filter(date_joined__gte=start,date_joined__lt=end)
+    registered = User.objects.filter(date_joined__gte=start,date_joined__lt=end, date_joined__lte=now)
     internal = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True) | Q(groups__name='OqyAI Analytics Test')).values('pk')
     if not include_internal:
         registered = registered.exclude(pk__in=internal)

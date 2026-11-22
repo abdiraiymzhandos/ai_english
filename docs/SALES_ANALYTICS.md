@@ -2,7 +2,7 @@
 
 ## Owner workflow
 
-Open **Django Admin → OqyAI аналитикасы → Сатылым аналитикасы**, or `/admin/insights/visit/`. Staff need the **insights | Сатылым аналитикасы | Can view** permission (`insights.view_visit`). The default report covers the previous seven complete Asia/Almaty calendar days, ending yesterday. Choose **Өзге аралық**, enter both dates and click **Есепті көрсету** for a custom inclusive range. Today, yesterday, 14 and 30 complete days, this month and the previous month are also available.
+Open **Django Admin → OqyAI аналитикасы → Сатылым аналитикасы**, or `/admin/insights/visit/`. Staff need the **insights | Сатылым аналитикасы | Can view** permission (`insights.view_visit`). The default **Соңғы 7 күн (бүгінді қоса)** covers today and the six previous Asia/Almaty calendar dates, through report generation. On 22 November 2026 it selects 16–22 November. **Соңғы 7 толық күн** selects 15–21 November. Choose **Өзге аралық**, enter both dates and click **Есепті көрсету** for a custom inclusive range. The 14-day and 30-day presets each offer both an including-today and a complete-day version. Today, yesterday, this month and the previous month remain available.
 
 **Кезеңдегі белсенділік** shows dated activity within the selected period, including returning learners. **Тіркелгендер тобы** selects accounts by actual registration date and follows their recorded activity through the report generation time. The dashboard prints the observation cutoff and freshest event. The date and mode select the population and the observation window. Activity mode includes accounts registered, active or confirmed in the range. Cohort mode includes only accounts registered in the range.
 
@@ -75,7 +75,7 @@ The funnel counts distinct accounts passing each preceding stage in order, inclu
 
 `insights.0001_initial` creates five tables. Visitor serializes identity and the cross-worker rate counter. Visit contains bounded attribution, platform and activity bounds. Event has a UUID primary key and indexed time, user and kind. PendingEvent is a small transactional outbox. Purchase stores verified first activations independently of raw retention. Core transactions only enqueue local rows. Workers materialize committed events under row locks and deduplicate by event UUID. Client ingestion requires CSRF, same origin, a signed visitor cookie, allowlisted actions and a v4 UUID. The database enforces 90 client submissions per visitor per minute. An additional short-lived, keyed, per-worker address bucket limits bursts. Raw IPs are not stored.
 
-Page views drain a small batch of the visitor's pending rows. The admin drains up to 100 pending milestones before reporting and flags a remaining backlog. Run `python manage.py process_analytics --limit 5000` periodically for timely processing without traffic. Database outages can leave gaps in telemetry. A warning is logged on failed milestone enqueue. Learning progress and verified purchases have their own authoritative records.
+Page views drain a small batch of the visitor's pending rows. The admin drains up to 100 pending milestones before reporting and flags a remaining backlog. The Always-on worker periodically calls `process_analytics --limit 5000` for timely processing without traffic. Database outages can leave gaps in telemetry. A warning is logged on failed milestone enqueue. Learning progress and verified purchases have their own authoritative records.
 
 Raw retention defaults to 180 days (`ANALYTICS_RETENTION_DAYS`). Preview with `python manage.py prune_analytics --dry-run`. Apply the approved policy with `python manage.py prune_analytics --apply`. The command removes expired pending and materialized events, expired visits and unreferenced visitor identities in batches. Purchase evidence and ordinary learning records have independent lifetimes. Backups and downloaded workbooks need a separate retention policy.
 
@@ -91,7 +91,7 @@ The fresh browser check used `/?utm_source=threads&utm_medium=social&utm_campaig
 
 ### Registration alerts
 
-Registration previously ran Telegram synchronously in an after-commit callback. Requests received a scalar timeout of 5 seconds for both connection and read inactivity. The account could already be saved while the browser waited for Telegram. Registration now inserts a unique per-user delivery job in its transaction. Enqueue failures roll back a savepoint and log the exception class. Telegram runs only in the scheduled worker. No message payload is stored in analytics or the queue.
+Registration previously ran Telegram synchronously in an after-commit callback. Requests received a scalar timeout of 5 seconds for both connection and read inactivity. The account could already be saved while the browser waited for Telegram. Registration now inserts a unique per-user delivery job in its transaction. Enqueue failures roll back a savepoint and log the exception class. The Always-on worker handles Telegram asynchronously. No message payload is stored in analytics or the queue.
 
 The worker commits a conditional claim before sending. Successful sends stay sent. Connect timeouts and explicit 429 responses can retry up to three attempts, after 5 and 25 minutes subject to the scheduler. Ambiguous read failures and other failures enter review. A worker crash can leave a sending claim. Inspect `RegistrationNotification` status and the destination before manually requeuing any ambiguous delivery. Avoid replaying sent jobs. To inspect counts without reading contact details:
 
@@ -115,33 +115,17 @@ Open `/admin/insights/visit/` with the appropriate staff permissions. Choose **�
 
 ## PythonAnywhere release
 
-Publish the reviewed changes separately when authorized. The already-applied `insights.0001_initial` is preserved. `insights.0002_alter_visit_options_event_context` adds the permission declarations and bounded audio context. `lessons.0018_registrationnotification` adds the registration alert queue. This iteration adds no dependency.
+Django, the admin report and Excel use the pinned Python IANA timezone database. `Asia/Almaty` preserves historical UTC+6 and uses UTC+5 for November 2026. Analytics converts local midnights to UTC instants before filtering indexed registration, event and purchase timestamps. Conversion to calendar dates and Excel clock times happens in Python. The workbook retains its seven sheets. Current CRM status and retained evidence continue to use their documented observation rules.
 
-In the PythonAnywhere Bash console, use the source directory and activated virtualenv configured on the Web tab. Take a restricted backup using the actual host, username and database name from the Databases tab. Verify restore to a separate staging database. An example for the MySQL 8 client follows.
+The repository command `python manage.py run_background_worker` serves both queues in one Always-on Task. Its default alert batch is 100 every 15 seconds and its analytics batch is 5,000 every 60 seconds. Each poll waits after its own batch and can start while the other is busy. Successful registration alerts keep the existing username, registered phone, role, WhatsApp and admin link format. The three deployed analytics and notification migrations are already applied. This maintenance release requires only the packaged timezone dependency and process restarts.
 
-```bash
-umask 077
-mysqldump --single-transaction --no-tablespaces --set-gtid-purged=OFF --column-statistics=0 \
-  -h '<mysql-host>' -u '<mysql-user>' '<account>$<database>' > ~/oqyai-before-analytics.sql
-git pull --ff-only origin main
-python -m pip install 'openpyxl==3.1.5'
-python manage.py check
-python manage.py shell -c 'from django.conf import settings; assert settings.COURSE_PRICE_KZT == 15000; print(settings.COURSE_PRICE_KZT)'
-python manage.py migrate --plan
-python manage.py migrate insights
-python manage.py migrate lessons
-python manage.py collectstatic --noinput
-python manage.py process_analytics --limit 5000
-python manage.py prune_analytics --dry-run
-```
+Follow the [single-task cutover, verification and rollback instructions](ENVIRONMENT_AND_OPERATIONS.md#timezone-and-worker-cutover). Keep retention pruning on its existing approved schedule.
 
-Review that the web process and scheduled tasks use the same production settings and price override. Verify `/static/` maps to the collected directory, then **Web → Reload**. In **Tasks**, schedule the existing virtualenv's absolute Python executable and the deployed absolute manage.py path with `process_analytics --limit 5000` (hourly where supported) and `prune_analytics --apply` daily after retention approval. Schedule `process_registration_notifications --limit 100` separately using the same virtualenv and absolute manage.py path, hourly where available. Alerts wait for the next successful worker run. Adjust capacity to observed queue volume. If the plan offers a single daily task, the management commands can run sequentially from that task with daily delivery latency. Confirm scheduling availability for the hosting plan. [PythonAnywhere backup](https://help.pythonanywhere.com/pages/MySQLBackupRestore/) · [Static files](https://help.pythonanywhere.com/pages/DjangoStaticFiles/) · [Scheduled tasks](https://help.pythonanywhere.com/pages/ScheduledTasks/)
+## Timezone and worker verification
 
-Use a test learner to verify the offer and its annual price, a passed boundary quiz, the Russian access exception and the manual handoff. Check that no sale appears after that handoff. As an authorized analytics viewer, open today's timeline, download the seven sheets and verify the last event. On a physical iPhone and Android WebView, verify CTA visibility, back navigation and the transition to WhatsApp. The server can only observe its redirect.
+The maintenance suite passed 119 of 127 Django tests on SQLite, with eight MySQL-specific skips. All 127 passed on disposable MySQL. One Chromium check passed at 320, 390 and 1024 pixels with today's new learner in the default list. Workbook readback, fresh WSGI and management process startup, historical offsets, midnight boundaries, unchanged raw UTC storage, worker shutdown signals and the exact Telegram message were verified locally. Django system checks and migration drift checks passed. The local migration plan was empty.
 
-For operational rollback, disable collection with `PRODUCT_ANALYTICS=0` and reload. If reverting application code, retain the additive tables and previously confirmed purchase evidence. Reversing the migration drops those tables and their data. Restore or archive them separately before considering a schema reversal.
-
-## Verification
+## Previous CRM verification
 
 The automated suites use synthetic users, mocked notification delivery, disposable databases and headless Chromium. Physical devices, production data, live Telegram/WhatsApp delivery and settlement require separate verification. The production migration and static collection commands above are operator steps.
 
