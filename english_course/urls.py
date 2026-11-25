@@ -26,4 +26,16 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    from pathlib import Path
+    from django.http import Http404
+    from django.views.static import serve
+
+    def development_media(request, path, document_root):
+        # Canonical lesson MP3 URLs have an access-controlled view above. The generic
+        # debug file server must also reject alternate paths resolving to the same file.
+        name = (Path(document_root) / path).resolve().name
+        if name.startswith("audio_lesson_") and name.endswith(".mp3"):
+            raise Http404
+        return serve(request, path, document_root=document_root)
+
+    urlpatterns += static(settings.MEDIA_URL, view=development_media, document_root=settings.MEDIA_ROOT)

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import register, lesson_list, lesson_detail, explain_section, chat_with_gpt, motivational_message, account_locked, vocabulary_list, register_lead, mint_realtime_token
 from .views import start_quiz, restart_quiz, submit_answer, service_worker, pwa_manifest, privacy_policy, profile, translator, check_translator_access, mint_translator_token
@@ -21,10 +21,23 @@ from django.templatetags.static import static
 from django.views.generic.base import RedirectView
 
 
+from . import views_live
 from insights.offer import advertisement, purchase_handoff
 from insights.views import ingest
 
 urlpatterns = [
+    path("lesson/<int:lesson_id>/explanation/<slug:section>/<uuid:revision>.mp3",
+         views_live.published_audio, name="published_explanation_audio"),
+    path("lesson/<int:lesson_id>/audio/<slug:section>/<uuid:revision>.mp3",
+         views_live.realtime_audio, name="realtime_explanation_audio"),
+    re_path(r"^media/audio_lesson_(?P<lesson_id>[0-9]+)_(?P<section>content|grammar|dialogue|vocabulary)_(?P<revision>[\w-]+)\.mp3$",
+            views_live.realtime_audio),
+    path("lesson/<int:lesson_id>/live/<slug:section>/publish/", views_live.select_publication,
+         name="select_explanation_publication"),
+    path("lesson/<int:lesson_id>/live/<slug:section>/", views_live.preview, name="live_explanation"),
+    path("lesson/<int:lesson_id>/live/<slug:section>/review/<uuid:revision>.mp3", views_live.audio,
+         {"review": True}, name="live_review_audio"),
+    path("lesson/<int:lesson_id>/live/<slug:section>/<uuid:revision>.mp3", views_live.audio, name="live_audio"),
     path("analytics/events/", ingest, name="analytics_ingest"),
     path("advertisement/purchase/", purchase_handoff, name="purchase_handoff"),
     path('translator/', translator, name='translator'),

@@ -5,6 +5,7 @@ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from io import StringIO
 from threading import Event
 
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, connections
@@ -51,6 +52,8 @@ class Command(BaseCommand):
             ('process_registration_notifications', options['notification_limit'], options['notification_interval']),
             ('process_analytics', options['analytics_limit'], options['analytics_interval']),
         ]
+        if settings.LIVE_EXPLANATIONS_ENABLED:
+            schedules.append(("process_live_explanations", 1, 3))
         if any(min(limit, interval) < 1 for _, limit, interval in schedules):
             raise CommandError('Intervals and limits must be positive integers.')
 
@@ -62,7 +65,7 @@ class Command(BaseCommand):
         previous = {sig: signal.signal(sig, request_stop) for sig in (signal.SIGTERM, signal.SIGINT)}
         try:
             logger.info('OqyAI background worker started (%s)', vendor)
-            with ThreadPoolExecutor(max_workers=2, thread_name_prefix='oqyai') as pool:
+            with ThreadPoolExecutor(max_workers=len(schedules), thread_name_prefix='oqyai') as pool:
                 futures = [pool.submit(poll, command, limit, interval, stopping)
                            for command, limit, interval in schedules]
                 try:

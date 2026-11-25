@@ -39,15 +39,6 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         options.binary_location = os.getenv('OQYAI_CHROMIUM', '/snap/bin/chromium')
         options.set_capability('goog:loggingPrefs', {'browser': 'ALL'})
         cls.browser = webdriver.Chrome(options=options, service=Service(executable_path=os.getenv('OQYAI_CHROMEDRIVER')))
-        cls.browser.set_window_size(390, 844)
-        cls.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
-            'width': 390, 'height': 844, 'deviceScaleFactor': 1, 'mobile': True,
-        })
-        cls.browser.execute_cdp_cmd('Network.enable', {})
-        cls.browser.execute_cdp_cmd('Network.setBlockedURLs', {'urls': [
-            '*://cdn.jsdelivr.net/*', '*://cdnjs.cloudflare.com/*', '*://fonts.googleapis.com/*',
-            '*://fonts.gstatic.com/*', '*://www.googletagmanager.com/*', '*://wa.me/*',
-        ]})
         cls.browser.set_script_timeout(10)
         print('BROWSER_VERSION', cls.browser.capabilities['browserVersion'])
 
@@ -60,11 +51,28 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
     def setUp(self):
         for pk in (1, 2, 3):
             make_lesson(pk)
-        self.browser.delete_all_cookies()
+        # Isolate input focus, navigation history and site state between journeys.
+        self.browser.switch_to.new_window("tab")
+        self.addCleanup(self.close_test_tab)
+        self.browser.set_window_size(390, 844)
+        self.browser.execute_cdp_cmd('Emulation.setDeviceMetricsOverride', {
+            'width': 390, 'height': 844, 'deviceScaleFactor': 1, 'mobile': True,
+        })
+        self.browser.execute_cdp_cmd('Network.enable', {})
+        self.browser.execute_cdp_cmd('Network.setBlockedURLs', {'urls': [
+            '*://cdn.jsdelivr.net/*', '*://cdnjs.cloudflare.com/*', '*://fonts.googleapis.com/*',
+            '*://fonts.gstatic.com/*', '*://www.googletagmanager.com/*', '*://wa.me/*',
+        ]})
+        self.browser.execute_cdp_cmd("Storage.clearDataForOrigin", {"origin": self.live_server_url, "storageTypes": "all"})
         self.browser.get(self.live_server_url + '/lesson/1/')
         self.wait = WebDriverWait(self.browser, 8, ignored_exceptions=(StaleElementReferenceException,))
         self.wait.until(lambda d: d.execute_script('return !!window.OqyLoading && document.querySelector("#quiz-container").dataset.mounted'))
         self.browser.execute_script('window.confirm = () => true;')
+
+    def close_test_tab(self):
+        self.browser.get("about:blank")
+        self.browser.close()
+        self.browser.switch_to.window(self.browser.window_handles[0])
 
     def element(self, id):
         return self.browser.find_element(By.ID, id)
@@ -235,7 +243,7 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         self.assertEqual(attempt['result'].get('value'), 'NotSupportedError')
         self.wait.until(lambda _: errors.filter(context__section='vocabulary',context__phase='playback').exists())
         self.browser.execute_script("""
-          document.querySelector('#grammar-section source').dispatchEvent(new Event('error'));
+          document.querySelector('#grammar-section audio').dispatchEvent(new Event('error'));
           const marker = document.createElement('button');
           marker.dataset.analyticsAction = 'quiz_catalog_clicked';
           document.body.append(marker);
@@ -468,7 +476,8 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
     def test_real_back_navigation_clears_loading_and_desktop_layout_mounts(self):
         self.browser.execute_cdp_cmd('Emulation.clearDeviceMetricsOverride', {})
         self.browser.set_window_size(1280, 900)
-        self.browser.find_element(By.CSS_SELECTOR, 'a[href="/"]').click()
+        self.wait.until(lambda d: d.execute_script("return innerWidth >= 1000"))
+        self.browser.find_element(By.CSS_SELECTOR, 'a[href="/"]').send_keys(Keys.ENTER)
         self.wait.until(lambda d: d.current_url == self.live_server_url + '/')
         self.browser.back()
         self.wait.until(lambda d: d.current_url == self.live_server_url + '/lesson/1/')
@@ -846,3 +855,160 @@ class LearningBrowserChecks(StaticLiveServerTestCase):
         self.browser.save_screenshot('/tmp/oqyai-refined-wrong.png')
         self.wait.until(lambda _: self.element('question-text').text == 'word1_2')
         self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR,'#attempts .spent')),1)
+
+    @override_settings(LIVE_EXPLANATIONS_ENABLED=True)
+    def test_shared_explanation_player_in_all_sections(self):
+        from tempfile import TemporaryDirectory
+        from unittest.mock import AsyncMock, patch
+        from django.conf import settings
+        from django.contrib.auth.models import User
+        from .models import LiveExplanation
+        from .test_live_explanations import sample_pcm, tts
+        from .services.live_explanations import execute_next
+
+        owner = User.objects.create_superuser("narration-owner", "test@example.test")
+        self.client.force_login(owner)
+        self.browser.add_cookie({"name":settings.SESSION_COOKIE_NAME, "value":self.client.cookies[settings.SESSION_COOKIE_NAME].value, "path":"/"})
+        self.browser.get(self.live_server_url + "/lesson/1/")
+        binary = tts.encode_mp3(sample_pcm())
+        script = "Country. Ел. I’m from Kazakhstan.\n\nСөз City дегенді білдіреді. <em>Example</em>"
+        find = lambda css: self.browser.find_element(By.CSS_SELECTOR, css)
+        with TemporaryDirectory() as temp, override_settings(MEDIA_ROOT=temp, PRIVATE_EXPLANATION_ROOT=temp), \
+                patch("lessons.views.OpenAI") as astra, patch("lessons.services.live_explanations.OpenAI") as fresh_astra, \
+                patch("lessons.views.synthesize_audio_realtime_mp3", new_callable=AsyncMock, return_value=binary), \
+                patch("lessons.services.live_explanations.synthesize_audio_live_mp3", new_callable=AsyncMock,
+                      return_value=tts.Narration(binary, {}, validated=True)) as live:
+            astra.return_value.__enter__.return_value.responses.create.return_value.output_text = script
+            # Exercise the unchecked button before any legacy text or recording exists.
+            fresh_client = fresh_astra.return_value.__enter__.return_value
+            fresh_client.responses.create.return_value.status = "completed"
+            fresh_client.responses.create.return_value.output_text = "Independent fresh script."
+            self.assertFalse(find("#live-vocabulary input[type=checkbox]").is_selected())
+            find('[data-live-button="vocabulary"]').click()
+            self.wait.until(lambda _: LiveExplanation.objects.filter(section="vocabulary", status="queued").exists())
+            self.assertTrue(execute_next())
+            def source(section):
+                return find("#explanation-" + section + " audio").get_attribute("src") or ""
+
+            def finish(section):
+                self.wait.until(lambda _: LiveExplanation.objects.filter(section=section, status="queued").exists())
+                self.assertTrue(execute_next())
+                self.wait.until(lambda _: find(f'[data-live-button="{section}"]').is_enabled())
+
+            self.wait.until(lambda _: "/live/" in source("vocabulary"))
+            astra.assert_not_called()
+            find('#live-vocabulary [data-live-options] summary').click()
+            find("#live-vocabulary [data-live-retry]").click()
+            finish("vocabulary")
+            self.assertEqual(live.await_args.args, ("Independent fresh script.",))
+            for section in ("vocabulary", "content", "grammar", "dialogue"):
+                find(f'.lesson-btn[data-section="{section}"]').click()
+                if section == "grammar":
+                    self.click("themeToggle")
+                panel, root = "#live-" + section, "#explanation-" + section
+                find(root + ' .explain-btn').click()
+                self.wait.until(lambda _: "/audio/" in source(section))
+                self.assertFalse(find(root + " [data-explanation]").get_attribute("open"))
+                realtime_url = source(section)
+                options = find(panel + " [data-live-options]")
+                if not options.get_attribute("open"):
+                    options.find_element(By.TAG_NAME, "summary").click()
+                find(panel + " input[type=checkbox]").click()
+                find(f'[data-live-button="{section}"]').send_keys(Keys.ENTER)
+                finish(section)
+                self.assertIn("/live/", source(section))
+                self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR, root + " audio")), 1)
+                player = find(root + " audio")
+                details = find(root + " [data-explanation]")
+                self.assertTrue(player.is_displayed())
+                self.assertFalse(details.get_attribute("open"))
+                self.assertFalse(find(panel + " [data-diagnostics]").get_attribute("open"))
+                summary = details.find_element(By.TAG_NAME, "summary")
+                self.browser.execute_script("arguments[0].muted=true; arguments[0].loop=true; arguments[0].play()",player)
+                self.wait.until(lambda _: self.browser.execute_script("return arguments[0].currentTime > .05", player))
+                self.browser.execute_script("window.mediaInterruptions=[]; for(const e of ['pause','emptied','loadstart','seeking']) arguments[0].addEventListener(e,()=>mediaInterruptions.push(e))",player)
+                summary.click()
+                text = find(root + " .explanation-content")
+                self.assertEqual(text.get_attribute("textContent"), script)
+                bold = [e.get_attribute("textContent") for e in text.find_elements(By.TAG_NAME, "strong")]
+                self.assertTrue(self.browser.execute_script("""
+                    const text = arguments[0];
+                    return Number(getComputedStyle(text.querySelector('strong')).fontWeight) >
+                           Number(getComputedStyle(text).fontWeight);
+                """, text))
+                self.assertIn("I’m from Kazakhstan.", bold)
+                self.assertIn("Country.", bold)
+                self.assertIn("City", bold)
+                self.assertFalse(text.find_elements(By.TAG_NAME, "em"))
+                summary.click()
+                self.assertEqual(find(root + " audio"), player)
+                self.assertTrue(self.browser.execute_script("return !arguments[0].paused && !mediaInterruptions.length",player))
+                self.browser.execute_script("arguments[0].pause()",player)
+                select = find(panel + " select")
+                def choose(value):
+                    self.browser.execute_script("arguments[0].value=arguments[1]; arguments[0].dispatchEvent(new Event('change'))", select, value)
+                choose("realtime")
+                self.assertEqual(source(section), realtime_url)
+                choose("live")
+                self.assertLessEqual(self.browser.execute_script("return document.documentElement.scrollWidth"),390)
+            live.return_value = tts.Narration(binary, {"transcript":"Білім", "coverage_percent":25}, validated=False)
+            good = source("dialogue")
+            find('[data-live-button="dialogue"]').click()
+            finish("dialogue")
+            self.assertEqual(source("dialogue"), good)
+            self.assertFalse(find(panel + " [data-live-warning]").is_displayed())
+            review = select.find_elements(By.TAG_NAME, "option")[-1].get_attribute("value")
+            choose(review)
+            self.assertTrue(find(panel + " [data-live-warning]").is_displayed())
+            self.assertTrue(source("dialogue").endswith(review))
+            self.browser.refresh()
+            self.wait.until(lambda _: source("dialogue").endswith(review))
+            self.assertIn("/live/", source("vocabulary"))
+            self.assertEqual(len(self.browser.find_elements(By.CSS_SELECTOR, ".explanation-container audio")), 4)
+            find('.lesson-btn[data-section="dialogue"]').click()
+            find(panel + " [data-diagnostics] summary").click()
+            self.assertEqual(find(panel + ' [data-field="coverage_percent"]').text, "25%")
+            find(panel + " [data-live-options] summary").click()
+            find(panel + " input[type=checkbox]").click()
+            live.side_effect = tts.LiveError("mock failure")
+            find('[data-live-button="dialogue"]').click()
+            finish("dialogue")
+            self.assertTrue(source("dialogue").endswith(review))
+            self.assertEqual(live.await_count, 8)
+            fresh_client.responses.create.assert_called_once()
+            self.assertEqual(astra.return_value.__enter__.return_value.responses.create.call_count, 4)
+            for width in (320, 1024):
+                self.browser.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {
+                    "width": width, "height": 844, "deviceScaleFactor": 1, "mobile": width < 768})
+                self.assertLessEqual(self.browser.execute_script("return document.documentElement.scrollWidth"), width)
+                self.assertTrue(find(root + " audio").is_displayed())
+            # Previewing a take is private. Explicitly publish Realtime for just Dialogue.
+            select = find(panel + " select")
+            choose("realtime")
+            find(panel + " [data-publish]").click()
+            self.wait.until(lambda _: not find(panel + " [data-publish]").is_displayed())
+            student = User.objects.create_user("browser-listener")
+            self.client.force_login(student)
+            self.browser.add_cookie({"name":settings.SESSION_COOKIE_NAME,
+                "value":self.client.cookies[settings.SESSION_COOKIE_NAME].value, "path":"/"})
+            self.browser.refresh()
+            self.assertFalse(self.browser.find_elements(By.CSS_SELECTOR, ".live-preview, .explain-btn"))
+            self.assertIn("/audio/", source("dialogue"))
+            self.assertIn("/explanation/", source("vocabulary"))
+            player = find("#explanation-vocabulary audio")
+            playback = self.browser.execute_cdp_cmd("Runtime.evaluate", {
+                "userGesture": True, "awaitPromise": True, "returnByValue": True,
+                "expression": """(async () => {
+                    const audio = document.querySelector('#explanation-vocabulary audio');
+                    audio.muted = true;
+                    try { await audio.play(); return 'playing'; } catch (e) { return e.name; }
+                })()""",
+            })
+            self.assertEqual(playback["result"].get("value"), "playing")
+            self.wait.until(lambda _: self.browser.execute_script("return arguments[0].currentTime > 0", player))
+            self.browser.execute_script("arguments[0].pause(); arguments[0].currentTime=.3", player)
+            summary = find('#explanation-vocabulary [data-explanation] summary')
+            summary.click()
+            summary.click()
+            self.assertTrue(self.browser.execute_script("return arguments[0].paused && Math.abs(arguments[0].currentTime-.3)<.03", player))
+            self.assertEqual(live.await_count, 8)

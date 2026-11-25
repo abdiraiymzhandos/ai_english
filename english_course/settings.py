@@ -33,12 +33,6 @@ load_dotenv(BASE_DIR / ".env")
 # OpenAI API кілтін алу
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# API кілттің дұрыс жүктелгенін тексеру
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY жүктелмеді! .env файлын тексеріңіз.")
-
-print(f"✅ OpenAI API кілті сәтті жүктелді!")
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -285,3 +279,16 @@ if MAX_ACCOUNT_DEVICES < 1:
     raise ValueError("MAX_ACCOUNT_DEVICES must be positive")
 
 COURSE_WHATSAPP_NUMBER = "77781029394"
+
+# Private, owner-operated lesson narration experiment.
+from english_course.utils.live_defaults import LIVE_MODEL, LIVE_NARRATION, STARTUP_DEADLINE_SECONDS, STARTUP_NUDGE_SECONDS
+
+LIVE_EXPLANATIONS_ENABLED = os.getenv("LIVE_EXPLANATIONS_ENABLED", "false").lower() in {"true", "1"}
+LIVE_EXPLANATION_MODEL = os.getenv("LIVE_EXPLANATION_MODEL", LIVE_MODEL)
+LIVE_EXPLANATION_VOICE = os.getenv("LIVE_EXPLANATION_VOICE", "cedar")
+LIVE_EXPLANATION_INSTRUCTIONS = os.getenv("LIVE_EXPLANATION_INSTRUCTIONS", LIVE_NARRATION)
+
+LIVE_STARTUP_NUDGE_SECONDS = float(os.getenv("LIVE_STARTUP_NUDGE_SECONDS", STARTUP_NUDGE_SECONDS))
+LIVE_STARTUP_DEADLINE_SECONDS = float(os.getenv("LIVE_STARTUP_DEADLINE_SECONDS", STARTUP_DEADLINE_SECONDS))
+
+PRIVATE_EXPLANATION_ROOT = Path(os.getenv("PRIVATE_EXPLANATION_ROOT", str(BASE_DIR / "private_explanations")))

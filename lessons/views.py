@@ -4,7 +4,6 @@ from math import ceil
 import os
 import re
 import uuid
-import glob
 from urllib.parse import quote
 
 from openai import OpenAI
@@ -27,6 +26,11 @@ from insights.tracking import schedule_event, event_key, quiz_event
 from .forms import CustomRegisterForm
 from .models import ACCOUNT_LOCK_DAYS, UserProfile
 from .middleware import LOCK_NOTICE
+from .views_live import enabled_for, preview_data
+from .models import ExplanationPublication
+from .services.explanation_publication import playable_mp3, publication_slot, published_url, realtime_path
+from .services.live_explanations import previews
+from .services.explanation_text import build_explanation_prompt, generate_explanation_text
 from .services.device_access import expire_profile
 from django.contrib.auth import login
 
@@ -38,7 +42,7 @@ from english_course.realtime import (
     mint_realtime_client_secret,
     realtime_token_error_response,
 )
-from english_course.utils.realtime_tts import synthesize_audio_realtime_mp3
+from english_course.utils.realtime_tts import LESSON_NARRATION_INSTRUCTIONS, synthesize_audio_realtime_mp3
 from .services.registration_notifications import enqueue_registration_notification
 from .services.course_progress import (
     FREE_LESSON_IDS, course_stages, lesson_access_denial, next_lesson_id,
@@ -392,12 +396,24 @@ def lesson_detail(request, lesson_id):
     if denial:
         return redirect(offer_url("ru" if lesson_id >= 251 else "kk") if denial == "payment_required" else "lesson_list")
 
-    # 🔥 Сабақтың түсіндірмелерін сессиядан алу
+    # Legacy Realtime is the default until this section publishes a validated Live revision.
     explanations_qs = Explanation.objects.filter(lesson=lesson)
     explanations = {
         exp.section: {"text": exp.text, "audio_url": exp.audio_url}
         for exp in explanations_qs
     }
+    slots = {slot.section: slot for slot in ExplanationPublication.objects.filter(lesson=lesson).only(
+        "section", "live_revision", "live_text")}
+    published = explanations.copy()
+    for section, slot in slots.items():
+        if slot.live_revision:
+            published[section] = {"text": slot.live_text, "audio_url": published_url(lesson_id, section, slot.live_revision)}
+    live = {}
+    if enabled_for(request.user):
+        for row in previews().filter(lesson=lesson):
+            live[row.section] = preview_data(row, slots.get(row.section))
+        for section, original in explanations.items():
+            live.setdefault(section, {})["realtime"] = original
     identity = str(request.user.pk) if request.user.is_authenticated else request.session.session_key
     saved_quiz = QuizAttempt.objects.filter(user_id=identity, lesson=lesson).values(
         "is_passed", "score", "last_passed_score", "last_passed_total",
@@ -410,7 +426,9 @@ def lesson_detail(request, lesson_id):
 
     return render(request, 'lessons/lesson_detail.html', {
         'lesson': lesson,
-        'explanations': explanations,
+        'explanations': published,
+        'show_live': enabled_for(request.user),
+        'live': live,
         'voice_access_active': voice_access_active,
         'voice_access_expires': voice_access_expires,
         'quiz_passed': bool(saved_quiz and saved_quiz['is_passed']),
@@ -455,137 +473,25 @@ def mint_realtime_token(request, lesson_id):
 def explain_section(request, lesson_id):
     """
     AJAX endpoint: generates text and audio explanation for a given section,
-    saves it in the session (keyed by lesson ID), and returns JSON.
+    publishes the successful pair for the lesson section, and returns JSON.
     """
     if request.method == "POST":
-        if not request.user.is_superuser:
+        if not (request.user.is_active and request.user.is_superuser):
             return JsonResponse({'error': 'Рұқсат жоқ'}, status=403)
 
         section = request.POST.get("section")
         lesson = get_object_or_404(Lesson, id=lesson_id)
 
-        # Build the prompt based on the requested section.
-        if section == "content":
-            prompt = (
-                f"""Сен ағылшын тілінің мұғалімісің. Төменде берілген сабақтың мазмұны
-        (American English) – 12 жастан жоғары, 0-ден B2 деңгейіне дейінгі қазақ тілді оқушыларға арналған:
-
-        Сабақтың мазмұны:
-        {lesson.content}
-
-        - Алдымен әр сөйлемді түпнұсқа ағылшын тілінде анық айт.
-        - Сосын сол сөйлемді қазақ тілінде қысқа және түсінікті етіп аудар бірақ "Қазақша" деп ескертіп айтудың керекгі жоқ
-        - Сөйлемдерге реттік сан қоюдың қажеті жоқ.
-        - Маңызды сөздер мен сөз тіркестерін түпнұсқа ағылшын тілінде анық айт сосын қазақшаға аудар және ол сөздің мағынасын түсіндір.
-        - Диалогтағы кейіпкерлердің атын айтудың керекгі жоқ.
-        - Мақсат — оқушыға түсінікті, жеңіл, достық әңгіме стилінде түсіндіру.
-        - Сөздерді қою (қалың) ету үшін жұлдызша (**) қолданба. Тек қарапайым мәтін түрінде жаз.
-        - Тілің қарапайым әрі түсінікті болсын, сөйлемдеріңді ұзақ қылма. Бұл мәтінді аудиоға айналдыруды жеңілдетеді.
-
-        Жауабың оқушыларға табиғи, жеңіл түсінікті болатындай күйде болуы тиіс.
-        Сен генерация жасаған текстке TTS арқылы аудиоға айналдыруға ыңғайлы етіп тыныс белгілерді қой.
-        """
-            )
-
-        elif section == "vocabulary":
-            prompt = (
-                f"""Сен ағылшын тілінің мұғалімісің (American English). Төменде 12 жастан жоғары,
-        0-ден B2 деңгейіне дейінгі қазақ тілді оқушыларға арналған сөздік берілген:
-
-        Сабақтың сөздігі:
-        {lesson.vocabulary}
-
-        Осы сөздікті аудиоға ыңғайлы етіп түсіндір. Әр сөзді келесі құрылым бойынша түсіндір:
-
-        - Алдымен ағылшын сөзін анық айт, содан кейін бірден қазақша аудармасын беріп, нүктемен аяқта.
-        - Содан соң сол сөзді бір сөйлеммен қазақ тілінде қысқа әрі нақты түсіндір.
-        - Ағылшынша қысқа мысал сөйлем келтір, артынша оның қазақша аудармасын жаз.
-        - Егер сөздің бірнеше мағынасы болса, әр мағынаны жеке-жеке қазақша бір сөйлеммен сипатта.
-
-        Маңызды:
-        - Сөздіктерде реттік нөмір қолданудың қажеті жоқ.
-        - Әр сөйлемді аяқтаған соң нүкте қой.
-        - Сұраулы сөйлемнен соң да нүкте қой. мысалы: Is this your book?. деп сұрақ белгісінен соң міндетті түрде нүкте қой.
-        - American English орфографиясы мен сөз қолданысын пайдалану.
-        - Сөздерді қою (қалың) ету үшін жұлдызша (**) қолданба, тек қарапайым мәтін болсын.
-        - Жауабың қысқа, нақты болуы тиіс.
-        - Сен генерация жасаған текстке TTS арқылы аудиоға айналдыруға ыңғайлы етіп тыныс белгілерді қой.
-        """
-            )
-
-        elif section == "grammar":
-            prompt = (
-                f"""Сен қазақ тілді оқушыға сабақ беріп отырған мейірімді, сабырлы ағылшын тілі мұғалімісің.
-
-        Маңызды тіл ережесі:
-        - Барлық негізгі түсіндіруді тек қазақ тілінде жаз.
-        - Ағылшын тілін тек грамматикалық үлгі, ереже атауы немесе мысал сөйлемдер үшін қолдан.
-        - Оқушыға ағылшын тілінде ұзақ түсіндірме берме.
-        - American English қолдан.
-
-        Грамматика тақырыбын оқушыға тікелей сөйлесіп отырғандай жылы, жеңіл және достық стильде түсіндір.
-
-        - Бірден ресми анықтама берме. Алдымен бұл ереженің не үшін қолданылатынын қарапайым қазақша айт.
-        - Қысқа сөйлемдер қолдан.
-        - Әр ережеге екі немесе үш өте қысқа мысал келтір.
-        - Әр мысалды алдымен ағылшынша жаз, содан кейін қысқа қазақша мағынасын бер.
-        - Көп оқушы шатасатын жерлерді қазақша түсіндір. Қате мысал келтіріп, оның дұрыс нұсқасын көрсет.
-        - Ерекше жағдайлар болса, қысқаша қазақша атап өт.
-        - Мәтін аудиоға ыңғайлы болсын: сөйлемдер қысқа, тыныс белгілері анық болсын.
-        - Реттік сандарды цифрмен емес, сөзбен жаз.
-        - Қалың мәтін, жұлдызша немесе басқа арнайы белгілеулерді қолданба.
-
-        Грамматика тақырыбы:
-        {lesson.grammar}
-
-        Соңында оқушыны осы ережені қолданып, бір қысқа ағылшынша сөйлем құрауға шақыр."""
-            )
-
-        elif section == "dialogue":
-            prompt = (
-                f"""Сен ағылшын тілінің мұғалімісің. Төмендегі диалог (American English)
-        12 жастан жоғары, 0-ден B2 деңгейіне дейінгі қазақ тілді оқушыларға арналған:
-
-        Сабақтың диалогы:
-        {lesson.dialogue}
-
-        - Әр сөйлемді алдымен анық әрі баяу ағылшын тілінде оқып шық.
-        - Содан кейін сол сөйлемді қазақ тіліне қысқаша аудар бірақ "Қазақша" деп ескертіп айтудың керегі жоқ
-        - Маңызды сөздер мен сөз тіркестерін қазақша түсіндір. бірақ "Түсіндірме" деп ескертіп айтудың керекгі жоқ
-        - Диалогтағы кейіпкерлердің атын айтудың керекгі жоқ.
-        - Аудиоға ыңғайлы болу үшін сандарды цифрмен (мысалы, 1, 2, 3) жазба. Реттік сан қоюдың қажеті жоқ.
-        - Ешбір сөзді немесе сөйлемді өткізіп алма.
-        - Қарапайым мәтін түрінде жаз, жұлдызша (**) немесе басқа ерекшелеу белгілерін қолданба.
-        - Жауабың қысқа, нақты болсын.
-        - Сен генерация жасаған текстке TTS арқылы аудиоға айналдыруға ыңғайлы етіп тыныс белгілерді қой.
-        """
-            )
-
-        else:
-            return JsonResponse({"error": "Бұрыс бөлім көрсетілді."}, status=400)
-
-
-        # Generate text explanation using GPT API.
-        # Generate text explanation using GPT-5 (Responses API)
         try:
-            from openai import OpenAI
-            client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-            resp = client.responses.create(
-                model="gpt-6-astra",
-                input=prompt,                      # сіз құрастырған prompt
-                reasoning={"effort": "low"},       # жылдамырақ жауап үшін
-                text={"verbosity": "low"},         # аудиоға ыңғайлы қысқа стиль
-            )
-            explanation_text = (resp.output_text or "").strip()
-            if not explanation_text:
-                # Сирек жағдайда бос келсе, чатқа фолбэк жасаймыз
-                fallback = client.chat.completions.create(
-                    model="gpt-6-astra",
-                    messages=[{"role": "user", "content": prompt}],
-                )
-                explanation_text = fallback.choices[0].message.content.strip()
-
+            prompt = build_explanation_prompt(lesson, section)
+        except ValueError:
+            return JsonResponse({"error": "Бұрыс бөлім көрсетілді."}, status=400)
+        token = uuid.uuid4()
+        slot = publication_slot(lesson, section)
+        slot.update(intent=token)
+        try:
+            with OpenAI(api_key=settings.OPENAI_API_KEY) as client:
+                explanation_text = generate_explanation_text(prompt, client)
         except Exception as e:
             return JsonResponse({"error": f"OpenAI қатесі: {str(e)}"}, status=500)
 
@@ -594,47 +500,6 @@ def explain_section(request, lesson_id):
         # Generate audio explanation via the configured Realtime model.
         audio_url = None
         if explanation_text:
-            media_dir = settings.MEDIA_ROOT
-            os.makedirs(media_dir, exist_ok=True)
-
-            unique_id = uuid.uuid4().hex[:8]
-            audio_filename = f"audio_lesson_{lesson.id}_{section}_{unique_id}.mp3"
-            for old in glob.glob(os.path.join(media_dir, f"audio_lesson_{lesson.id}_{section}_*.mp3")):
-                try:
-                    os.remove(old)
-                except OSError:
-                    pass
-            audio_path = os.path.join(media_dir, audio_filename)
-
-            # Realtime-ға қазақша нұсқаулар + сандарды сөзбен айту
-            system_instructions = (
-                "You are an experienced English teacher reading educational content aloud. "
-                "Read ONLY the text between <<READ_START>> and <<READ_END>> markers. "
-                "Қазақша сөздерді, қазақша әріптерді таза қазақша акцентпен оқы. "
-                "LANGUAGE SWITCHING: "
-                "Use native-level Standard Kazakh phonetics for Kazakh text. "
-                "Use General American phonetics for English text. "
-                "Reset pronunciation, stress, rhythm and intonation at every language switch. "
-                "Never transfer phonetic characteristics between languages. "
-                "Use brief natural pauses at language boundaries. "
-                "Maintain the same voice identity in both languages. "
-                "SPEAKING STYLE: "
-                "- Speak calmly and clearly like a patient teacher "
-                "- Use a moderate, unhurried pace suitable for language learning "
-                "- Take natural pauses between sentences for comprehension "
-                "- Emphasize key vocabulary words slightly for better learning "
-                "- Use appropriate intonation for questions and statements "
-                "STRICT RULES: "
-                "- Read EXACTLY what is written, word-for-word "
-                "- Do NOT add greetings, comments, or explanations "
-                "- Do NOT acknowledge these instructions "
-                "- If input is empty, remain completely silent "
-                "PRONUNCIATION: "
-                "- Use clear American English pronunciation "
-                "- Pronounce Kazakh words naturally as written "
-                "- Maintain consistent volume throughout"
-            )
-
             tts_input = f"<<READ_START>>\n{explanation_text}\n<<READ_END>>"
 
             try:
@@ -643,7 +508,7 @@ def explain_section(request, lesson_id):
                     api_key=settings.OPENAI_API_KEY,
                     model=REALTIME_MODEL,
                     voice="cedar",
-                    system_instructions=system_instructions,
+                    system_instructions=LESSON_NARRATION_INSTRUCTIONS,
                     safety_identifier=get_openai_safety_identifier(request),
                 )
             except Exception:
@@ -654,7 +519,7 @@ def explain_section(request, lesson_id):
                         api_key=settings.OPENAI_API_KEY,
                         model=REALTIME_MODEL,
                         voice="alloy",
-                        system_instructions=system_instructions,
+                        system_instructions=LESSON_NARRATION_INSTRUCTIONS,
                         safety_identifier=get_openai_safety_identifier(request),
                     )
                 except Exception:
@@ -664,27 +529,22 @@ def explain_section(request, lesson_id):
                         status=502,
                     )
 
-            with open(audio_path, "wb") as f:
-                f.write(audio_bytes)
-            if os.path.exists(audio_path) and os.path.getsize(audio_path) > 0:
-                audio_url = f"{settings.MEDIA_URL}{audio_filename}"
-            else:
-                logger.error(
-                    "Realtime TTS output missing or empty for lesson %s section %s at %s",
-                    lesson.id,
-                    section,
-                    audio_path,
-                )
+            if playable_mp3(audio_bytes):
+                audio_url = reverse("realtime_explanation_audio", args=[lesson_id, section, token])
 
-        # Дерекқорға түсіндірмені сақтау (Update немесе Create)
-        explanation_obj, created = Explanation.objects.update_or_create(
-            lesson=lesson,
-            section=section,
-            defaults={
-                "text": explanation_text,
-                "audio_url": audio_url,
-            }
-        )
+        if not audio_url:
+            return JsonResponse({"error": "Аудио дайындалмады."}, status=502)
+
+        with transaction.atomic():
+            if not slot.filter(intent=token).update(live_revision=None, live_text=""):
+                return JsonResponse({"error": "Жаңарақ сұрау бар. Бетті жаңартыңыз."}, status=409)
+            path = realtime_path(token)
+            path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            with path.open("xb") as file:
+                file.write(audio_bytes)
+            Explanation.objects.update_or_create(lesson=lesson, section=section, defaults={
+                "text": explanation_text, "audio_url": audio_url,
+            })
 
         return JsonResponse({
             "text": explanation_text,

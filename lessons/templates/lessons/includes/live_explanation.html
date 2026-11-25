@@ -1,0 +1,17 @@
+<button type="button" class="btn btn-secondary btn-sm mt-2" data-live-button="{{ section }}" aria-controls="live-{{ section }}">Live түсіндіру</button>
+<div id="live-{{ section }}" class="live-preview" data-url="{% url 'live_explanation' lesson.pk section %}" data-publish-url="{% url 'select_explanation_publication' lesson.pk section %}" data-owner="{{ request.user.pk }}">
+  {% csrf_token %}
+  {{ result|json_script }}
+  <label data-selector hidden>Жазба <select aria-label="Сақталған жазба">
+    <option value="">Жазбаны таңдаңыз</option><option value="realtime">Realtime</option><option value="live">Live</option>
+  </select></label>
+  <span data-publication-state hidden></span>
+  <button type="button" class="btn btn-secondary btn-sm" data-publish hidden>Оқушыларға жариялау</button>
+  <details data-live-options>
+    <summary>Live баптаулары</summary>
+    <label class="live-compare" {% if not result.realtime.text %}hidden{% endif %}><input type="checkbox"> Салыстыру үшін сақталған мәтінді оқу</label>
+    <button type="button" class="btn btn-secondary btn-sm" data-live-retry {% if not result.can_retry %}hidden{% endif %}>Соңғы мәтінмен аудионы қайта жасау</button>
+  </details>
+  {% include "lessons/includes/live_recording.html" %}
+  <p data-live-warning hidden>Аудио толық оқылмауы мүмкін. Тыңдап тексеріңіз.</p>
+</div>

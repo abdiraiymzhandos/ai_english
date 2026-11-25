@@ -282,3 +282,56 @@ class RegistrationNotification(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=['status', 'next_attempt'])]
+
+
+class LiveExplanation(models.Model):
+    """Private preview and pending generation. Replace successful fields in one DB write."""
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="live_explanations")
+    section = models.CharField(max_length=20, choices=Explanation.SECTION_CHOICES)
+    status = models.CharField(max_length=12, default="idle")
+    job = models.UUIDField(null=True)
+    retry_text = models.TextField(null=True, blank=True)
+    retry_metadata = models.JSONField(null=True, blank=True)
+    pending_mode = models.CharField(max_length=10, blank=True)
+    pending_input = models.TextField(blank=True)
+    deadline = models.DateTimeField(null=True)
+    revision = models.UUIDField(null=True)
+    text = models.TextField(blank=True)
+    mp3 = models.BinaryField(null=True)
+    source_hash = models.CharField(max_length=64, blank=True)
+    model = models.CharField(max_length=80, blank=True)
+    voice = models.CharField(max_length=80, blank=True)
+    mode = models.CharField(max_length=10, blank=True)
+    metadata = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    published_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["lesson", "section"], name="unique_live_lesson_section")]
+        indexes = [models.Index(fields=["status", "deadline"], name="live_job_deadline")]
+
+
+class LiveExplanationReview(models.Model):
+    """Private historical recordings, including validated takes superseded by a later job."""
+    archived_validated = models.BooleanField(null=True)
+    explanation = models.ForeignKey(LiveExplanation, on_delete=models.CASCADE, related_name="reviews")
+    job = models.UUIDField(unique=True)
+    text = models.TextField()
+    mp3 = models.BinaryField()
+    model = models.CharField(max_length=80)
+    voice = models.CharField(max_length=80)
+    mode = models.CharField(max_length=10)
+    metadata = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ExplanationPublication(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    section = models.CharField(max_length=20, choices=Explanation.SECTION_CHOICES)
+    # A later admitted generation or manual selection supersedes an in-flight publisher.
+    intent = models.UUIDField(null=True)
+    live_revision = models.UUIDField(null=True)
+    live_text = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["lesson", "section"], name="one_explanation_publication")]

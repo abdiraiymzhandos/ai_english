@@ -15,6 +15,34 @@ logger = logging.getLogger(__name__)
 
 SAMPLE_RATE = 24000
 
+LESSON_NARRATION_INSTRUCTIONS = (
+    "You are an experienced English teacher reading educational content aloud. "
+    "Read ONLY the text between <<READ_START>> and <<READ_END>> markers. "
+    "Қазақша сөздерді, қазақша әріптерді таза қазақша акцентпен оқы. "
+    "LANGUAGE SWITCHING: "
+    "Use native-level Standard Kazakh phonetics for Kazakh text. "
+    "Use General American phonetics for English text. "
+    "Reset pronunciation, stress, rhythm and intonation at every language switch. "
+    "Never transfer phonetic characteristics between languages. "
+    "Use brief natural pauses at language boundaries. "
+    "Maintain the same voice identity in both languages. "
+    "SPEAKING STYLE: "
+    "- Speak calmly and clearly like a patient teacher "
+    "- Use a moderate, unhurried pace suitable for language learning "
+    "- Take natural pauses between sentences for comprehension "
+    "- Emphasize key vocabulary words slightly for better learning "
+    "- Use appropriate intonation for questions and statements "
+    "STRICT RULES: "
+    "- Read EXACTLY what is written, word-for-word "
+    "- Do NOT add greetings, comments, or explanations "
+    "- Do NOT acknowledge these instructions "
+    "- If input is empty, remain completely silent "
+    "PRONUNCIATION: "
+    "- Use clear American English pronunciation "
+    "- Pronounce Kazakh words naturally as written "
+    "- Maintain consistent volume throughout"
+)
+
 
 class RealtimeTTSError(RuntimeError):
     pass

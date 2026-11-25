@@ -10,8 +10,9 @@ The translator now opens from an authorized profile row through `/translator/`; 
 
 | Feature | Entry point | Model/config source | Input | Output/persistence | Access |
 | --- | --- | --- | --- | --- | --- |
-| Lesson explanation text | `lessons.views.explain_section` | Inline `gpt-5.5`, fallback `gpt-5` | One lesson section inside inline prompt | `Explanation.text` | Superuser POST |
-| Explanation speech | same view → `synthesize_audio_realtime_mp3` | `REALTIME_MODEL`, `cedar` then `alloy` | Generated explanation text | MP3 in `MEDIA_ROOT`, URL string in `Explanation` | Superuser triggers; learners read |
+| Lesson explanation text | `lessons.views.explain_section` | Shared `gpt-6-astra` Responses / empty-output Chat fallback | Authored section prompt | `Explanation.text` | Superuser POST |
+| Explanation speech | same view → `synthesize_audio_realtime_mp3` | `REALTIME_MODEL`, `cedar` then `alloy` | Generated explanation text | New MP3 in `PRIVATE_EXPLANATION_ROOT`, URL in `Explanation`; legacy files in `MEDIA_ROOT` | Superuser triggers; learners read |
+| Live lesson narration | `lessons.views_live` → existing worker | `LIVE_EXPLANATION_MODEL`, independently configured voice | Same authored prompt or exact stored text | Validated MP3 in `LiveExplanation` or its archive; per-section publication | Active superusers generate and review; authorized learners can play the published revision |
 | Lesson chat | `lessons.views.chat_with_gpt` | Inline `gpt-5.5` | Lesson fields + arbitrary question | Browser JSON only | Public POST; no entitlement/quota |
 | Motivation | `lessons.views.motivational_message` | Inline `gpt-5.5` | Static prompt | Browser JSON only | Public POST; no quota |
 | Individual Realtime voice | `mint_realtime_token` + `voice-lesson.js` | `REALTIME_MODEL` | Current pre-existing WIP uses `_content_creator_instructions`; selected lesson is not included | Direct WebRTC audio/text; no server transcript record | Auth + active voice access |
@@ -20,6 +21,10 @@ The translator now opens from an authorized profile row through `/translator/`; 
 | WhatsApp sales reply | `whatsapp_agent.services.generate_sales_reply` | env/settings or `gpt-5` default | Up to eight recent messages plus sales prompt | Outbound WhatsApp message and DB copy | Triggered by webhook |
 | Receipt OCR | `whatsapp_agent.utils` | Tesseract/PDF parser, not an LLM | Downloaded receipt image/PDF | Extracted text and heuristic fields in DB | Triggered by webhook |
 | Legacy helper | `lessons/chatgpt_helper.py` | Inline `gpt-4o` | Content | Text/error string | No active callers; import is broken |
+
+## Private lesson narration experiment
+
+Live generation uses the existing worker. Successful validated takes publish to authorized students; diagnostic previews remain private. Published playback works with Live generation disabled. The operator guide covers transport evidence, configuration, exact rollout and rollback commands, cost limits, and the listening test. [Live explanation operations](LIVE_EXPLANATIONS.md)
 
 ## Realtime transport
 
@@ -48,10 +53,11 @@ Backend explanation TTS instead opens a server WebSocket, collects PCM deltas, c
 
 Prompts are embedded in:
 
-- `lessons/views.py`: content-creator, lesson teacher, four explanation prompts, chat, motivation, translator.
+- `lessons/views.py`: content-creator, lesson teacher, chat, motivation, translator.
+- `lessons/services/explanation_text.py`: the four authored explanation prompts and Astra request contract.
 - `lessons/views_classroom.py`: classroom teacher and control-event syntax.
 - `whatsapp_agent/services.py`: sales facts/language/style.
-- `english_course/utils/realtime_tts.py` and `explain_section`: narration instructions.
+- `english_course/utils/realtime_tts.py` and `english_course/utils/live_defaults.py`: independent narration directions.
 - `lessons/chatgpt_helper.py`: unused legacy prompt.
 
 No prompt ID, version, owner, evaluation set, change log, cost budget, or output schema is recorded.
@@ -67,7 +73,7 @@ Do not overwrite that user change during documentation work. Future task `BUG-00
 | Concern | Evidence/status | Risk | Required direction |
 | --- | --- | --- | --- |
 | Prompt injection | Lesson/roster/transcript data is interpolated; sales Responses input is one composed string rather than a distinct system role | Sales misinformation; instruction override; classroom name/content control strings | Separate trusted instructions/data, delimit, test injection, minimize downstream actions |
-| Output validation | Explanation/chat output is unstructured and inserted as HTML or marked safe | XSS (`SEC-006`) and inconsistent teaching content | Render text safely; optional allowlist sanitizer; schema/quality checks before persistence |
+| Output validation | Historical finding. The lesson page now escapes stored explanations and highlights text nodes. Other AI surfaces require their own review | XSS (`SEC-006`) and inconsistent teaching content | Render text safely; optional allowlist sanitizer; schema/quality checks before persistence |
 | Model selection | Text models hard-coded in multiple functions; Realtime centralized only | Drift, silent cost/behavior differences, test difficulty | `ARCH-003`: model/prompt registry with env-approved defaults and prompt IDs |
 | Timeouts/retries | Realtime mint uses 20s; Meta/Telegram use bounds; OpenAI SDK calls and TTS response have no app deadline | Worker exhaustion and long web requests | Explicit total deadlines, retry classification, background jobs where safe |
 | Fallbacks | Explanation can fall back to another API and voice; sales falls back to Chat Completions then static copy | Double cost/latency and behavior drift | Record attempt/cost; bounded retries; user-safe fallback states |
@@ -86,7 +92,7 @@ Do not overwrite that user change during documentation work. Future task `BUG-00
 
 ```mermaid
 flowchart TD
-    A[Superuser selects section] --> B[Inline section prompt + lesson text]
+    A[Superuser selects section] --> B[Shared authored section prompt + lesson text]
     B --> C[OpenAI text response]
     C -->|empty| D[Fallback text call]
     C --> E[Realtime TTS cedar]

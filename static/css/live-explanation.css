@@ -1,0 +1,6 @@
+.live-preview { overflow-wrap: anywhere; font-size: .9rem; }
+.live-preview details, .live-preview [data-selector] { margin-block: .4rem; }
+.live-preview summary, .live-compare { cursor: pointer; }
+.live-preview select, .live-preview button { max-width: 100%; }
+.live-preview dd { white-space: pre-wrap; margin: 0 0 .4rem; }
+.live-preview [hidden] { display: none !important; }

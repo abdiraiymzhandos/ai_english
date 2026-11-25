@@ -14,6 +14,10 @@
   <meta charset="UTF-8">
   {% include "lessons/includes/app_branding.html" %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% if show_live %}
+  <script defer src="{% static 'js/live-explanation.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/live-explanation.css' %}">
+  {% endif %}
   <title>{{ lesson.title }}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -424,7 +428,7 @@
         transition: transform 0.3s ease;
     }
 
-    .explanation-toggle[aria-expanded="true"] .toggle-icon {
+    [data-explanation][open] > .explanation-toggle .toggle-icon {
         transform: rotate(180deg);
     }
 
@@ -439,6 +443,9 @@
         line-height: 1.8;
         animation: fadeIn 0.3s ease;
     }
+
+    .explanation-content { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .explanation-container [hidden] { display: none !important; }
 
     .explanation-content p {
         margin-bottom: 1rem;
@@ -741,139 +748,31 @@
         {% for word in lesson.vocabulary.splitlines %}
           <p><strong>{{ word }}</strong></p>
         {% endfor %}
-        {% if request.user.is_superuser %}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="vocabulary" data-lesson-id="{{ lesson.id }}">
-              🔍 Түсіндіру
-          </button>
-        {% endif %}
-        <div class="explanation-container">
-          <div class="explanation-toggle"
-               data-bs-toggle="collapse"
-               data-bs-target="#vocabularyCollapse"
-               aria-expanded="false"
-               aria-controls="vocabularyCollapse">
-              <strong>Түсініктеме</strong>
-              <span class="toggle-icon">▼</span>
-          </div>
-          <div class="collapse explanation-content" id="vocabularyCollapse">
-              {{ explanations.vocabulary.text|safe }}
-          </div>
-        </div>
-
-        <!-- Аудио блок тек сыртында қалады -->
-        {% if explanations.vocabulary.audio_url %}
-          <div class="audio-container mt-2">
-            <audio preload="metadata" controls class="w-100">
-              <source src="{{ explanations.vocabulary.audio_url }}" type="audio/mpeg">
-              Браузеріңіз аудионы қолдамайды.
-            </audio>
-          </div>
-        {% endif %}
+        {% include "lessons/includes/explanation.html" with section="vocabulary" original=explanations.vocabulary result=live.vocabulary %}
       </div>
     </div>
 
     <!-- Сабақ мазмұны Section -->
     <div class="lesson-section" id="content-section">
-      <div class="section-content" id="lesson-content">
-        {{ lesson.content|linebreaksbr }}
-        {% if request.user.is_superuser %}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="content" data-lesson-id="{{ lesson.id }}">
-              🔍 Түсіндіру
-          </button>
-        {% endif %}
-        <div class="explanation-container">
-          <div class="explanation-toggle"
-               data-bs-toggle="collapse"
-               data-bs-target="#contentCollapse"
-               aria-expanded="false"
-               aria-controls="contentCollapse">
-              <strong>Түсініктеме</strong>
-              <span class="toggle-icon">▼</span>
-          </div>
-          <div class="collapse explanation-content" id="contentCollapse">
-              {{ explanations.content.text|safe }}
-          </div>
-        </div>
-
-        <!-- Аудио плеер үнемі көрініп тұрады -->
-        {% if explanations.content.audio_url %}
-          <div class="audio-container mt-2">
-            <audio preload="metadata" controls class="w-100">
-              <source src="{{ explanations.content.audio_url }}" type="audio/mpeg">
-              Браузеріңіз аудионы қолдамайды.
-            </audio>
-          </div>
-        {% endif %}
+      <div class="section-content">
+        <div id="lesson-content">{{ lesson.content|linebreaksbr }}</div>
+        {% include "lessons/includes/explanation.html" with section="content" original=explanations.content result=live.content %}
       </div>
     </div>
 
     <!-- Грамматика Section -->
     <div class="lesson-section" id="grammar-section">
-      <div class="section-content" id="lesson-grammar">
-        {{ lesson.grammar|linebreaksbr }}
-        {% if request.user.is_superuser %}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="grammar" data-lesson-id="{{ lesson.id }}">
-              🔍 Түсіндіру
-          </button>
-        {% endif %}
-        <div class="explanation-container">
-          <div class="explanation-toggle"
-               data-bs-toggle="collapse"
-               data-bs-target="#grammarCollapse"
-               aria-expanded="false"
-               aria-controls="grammarCollapse">
-              <strong>Түсініктеме</strong>
-              <span class="toggle-icon">▼</span>
-          </div>
-          <div class="collapse explanation-content" id="grammarCollapse">
-              {{ explanations.grammar.text|safe }}
-          </div>
-        </div>
-
-        <!-- Аудио плеер блок әрдайым көрініп тұрады -->
-        {% if explanations.grammar.audio_url %}
-          <div class="audio-container mt-2">
-            <audio preload="metadata" controls class="w-100">
-              <source src="{{ explanations.grammar.audio_url }}" type="audio/mpeg">
-              Браузеріңіз аудионы қолдамайды.
-            </audio>
-          </div>
-        {% endif %}
+      <div class="section-content">
+        <div id="lesson-grammar">{{ lesson.grammar|linebreaksbr }}</div>
+        {% include "lessons/includes/explanation.html" with section="grammar" original=explanations.grammar result=live.grammar %}
       </div>
     </div>
 
     <!-- Диалог Section -->
     <div class="lesson-section" id="dialogue-section">
-      <div class="section-content" id="lesson-dialogue">
-        {{ lesson.dialogue|linebreaksbr }}
-        {% if request.user.is_superuser %}
-          <button class="btn btn-primary btn-sm mt-2 explain-btn" data-section="dialogue" data-lesson-id="{{ lesson.id }}">
-              🔍 Түсіндіру
-          </button>
-        {% endif %}
-        <div class="explanation-container">
-          <div class="explanation-toggle"
-               data-bs-toggle="collapse"
-               data-bs-target="#dialogueCollapse"
-               aria-expanded="false"
-               aria-controls="dialogueCollapse">
-              <strong>Түсініктеме</strong>
-              <span class="toggle-icon">▼</span>
-          </div>
-          <div class="collapse explanation-content" id="dialogueCollapse">
-              {{ explanations.dialogue.text|safe }}
-          </div>
-        </div>
-
-        <!-- Аудио плеер үнемі көрініп тұрады -->
-        {% if explanations.dialogue.audio_url %}
-          <div class="audio-container mt-2">
-            <audio preload="metadata" controls class="w-100">
-              <source src="{{ explanations.dialogue.audio_url }}" type="audio/mpeg">
-              Браузеріңіз аудионы қолдамайды.
-            </audio>
-          </div>
-        {% endif %}
+      <div class="section-content">
+        <div id="lesson-dialogue">{{ lesson.dialogue|linebreaksbr }}</div>
+        {% include "lessons/includes/explanation.html" with section="dialogue" original=explanations.dialogue result=live.dialogue %}
       </div>
     </div>
   </div>
@@ -1017,8 +916,41 @@
     // ========== 1. ENGLISH WORD HIGHLIGHTING ==========
     function highlightEnglishText(element) {
       if (!element) return;
-      const regex = /(\b[a-zA-Z']+\b)(?![^<>]*>)/g;
-      element.innerHTML = element.innerHTML.replace(regex, '<strong>$1</strong>');
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      for (const node of nodes) {
+        if (node.parentElement.closest('strong')) continue;
+        const parts = node.data.split(/([A-Za-z]+(?:['’‐-][A-Za-z]+)*(?:[ \t,;:!?.’"-]+[A-Za-z]+(?:['’‐-][A-Za-z]+)*)*[.!?,;:]*)/g);
+        if (parts.length === 1) continue;
+        const fragment = document.createDocumentFragment();
+        parts.forEach((part, index) => {
+          if (index % 2) {
+            const strong = document.createElement('strong');
+            strong.textContent = part;
+            fragment.append(strong);
+          } else fragment.append(document.createTextNode(part));
+        });
+        node.replaceWith(fragment);
+      }
+    }
+
+    function showExplanation(root, take) {
+      const url = take.audio_url && new URL(take.audio_url, location.href);
+      if (url && url.origin !== location.origin) throw new Error('Аудио сілтемесі жарамсыз.');
+      const details = root.querySelector('[data-explanation]');
+      const text = details.querySelector('.explanation-content');
+      const player = root.querySelector('audio');
+      text.textContent = take.text || '';
+      highlightEnglishText(text);
+      details.open = false;
+      details.hidden = !take.text;
+      player.parentElement.hidden = !url;
+      if (url && player.src !== url.href) player.src = url.href;
+      if (!url && player.hasAttribute('src')) {
+        player.removeAttribute('src');
+        player.load();
+      }
     }
 
     // ========== 2. ON PAGE LOAD ==========
@@ -1027,7 +959,7 @@
       highlightEnglishText(document.getElementById("lesson-content"));
       highlightEnglishText(document.getElementById("lesson-grammar"));
       highlightEnglishText(document.getElementById("lesson-dialogue"));
-      document.querySelectorAll('.explanation-container').forEach(container => {
+      document.querySelectorAll('.explanation-content').forEach(container => {
         highlightEnglishText(container);
       });
 
@@ -1059,34 +991,21 @@
       explainButtons.forEach(button => {
         button.addEventListener("click", function () {
           const section = button.dataset.section;
-          const lessonId = button.dataset.lessonId;
-          const explanationContainer = button.nextElementSibling;
-          explanationContainer.textContent = "Жүктелуде...";
-          explanationContainer.setAttribute('role', 'status');
-          OqyLoading.json(`/lesson/${lessonId}/explain-section/`, {
+          const url = button.dataset.url;
+          const root = button.closest('.explanation-container');
+          const status = root.querySelector('[data-explanation-status]');
+          status.textContent = 'Жүктелуде…';
+          OqyLoading.json(url, {
             method: "POST",
             headers: {"X-CSRFToken": getCookie('csrftoken')},
             body: new URLSearchParams({section})
           }, {button, timeout: 120000})
           .then(data => {
-            const text = document.createElement('div');
-            text.className = 'alert alert-info';
-            text.style.whiteSpace = 'pre-wrap';
-            text.textContent = data.text;
-            explanationContainer.replaceChildren(text);
-            if (data.audio_url) {
-              const audioUrl = new URL(data.audio_url, location.href);
-              if (audioUrl.origin === location.origin) {
-                const audio = document.createElement('audio');
-                audio.controls = true;
-                audio.preload = 'none';
-                audio.className = 'mt-2 w-100';
-                audio.src = audioUrl.href;
-                explanationContainer.appendChild(audio);
-              }
-            }
+            showExplanation(root, data);
+            root.dispatchEvent(new CustomEvent('realtime-ready', {detail: data}));
+            status.textContent = '';
           })
-          .catch(error => { explanationContainer.textContent = error.message; });
+          .catch(error => { status.textContent = error.message; });
         });
       });
 

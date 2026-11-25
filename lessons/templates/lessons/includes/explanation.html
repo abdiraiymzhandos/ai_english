@@ -1,0 +1,14 @@
+<div class="explanation-container" id="explanation-{{ section }}">
+  {% if request.user.is_active and request.user.is_superuser %}
+    <button type="button" class="btn btn-primary btn-sm mt-2 explain-btn" data-section="{{ section }}" data-url="{% url 'explain_section' lesson.id %}">🔍 Түсіндіру</button>
+    {% if show_live %}{% include "lessons/includes/live_explanation.html" %}{% endif %}
+    <div role="status" data-explanation-status></div>
+  {% endif %}
+  <details data-explanation {% if not original.text %}hidden{% endif %}>
+    <summary class="explanation-toggle"><strong>Түсініктеме</strong><span class="toggle-icon" aria-hidden="true">▼</span></summary>
+    <div class="explanation-content">{{ original.text }}</div>
+  </details>
+  <div class="audio-container mt-2" {% if not original.audio_url %}hidden{% endif %}>
+    <audio controls preload="metadata" class="w-100" aria-label="Сабақ түсініктемесі"{% if original.audio_url %} src="{{ original.audio_url }}"{% endif %}></audio>
+  </div>
+</div>
